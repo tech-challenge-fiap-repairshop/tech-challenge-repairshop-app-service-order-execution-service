@@ -269,12 +269,12 @@ jobs:
             TARGET="dev"
           fi
           
-          REPO_NAME=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, '${TARGET}')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
+          REPO_NAME=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'service-order') && contains(repositoryName, '${TARGET}')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
           if [ -z "$REPO_NAME" ] || [ "$REPO_NAME" = "None" ]; then
-            REPO_NAME=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'repairshop')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
+            REPO_NAME=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'service-order')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
           fi
           if [ -z "$REPO_NAME" ] || [ "$REPO_NAME" = "None" ]; then
-            REPO_NAME="repairshop-repairshop-eks-${TARGET}"
+            REPO_NAME="service-order-execution-service-${TARGET}"
           fi
           echo "target_env=${TARGET}" >> $GITHUB_OUTPUT
           echo "repository_name=${REPO_NAME}" >> $GITHUB_OUTPUT
@@ -434,12 +434,12 @@ jobs:
           
           # Busca dinamicamente o repositório ECR correspondente
           ENV_NAME="${{ steps.env-target.outputs.environment }}"
-          ECR_REPO=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, '${ENV_NAME}')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
+          ECR_REPO=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'service-order') && contains(repositoryName, '${ENV_NAME}')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
           if [ -z "$ECR_REPO" ] || [ "$ECR_REPO" = "None" ]; then
-            ECR_REPO=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'repairshop')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
+            ECR_REPO=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'service-order')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
           fi
           if [ -z "$ECR_REPO" ] || [ "$ECR_REPO" = "None" ]; then
-            ECR_REPO="repairshop-repairshop-eks-${ENV_NAME}"
+            ECR_REPO="service-order-execution-service-${ENV_NAME}"
           fi
           echo "Using ECR Repository: $ECR_REPO"
           
@@ -493,4 +493,4 @@ jobs:
       - name: Wait for Deployment Rollout
         run: |
           echo "Aguardando a inicialização e prontidão dos novos pods..."
-          kubectl rollout status deployment/repairshop-app -n repairshop --timeout=5m
+          kubectl rollout status deployment/service-order-execution-service -n repairshop --timeout=5m

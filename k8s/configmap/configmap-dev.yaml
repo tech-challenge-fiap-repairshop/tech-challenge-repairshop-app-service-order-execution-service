@@ -1,15 +1,23 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: repairshop-config
+  name: service-order-config
   namespace: repairshop
   labels:
-    app: repairshop
+    app: service-order-execution-service
     env: dev
 data:
-  SPRING_APPLICATION_NAME: repairshop
+  SPRING_APPLICATION_NAME: service-order-execution-service
+  SERVER_PORT: "8080"
   SPRING_PROFILES_ACTIVE: dev
-  SPRING_MAIL_HOST: mailpit
-  SPRING_MAIL_PORT: "1025"
   SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/repairshop
+  DYNAMODB_TABLE_NAME: tb-service_order-dev
+  AWS_REGION: us-east-1
+  REGISTER_SERVICE_URL: http://register-service:8081
+  SQS_SERVICE_ORDER_EXECUTION_QUEUE_URL: https://sqs.us-east-1.amazonaws.com/000000000000/service-order-execution-queue-dev
+  SQS_CREATE_PAYMENT_ORDER_QUEUE_URL: https://sqs.us-east-1.amazonaws.com/000000000000/create-payment-order-queue-dev
+  SQS_APPROVE_NOTIFICATION_QUEUE_URL: https://sqs.us-east-1.amazonaws.com/000000000000/approve-notification-queue-dev
+  SQS_PAYMENT_NOTIFICATION_QUEUE_URL: https://sqs.us-east-1.amazonaws.com/000000000000/payment-notification-queue-dev
+  SQS_HEALTH_CHECK_ENABLED: "true"
+  SQS_HEALTH_CHECK_MAX_IDLE: "120"
   LOGGING_LEVEL_COM_CAO_REPAIRSHOP: DEBUG
