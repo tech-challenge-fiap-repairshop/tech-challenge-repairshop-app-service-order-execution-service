@@ -22,7 +22,7 @@
 		<kotlin.version>2.2.21</kotlin.version>
 		<sonar.organization>alexandre-agamin</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-		<sonar.projectKey>alexandre-agamin_tech-challenge-fiap</sonar.projectKey>
+		<sonar.projectKey>alexandre-agamin_tech-challenge-repairshop-app-service-order-execution-service</sonar.projectKey>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 		<tomcat.version>11.0.22</tomcat.version>
 		<postgresql.version>42.7.12</postgresql.version>
