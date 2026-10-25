@@ -27,6 +27,7 @@ spec:
         runAsGroup: 10001
         seccompProfile:
           type: RuntimeDefault
+      terminationGracePeriodSeconds: 45
       containers:
         - name: repairshop
           image: ECR_REGISTRY/repairshop:latest
@@ -73,6 +74,10 @@ spec:
           volumeMounts:
             - name: tmp-volume
               mountPath: /tmp
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 5"]
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
@@ -88,7 +93,7 @@ spec:
             initialDelaySeconds: 60
             periodSeconds: 15
             timeoutSeconds: 3
-            failureThreshold: 5
+            failureThreshold: 3
       volumes:
         - name: tmp-volume
           emptyDir: {}
