@@ -83,26 +83,30 @@ jobs:
       - name: Package application (skip tests)
         run: mvn package -B -ntp -DskipTests
 
-      - name: Start dependencies (Postgres & Mailpit)
-        run: docker compose up -d postgres mailpit
+      - name: Start dependencies (Postgres)
+        run: |
+          docker run -d --name smoke-postgres -e POSTGRES_USER=repairshop -e POSTGRES_PASSWORD=repairshop -e POSTGRES_DB=repairshop -p 5432:5432 postgres:16-alpine
+          sleep 5
 
       - name: Run Application JAR
         env:
           SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL || 'jdbc:postgresql://localhost:5432/repairshop' }}
           SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME || 'repairshop' }}
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD || 'repairshop' }}
-          SPRING_MAIL_HOST: ${{ secrets.SPRING_MAIL_HOST || 'localhost' }}
-          SPRING_MAIL_PORT: ${{ secrets.SPRING_MAIL_PORT || '1025' }}
+          SERVER_PORT: "8080"
+          SQS_HEALTH_CHECK_ENABLED: "false"
+          AWS_REGION: "us-east-1"
           JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv4Stack=true"
         run: |
-          docker run -d --name smoke-jar --network host --add-host mailpit:127.0.0.1 \
+          docker run -d --name smoke-jar --network host \
             -v ${{ github.workspace }}:/app \
             -w /app \
             -e SPRING_DATASOURCE_URL="$SPRING_DATASOURCE_URL" \
             -e SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
             -e SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
-            -e SPRING_MAIL_HOST="$SPRING_MAIL_HOST" \
-            -e SPRING_MAIL_PORT="$SPRING_MAIL_PORT" \
+            -e SERVER_PORT="$SERVER_PORT" \
+            -e SQS_HEALTH_CHECK_ENABLED="$SQS_HEALTH_CHECK_ENABLED" \
+            -e AWS_REGION="$AWS_REGION" \
             -e JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS" \
             eclipse-temurin:24-jre java -jar target/repairshop-0.0.1-SNAPSHOT.jar
 
@@ -112,9 +116,8 @@ jobs:
           for i in {1..30}; do
             if curl -s http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
               echo "Post-Build Smoke Test Passed! Application is UP."
-              docker stop smoke-jar
-              docker rm smoke-jar
-              docker compose down
+              docker stop smoke-jar smoke-postgres
+              docker rm smoke-jar smoke-postgres
               exit 0
             fi
             echo "Waiting..."
@@ -122,9 +125,8 @@ jobs:
           done
           echo "Post-Build Smoke Test Failed! Application log output:"
           docker logs smoke-jar
-          docker stop smoke-jar
-          docker rm smoke-jar
-          docker compose down
+          docker stop smoke-jar smoke-postgres
+          docker rm smoke-jar smoke-postgres
           exit 1
 
   # ==========================================================================
