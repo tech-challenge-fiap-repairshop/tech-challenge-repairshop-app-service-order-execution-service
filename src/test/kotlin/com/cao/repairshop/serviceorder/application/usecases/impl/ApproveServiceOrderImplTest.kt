@@ -107,4 +107,32 @@ class ApproveServiceOrderImplTest {
             approveServiceOrderImpl.execute(UUID.randomUUID(), ApprovalRequest(approved = true))
         }
     }
+
+    @Test
+    fun `should approve service order with empty stock requirements`() {
+        val orderId = UUID.randomUUID()
+        val request = ApprovalRequest(approved = true)
+
+        val serviceOrder = ServiceOrder(
+            id = orderId,
+            customerId = UUID.randomUUID(),
+            vehicleId = UUID.randomUUID(),
+            status = ServiceOrderStatus.WAITING_APPROVAL,
+            enterTime = LocalDateTime.now()
+        )
+
+        every { serviceOrderGateway.findDetailedById(orderId) } returns serviceOrder
+        every { approvalDomainService.approve(serviceOrder) } answers {
+            serviceOrder.status = ServiceOrderStatus.IN_EXECUTION
+            emptyList()
+        }
+        every { serviceOrderGateway.save(any()) } answers { firstArg() }
+
+        val response = approveServiceOrderImpl.execute(orderId, request)
+
+        assertEquals(ServiceOrderStatus.IN_EXECUTION, response.status)
+        verify(exactly = 0) { deductInsumeStock.execute(any(), any()) }
+        verify { serviceOrderGateway.save(serviceOrder) }
+        verify { notifyCustomer.execute(serviceOrder, ServiceOrderStatus.IN_EXECUTION) }
+    }
 }
