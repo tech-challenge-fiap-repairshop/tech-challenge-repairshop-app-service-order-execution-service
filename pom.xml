@@ -14,7 +14,7 @@
 	<groupId>com.cao</groupId>
 	<artifactId>repairshop</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>repairshop</name>
+	<name>tech-challenge-repairshop-app-service-order-execution-service</name>
 	<description>Sistema Integrado de Atendimento e Execução de Serviços para Oficina Mecânica</description>
 
 	<properties>
@@ -23,6 +23,7 @@
 		<sonar.organization>alexandre-agamin</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.projectKey>alexandre-agamin_tech-challenge-repairshop-app-service-order-execution-service</sonar.projectKey>
+		<sonar.projectName>tech-challenge-repairshop-app-service-order-execution-service</sonar.projectName>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 		<tomcat.version>11.0.22</tomcat.version>
 		<postgresql.version>42.7.12</postgresql.version>
