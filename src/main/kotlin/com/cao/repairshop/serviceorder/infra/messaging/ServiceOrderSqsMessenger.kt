@@ -45,7 +45,7 @@ data class CallbackPaymentMessage(
 class ServiceOrderSqsMessenger(
     private val sqsClient: SqsClient,
     private val dynamoRepository: DynamoServiceOrderRepository,
-    private val objectMapper: ObjectMapper,
+    private val objectMapper: ObjectMapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper().findAndRegisterModules(),
     @Value("\${sqs.queue.approve-notification:approve-notification-queue-dev}")
     private val approveNotificationQueue: String,
     @Value("\${sqs.queue.callback-approve:callback-approve-notification-queue-dev}")
