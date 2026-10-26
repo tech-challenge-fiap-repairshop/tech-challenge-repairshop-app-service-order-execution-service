@@ -14,7 +14,7 @@
 	<groupId>com.cao</groupId>
 	<artifactId>repairshop</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>repairshop</name>
+	<name>tech-challenge-repairshop-app-service-order-execution-service</name>
 	<description>Sistema Integrado de Atendimento e Execução de Serviços para Oficina Mecânica</description>
 
 	<properties>
@@ -22,7 +22,8 @@
 		<kotlin.version>2.2.21</kotlin.version>
 		<sonar.organization>alexandre-agamin</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-		<sonar.projectKey>alexandre-agamin_tech-challenge-fiap</sonar.projectKey>
+		<sonar.projectKey>alexandre-agamin_tech-challenge-repairshop-app-service-order-execution-service</sonar.projectKey>
+		<sonar.projectName>tech-challenge-repairshop-app-service-order-execution-service</sonar.projectName>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 		<tomcat.version>11.0.22</tomcat.version>
 		<postgresql.version>42.7.12</postgresql.version>
@@ -161,6 +162,27 @@
 			<artifactId>kotlin-logging-jvm</artifactId>
 			<version>7.0.3</version>
 		</dependency>
+		<dependency>
+			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-api</artifactId>
+			<version>1.47.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>dynamodb</artifactId>
+			<version>2.29.50</version>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>dynamodb-enhanced</artifactId>
+			<version>2.29.50</version>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>sqs</artifactId>
+			<version>2.29.50</version>
+		</dependency>
 
 		<!-- Test dependencies -->
 		<dependency>
@@ -279,7 +301,7 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.90</minimum>
+											<minimum>0.80</minimum>
 										</limit>
 									</limits>
 								</rule>

@@ -23,9 +23,13 @@
 
 - [Visão Geral e Contexto](#-visão-geral-e-contexto)
 - [Ecossistema de Microsserviços e Infraestrutura (Fase 3)](#-ecossistema-de-microsserviços-e-infraestrutura-fase-3)
+  - [Topologia Cloud e Microsserviços](#-ecossistema-de-microsserviços-e-infraestrutura-fase-3)
+  - [Repositórios da Organização](#repositórios-da-organização)
+  - [Governança Técnica: Decisões Arquiteturais (ADRs) e Propostas Técnicas (RFCs)](#-governança-técnica-decisões-arquiteturais-adrs-e-propostas-técnicas-rfcs)
 - [Arquitetura de Software](#-arquitetura-de-software)
   - [Domain-Driven Design (DDD)](#domain-driven-design-ddd)
   - [Clean Architecture (Módulos de Domínio)](#clean-architecture-módulos-de-domínio)
+  - [Diagrama de Sequência (Autenticação e Abertura de OS)](#-diagrama-de-sequência-autenticação-e-abertura-de-ordem-de-serviço-os)
 - [Arquitetura Cloud & Orquestração Kubernetes (`k8s/`)](#-arquitetura-cloud--orquestração-kubernetes-k8s)
   - [Topologia Cloud e Orquestração](#topologia-cloud-e-orquestração)
   - [Práticas de Resiliência Cloud-Native](#práticas-de-resiliência-cloud-native)
@@ -60,7 +64,7 @@ O **RepairShop** é uma solução corporativa desenvolvida para digitalizar e ot
 | :--- | :--- | :--- |
 | **Fase 1** | **Domínio e Modelagem de Negócio** | Aplicação de DDD estratégico e tático, Clean Architecture modular, regras de integridade transacional, CRUDs completos e cobertura de testes unitários/integrados com banco de dados. |
 | **Fase 2** | **Orquestração e Escalabilidade** | Conteinerização Docker multi-stage, orquestração Kubernetes com HPA (autoscaling por CPU), instrumentação com OpenTelemetry e automação de deploys. |
-| **Fase 3** | **Desacoplamento Cloud e Microsserviços** | Desmembramento da infraestrutura em repositórios dedicados gerenciados via Terraform, criação do microsserviço de autenticação Serverless (AWS Lambda Java 21), roteamento unificado via AWS API Gateway HTTP v2, isolamento de rede VPC privada com RDS PostgreSQL e esteiras de GitOps multi-ambiente (`dev`, `hml`, `prd`). |
+| **Fase 3** | **Desacoplamento Cloud e Microsserviços** | Desmembramento da infraestrutura em repositórios dedicados gerenciados via Terraform, criação do microsserviço de autenticação Serverless (AWS Lambda Java 21), roteamento unificado via AWS API Gateway HTTP v2, isolamento de rede VPC privada com RDS PostgreSQL, governança técnica formal com RFCs e ADRs, e esteiras de GitOps multi-ambiente (`dev`, `hml`, `prd`). |
 
 ---
 
@@ -114,6 +118,53 @@ flowchart TD
 6. **[`tech-challenge-repairshop-infra-db-rds`](https://github.com/fiap-postech-repairshop/tech-challenge-repairshop-infra-db-rds):** Provisionamento da instância gerenciada AWS RDS PostgreSQL 16 nas sub-redes privadas com Security Group dedicado (`aws_security_group.rds`).
 7. **[`tech-challenge-wiki-docs`](https://github.com/fiap-postech-repairshop/tech-challenge-wiki-docs):** Documentação centralizada da arquitetura, ADRs, diagramas estruturados e scripts de orquestração unificada (`create_all_infra` / `destroy_all_infra`).
 
+### 📜 Governança Técnica: Decisões Arquiteturais (ADRs) e Propostas Técnicas (RFCs)
+
+Como pilar central da evolução da **Fase 3**, todas as decisões de engenharia — incluindo migração cloud-native, segregação em micro-repositórios, modelo serverless de autenticação, governança de redes e banco de dados isolado, automação CI/CD e telemetria — foram desenvolvidas seguindo um modelo rigoroso de maturidade: discussão em **RFCs (Requests for Comments)** e formalização em **ADRs (Architecture Decision Records)** no padrão de Michael Nygard.
+
+```
+[ Necessidade / Demanda ] ──> [ RFC (Proposta Técnica & Alternativas) ] ──> [ Discussão & Consenso ] ──> [ ADR (Decisão Consolidada) ] ──> [ Entrega IaC / App ]
+```
+
+#### 🏛️ Catálogo de ADRs (Architecture Decision Records)
+> 📁 A documentação completa com contexto, decisão detalhada, consequências, trade-offs e mitigações está disponível no diretório [`ADRs/`](ADRs/README.md).
+
+| ADR | Decisão Arquitetural | Status | Domínio | Impacto Principal na Fase 3 |
+| :--- | :--- | :---: | :--- | :--- |
+| **[ADR-001](ADRs/ADR-001-linguagem-e-framework-aplicacao-principal.md)** | Adoção de Kotlin e Spring Boot com Clean Architecture e DDD | `Aceito` | Aplicação / Core | Preservação do domínio isolado de frameworks e manutenção de contratos ricos. |
+| **[ADR-002](ADRs/ADR-002-banco-de-dados-relacional-postgresql.md)** | PostgreSQL via AWS RDS e Versionamento com Flyway | `Aceito` | Dados / Persistência | Instância gerenciada em sub-redes privadas com migrações de schema automatizadas. |
+| **[ADR-003](ADRs/ADR-003-desmembramento-em-micro-repositorios-e-governanca-git.md)** | Desmembramento da Arquitetura em Múltiplos Repositórios Especializados e Governança Git | `Aceito` | Governança / Repositórios | Isolamento do ciclo de vida em 7 repositórios independentes e fluxo `branch -> homolog -> main`. |
+| **[ADR-004](ADRs/ADR-004-infraestrutura-como-codigo-terraform-e-ambientes.md)** | Provisionamento de Infraestrutura como Código com Terraform e Ambientes | `Aceito` | Infraestrutura / IaC | Automação declarativa de IaC com workspaces/diretórios segregados (`dev`, `hml`, `prd`). |
+| **[ADR-005](ADRs/ADR-005-topologia-de-rede-vpc-e-security-groups-descentralizados.md)** | Topologia de Rede VPC Unificada e Security Groups Descentralizados | `Aceito` | Redes / Segurança | Princípio de privilégio mínimo: cada componente provisiona e gerencia seus próprios Security Groups. |
+| **[ADR-006](ADRs/ADR-006-orquestracao-de-conteineres-com-kubernetes-aws-eks.md)** | Orquestração de Contêineres com AWS EKS e Escalonamento com HPA | `Aceito` | Computação / EKS | Deploy resiliente no Kubernetes gerenciado com auto-scaling horizontal orientado a carga de CPU. |
+| **[ADR-007](ADRs/ADR-007-microsservico-serverless-de-autenticacao-aws-lambda-auth.md)** | Microsserviço Serverless AWS Lambda Auth (Java 21) e JWT Stateless | `Aceito` | Segurança / Serverless | Desacoplamento da autenticação com custo sob demanda e emissão padronizada de JWT por CPF. |
+| **[ADR-008](ADRs/ADR-008-ponto-unico-de-entrada-com-aws-api-gateway.md)** | Ponto Único de Entrada com AWS API Gateway (HTTP API v2) | `Aceito` | Ingress / Gateway | Roteamento unificado e transparente entre Lambda Serverless (`/auth/*`) e Pods EKS (`/{proxy+}`). |
+| **[ADR-009](ADRs/ADR-009-pilha-de-observabilidade-unificada-opentelemetry.md)** | Pilha de Observabilidade Unificada com OpenTelemetry, Prometheus, Jaeger e Loki | `Aceito` | Observabilidade | Rastreamento distribuído com OTel Java Agent, métricas de negócio e dashboards executivos no Grafana. |
+| **[ADR-010](ADRs/ADR-010-esteira-ci-cd-automacao-de-testes-e-quality-gate.md)** | Automação de CI/CD com GitHub Actions, Testcontainers, Trivy e SonarCloud | `Aceito` | CI/CD / Qualidade | Esteira automatizada de build, testes integrados com banco efêmero, scan de CVEs e Quality Gate estrito. |
+| **[ADR-011](ADRs/ADR-011-notificacoes-assincronas-e-ambiente-de-emulacao-email.md)** | Notificações de Status de Ordem de Serviço e Interceptação com Mailpit | `Aceito` | Notificações / Testes | Comunicação assíncrona para transições de status da OS e ambiente seguro de emulação de e-mails. |
+| **[ADR-012](ADRs/ADR-012-procedimento-seguro-de-destruicao-de-infraestrutura.md)** | Procedimento Controlado de Destruição de Infraestrutura com Safety Gate | `Aceito` | DevOps / Teardown | Proteção contra deleções acidentais via Safety Gate de confirmação (`CONFIRM_DESTROY=true`). |
+| **[ADR-013](ADRs/ADR-013-substituicao-do-mailhog-pelo-mailpit-para-testes-de-email.md)** | Substituição do MailHog pelo Mailpit como Servidor SMTP de Testes | `Aceito` | Emulação / SMTP | Solução moderna e ativa em Go para testes de entrega de e-mail e inspeção via UI/API REST. |
+
+#### 📜 Catálogo de RFCs (Requests for Comments)
+> 📁 A documentação completa com motivação, alternativas descartadas e propostas técnicas detalhadas está disponível no diretório [`RFCs/`](RFCs/README.md).
+
+| RFC | Proposta Técnica | Status | ADR Vinculada | Domínio / Área |
+| :--- | :--- | :---: | :---: | :--- |
+| **[RFC-001](RFCs/RFC-001-adocao-kotlin-spring-boot-clean-architecture.md)** | Adoção de Kotlin e Spring Boot com Clean Architecture e DDD | `Encerrada – Aprovada` | [ADR-001](ADRs/ADR-001-linguagem-e-framework-aplicacao-principal.md) | Aplicação / Core |
+| **[RFC-002](RFCs/RFC-002-banco-de-dados-relacional-postgresql-rds.md)** | Escolha do Banco de Dados Relacional PostgreSQL via RDS e Flyway | `Encerrada – Aprovada` | [ADR-002](ADRs/ADR-002-banco-de-dados-relacional-postgresql.md) | Dados / Persistência |
+| **[RFC-003](RFCs/RFC-003-desmembramento-em-micro-repositorios-e-governanca-git.md)** | Desmembramento da Arquitetura em Múltiplos Repositórios e Governança Git | `Encerrada – Aprovada` | [ADR-003](ADRs/ADR-003-desmembramento-em-micro-repositorios-e-governanca-git.md) | Governança / Repositórios |
+| **[RFC-004](RFCs/RFC-004-infraestrutura-como-codigo-terraform-e-ambientes.md)** | Provisionamento de Infraestrutura como Código com Terraform | `Encerrada – Aprovada` | [ADR-004](ADRs/ADR-004-infraestrutura-como-codigo-terraform-e-ambientes.md) | Infraestrutura / IaC |
+| **[RFC-005](RFCs/RFC-005-topologia-de-rede-vpc-e-security-groups-descentralizados.md)** | Topologia de Rede VPC Unificada e Security Groups Descentralizados | `Encerrada – Aprovada` | [ADR-005](ADRs/ADR-005-topologia-de-rede-vpc-e-security-groups-descentralizados.md) | Redes / Segurança |
+| **[RFC-006](RFCs/RFC-006-orquestracao-de-conteineres-com-kubernetes-aws-eks.md)** | Orquestração de Contêineres com AWS EKS e Escalonamento com HPA | `Encerrada – Aprovada` | [ADR-006](ADRs/ADR-006-orquestracao-de-conteineres-com-kubernetes-aws-eks.md) | Computação / Orquestração |
+| **[RFC-007](RFCs/RFC-007-microsservico-serverless-de-autenticacao-aws-lambda-auth.md)** | Isolamento do Serviço de Autenticação em AWS Lambda e JWT Stateless | `Encerrada – Aprovada` | [ADR-007](ADRs/ADR-007-microsservico-serverless-de-autenticacao-aws-lambda-auth.md) | Segurança / Serverless |
+| **[RFC-008](RFCs/RFC-008-ponto-unico-de-entrada-com-aws-api-gateway.md)** | Ponto Único de Entrada com AWS API Gateway (HTTP API v2) | `Encerrada – Aprovada` | [ADR-008](ADRs/ADR-008-ponto-unico-de-entrada-com-aws-api-gateway.md) | Ingress / Gateway |
+| **[RFC-009](RFCs/RFC-009-pilha-de-observabilidade-unificada-opentelemetry.md)** | Pilha de Observabilidade Unificada com OpenTelemetry, Prometheus e Grafana | `Encerrada – Aprovada` | [ADR-009](ADRs/ADR-009-pilha-de-observabilidade-unificada-opentelemetry.md) | Observabilidade / Telemetria |
+| **[RFC-010](RFCs/RFC-010-esteira-ci-cd-automacao-de-testes-e-quality-gate.md)** | Automação de CI/CD com GitHub Actions, Testes, Trivy e SonarCloud | `Encerrada – Aprovada` | [ADR-010](ADRs/ADR-010-esteira-ci-cd-automacao-de-testes-e-quality-gate.md) | CI/CD / Qualidade |
+| **[RFC-011](RFCs/RFC-011-notificacoes-assincronas-e-ambiente-de-emulacao-email.md)** | Notificações de Status de OS e Interceptação com Mailpit | `Encerrada – Aprovada` | [ADR-011](ADRs/ADR-011-notificacoes-assincronas-e-ambiente-de-emulacao-email.md) | Notificações / Testes |
+| **[RFC-012](RFCs/RFC-012-procedimento-seguro-de-destruicao-de-infraestrutura.md)** | Procedimento Controlado de Destruição de Infraestrutura com Safety Gate | `Encerrada – Aprovada` | [ADR-012](ADRs/ADR-012-procedimento-seguro-de-destruicao-de-infraestrutura.md) | DevOps / Operação |
+| **[RFC-013](RFCs/RFC-013-substituicao-do-mailhog-pelo-mailpit-para-testes-de-email.md)** | Substituição do MailHog pelo Mailpit como Servidor SMTP de Testes | `Encerrada – Aprovada` | [ADR-013](ADRs/ADR-013-substituicao-do-mailhog-pelo-mailpit-para-testes-de-email.md) | Emulação / SMTP |
+| **[RFC-014](RFCs/RFC-014-dashboard-executivo-grafana-metricas-gerenciais-e-negocio.md)** | Dashboard Executivo e Exposição de Métricas de Negócio com Grafana | `Encerrada – Aprovada` | [ADR-009](ADRs/ADR-009-pilha-de-observabilidade-unificada-opentelemetry.md) | Observabilidade / Negócios |
+
 ---
 
 ## 🏛️ Arquitetura de Software
@@ -165,6 +216,36 @@ src/main/kotlin/com/cao/repairshop/
   <br><br>
 </div>
 
+### 🔄 Diagrama de Sequência: Autenticação e Abertura de Ordem de Serviço (OS)
+
+O fluxo ponta a ponta abrange desde a validação defensiva de credenciais e emissão do token JWT na borda (AWS Lambda Auth) até a autorização via Spring Security, a execução transacional do caso de uso de abertura de Ordem de Serviço (OS) e a persistência consistente no PostgreSQL RDS, com rastreabilidade distribuída via OpenTelemetry:
+
+<div align="center">
+  <img src="docs/delivery/sequence/diagrama_sequencia_auth_abertura_os.drawio.png" alt="Diagrama de Sequência da Autenticação até a Abertura de Ordem de Serviço (OS)" width="950">
+  <br>
+  <em><small><strong>Figura 3: Diagrama de Sequência: Autenticação (Lambda Java 21) até Abertura de OS (Spring Boot / EKS)</strong></small></em>
+  <br><br>
+</div>
+
+> 💡 **Arquivos do Diagrama de Sequência no Repositório:**
+> - [diagrama_sequencia_auth_abertura_os.drawio.png](docs/delivery/sequence/diagrama_sequencia_auth_abertura_os.drawio.png) *(Imagem PNG de alta resolução para visualização direta)*
+> - [diagrama_sequencia_auth_abertura_os.drawio.svg](docs/delivery/sequence/diagrama_sequencia_auth_abertura_os.drawio.svg) *(Renderização vetorial SVG)*
+> - [diagrama_sequencia_auth_abertura_os.drawio](docs/delivery/sequence/diagrama_sequencia_auth_abertura_os.drawio) *(Arquivo de modelagem editável no Diagrams.net / Draw.io)*
+
+#### Detalhamento das Fases do Fluxo:
+1. **Fase 1 — Autenticação e Emissão de Token JWT (`POST /auth/login`):**
+   - **Borda & Roteamento:** O cliente envia CPF e senha ao AWS API Gateway HTTP v2, que roteia a requisição via integração `AWS_PROXY` para a função Serverless **AWS Lambda Auth** (desenvolvida em Java 21 sob os princípios de Clean Architecture).
+   - **Validação Defensiva:** O `InputValidator` valida formato e dígitos verificadores do CPF antes de qualquer chamada interna (retornando `400 Bad Request` imediatamente caso inválido).
+   - **Autenticação:** O caso de uso `AuthenticateUseCase` aciona o backend via OpenFeign Client (`POST /auth/login`). A aplicação consulta a entidade `User` no PostgreSQL e valida a senha criptografada via BCrypt.
+   - **Emissão & Headers OWASP:** O `JwtService` emite o token assinado (HMAC-SHA256, expiração de 24h). A Lambda injeta cabeçalhos de proteção (`HSTS`, `X-Frame-Options`, `X-Content-Type-Options`, `Cache-Control: no-store`) e retorna o payload com `200 OK`.
+2. **Fase 2 — Abertura de Ordem de Serviço (OS) Protegida (`POST /service-orders`):**
+   - **Roteamento & Proxy:** O cliente envia `POST /service-orders` com cabeçalho `Authorization: Bearer <token>`. O API Gateway intercepta via rota catch-all `ANY /{proxy+}` e encaminha via Load Balancer (NLB) aos Pods da aplicação no EKS (namespace `repairshop`).
+   - **Segurança (Spring Security):** O `JwtAuthenticationFilter` intercepta a chamada, valida a assinatura e expiração do JWT via `JwtService` e registra o usuário no `SecurityContextHolder` (retornando `401 Unauthorized` se o token for inválido ou ausente).
+   - **Caso de Uso Transacional:** O controller valida o payload (`@Valid CreateServiceOrderRequest`) e invoca `CreateServiceOrderImpl` em contexto `@Transactional`.
+   - **Consistência de Domínio:** São validados e recuperados o Cliente (`CustomerGateway`) e o Veículo (`VehicleGateway`). A entidade agregadora `ServiceOrder` é instanciada e os insumos de cada serviço são resolvidos (`InsumeGateway`) e calculados via `order.addExecution`.
+   - **Persistência & Notificação:** O status inicial `RECEIVED` é registrado no histórico (`order.recordHistory`), a OS é persistida no PostgreSQL (`ServiceOrderGateway.save`), a notificação ao cliente é disparada (`NotifyCustomer`) e spans de rastreamento W3C são enviados assincronamente ao **OTel Collector**.
+   - **Resposta:** A API retorna status HTTP `201 Created` contendo o payload estruturado da Ordem de Serviço.
+
 ---
 
 ## ☸️ Arquitetura Cloud & Orquestração Kubernetes (`k8s/`)
@@ -176,7 +257,7 @@ A aplicação opera conteinerizada e orquestrada no **Amazon Elastic Kubernetes 
 <div align="center">
   <img src="docs/delivery/infrastructure/repairshop-diagrama-infra-cloud.svg" alt="Diagrama de Infraestrutura Cloud e Orquestração EKS" width="900">
   <br>
-  <em><small><strong>Figura 3: Topologia Integrada da Infraestrutura AWS e Orquestração Kubernetes</strong></small></em>
+  <em><small><strong>Figura 4: Topologia Integrada da Infraestrutura AWS e Orquestração Kubernetes</strong></small></em>
   <br><br>
 </div>
 
@@ -717,6 +798,9 @@ A base de código conta com uma ampla suíte de testes unitários e de integraç
 
 ## 📚 Documentação DDD e Artefatos Complementares
 
+- 🏛️ **[Architecture Decision Records (ADRs)](ADRs/README.md):** Catálogo com 13 decisões arquiteturais formais no padrão de Michael Nygard abrangendo domínio, nuvem AWS, segurança e CI/CD.
+- 📜 **[Requests for Comments (RFCs)](RFCs/README.md):** Catálogo com 14 propostas técnicas que nortearam as discussões e alternativas arquiteturais antes da implementação na Fase 3.
+- 🔄 **[Diagrama de Sequência (Autenticação e Abertura de OS)](docs/delivery/sequence/):** Fluxo temporal ponta a ponta disponível nos formatos [`.png`](docs/delivery/sequence/diagrama_sequencia_auth_abertura_os.drawio.png) *(imagem)*, [`.svg`](docs/delivery/sequence/diagrama_sequencia_auth_abertura_os.drawio.svg) *(vetorial)* e [`.drawio`](docs/delivery/sequence/diagrama_sequencia_auth_abertura_os.drawio) *(editável)*.
 - 📄 **[Dicionário de Linguagem Ubíqua](docs/delivery/domain_driven_design/dicionario-linguagem-ubiqua.md):** Glossário oficial dos termos e conceitos do domínio da oficina.
 - 🗺️ **[Artefatos de Domain-Driven Design](docs/delivery/domain_driven_design/):** Diagramas exportados do Event Storming, Storytelling e fluxos de negócio.
 - 👥 **[Especificações por Papel SDD (Software Design Document)](https://github.com/fiap-postech-repairshop/tech-challenge-wiki-docs/tree/main/sdd):** Diretrizes, responsabilidades e *Definition of Done* por papel técnico (Arquiteto, DevSecOps, Tech Lead, QA e PO), centralizadas no repositório [`tech-challenge-wiki-docs`](https://github.com/fiap-postech-repairshop/tech-challenge-wiki-docs).

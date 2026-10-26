@@ -1,0 +1,355 @@
+<mxfile host="app.diagrams.net" agent="Antigravity AI Architecture Agent">
+  <diagram id="diag_auth_to_os" name="Autenticação e Abertura de OS">
+    <mxGraphModel dx="1749" dy="1012" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1950" pageHeight="2050" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#0F172A;fontColor=#FFFFFF;fontSize=16;fontFamily=Helvetica;align=center;verticalAlign=middle;shadow=1;arcSize=10;" value="&lt;b&gt;DIAGRAMA DE SEQUÊNCIA: AUTENTICAÇÃO E FLUXO DE ABERTURA DE ORDEM DE SERVIÇO (OS)&lt;/b&gt;&lt;br/&gt;&lt;span style=&quot;font-size: 13px; font-weight: normal; opacity: 0.9;&quot;&gt;Ecossistema Tech Challenge RepairShop &amp;bull; AWS API Gateway + Lambda Auth (Clean Arch / Java 21) + EKS (Spring Boot / Kotlin) + Amazon RDS PostgreSQL + OpenTelemetry&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="1780" x="70" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="3" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;fillColor=#E8EEF5;strokeColor=#3F51B5;fontColor=#1A237E;fontStyle=1;fontSize=11;align=center;" value="👤 Ator / Cliente&#xa;(Atendente / Frontend)" vertex="1">
+          <mxGeometry height="1680" width="130" x="70" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="4" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;fillColor=#FFE0B2;strokeColor=#E65100;fontColor=#BF360C;fontStyle=1;fontSize=11;align=center;" value="🚪 AWS API Gateway&#xa;(HTTP API v2)" vertex="1">
+          <mxGeometry height="1680" width="140" x="300" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="5" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;fontColor=#4A148C;fontStyle=1;fontSize=11;align=center;" value="⚡ AWS Lambda Auth&#xa;(Clean Arch / Java 21)" vertex="1">
+          <mxGeometry height="1680" width="150" x="530" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="6" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;fillColor=#E1F5FE;strokeColor=#0288D1;fontColor=#01579B;fontStyle=1;fontSize=11;align=center;" value="⚖️ AWS Load Balancer&#xa;(ALB / Ingress EKS)" vertex="1">
+          <mxGeometry height="1680" width="140" x="770" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="7" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontColor=#1B5E20;fontStyle=1;fontSize=11;align=center;" value="🛡️ Spring Security&#xa;(JwtAuthFilter &amp; Service)" vertex="1">
+          <mxGeometry height="1680" width="150" x="1000" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="8" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;fillColor=#E0F2F1;strokeColor=#00796B;fontColor=#004D40;fontStyle=1;fontSize=11;align=center;" value="⚙️ Backend Core (App)&#xa;(Controllers &amp; UseCases)" vertex="1">
+          <mxGeometry height="1680" width="160" x="1240" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="9" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontColor=#0D47A1;fontStyle=1;fontSize=11;align=center;" value="🗄️ Amazon RDS&#xa;(PostgreSQL DB)" vertex="1">
+          <mxGeometry height="1680" width="140" x="1490" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="10" parent="1" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=1;fillColor=#EDE7F6;strokeColor=#512DA8;fontColor=#311B92;fontStyle=1;fontSize=11;align=center;" value="📊 OTel Collector&#xa;(Jaeger / Prometheus)" vertex="1">
+          <mxGeometry height="1680" width="140" x="1710" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="11" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;width=420;height=30;boundedLbl=1;verticalAlign=top;align=left;spacingLeft=10;fillColor=#FFF8E1;strokeColor=#FFA000;strokeWidth=1.5;fontColor=#B78103;dashed=0;opacity=40;" value="&lt;b&gt;FASE 1: AUTENTICAÇÃO E EMISSÃO DE TOKEN JWT (POST /auth/login)&lt;/b&gt;" vertex="1">
+          <mxGeometry height="470" width="1820" x="50" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="12" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#1565C0;fontColor=#1565C0;fontSize=11;strokeWidth=1.5;entryX=0.5;entryY=0;" value="1. POST /auth/login { &quot;cpf&quot;: &quot;123.456.789-00&quot;, &quot;password&quot;: &quot;***&quot; }">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="135" y="220" as="sourcePoint" />
+            <mxPoint x="370" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="13" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#E65100;fontColor=#E65100;fontSize=11;strokeWidth=1.5;entryX=0.5;entryY=0;" value="2. Rota POST /auth/login -&gt; Dispara AWS_PROXY (APIGatewayProxyRequestEvent)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="255" as="sourcePoint" />
+            <mxPoint x="605" y="255" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="14" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#7B1FA2;fontColor=#7B1FA2;fontSize=10;strokeWidth=1.2;" value="3. InputValidator: Validação estrita de formato e dígitos do CPF">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="640" y="285" />
+              <mxPoint x="640" y="310" />
+            </Array>
+            <mxPoint x="605" y="285" as="sourcePoint" />
+            <mxPoint x="645" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="15" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;width=190;height=22;boundedLbl=1;verticalAlign=top;align=left;spacingLeft=5;fillColor=#FFEBEE;strokeColor=#E53935;fontColor=#C62828;dashed=1;fontSize=10;" value="&lt;b&gt;[alt: CPF com Formato Inválido]&lt;/b&gt;" vertex="1">
+          <mxGeometry height="65" width="530" x="110" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="16" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#C62828;fontColor=#C62828;fontSize=11;strokeWidth=1.2;" value="4a. [Erro] 400 Bad Request { &quot;error&quot;: &quot;CPF inválido&quot; }">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="605" y="345" as="sourcePoint" />
+            <mxPoint x="370" y="345" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="17" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#C62828;fontColor=#C62828;fontSize=11;strokeWidth=1.2;" value="4b. Retorna 400 Bad Request ao Cliente">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="365" as="sourcePoint" />
+            <mxPoint x="135" y="365" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="18" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#7B1FA2;fontColor=#7B1FA2;fontSize=11;strokeWidth=1.5;entryX=0.5;entryY=0;" value="5. AuthenticateUseCase -&gt; AuthFeignAdapter: POST /auth/login (Credenciais)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="605" y="415" as="sourcePoint" />
+            <mxPoint x="1320" y="415" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="19" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#00695C;fontColor=#00695C;fontSize=11;strokeWidth=1.5;entryX=0.5;entryY=0;" value="6. UserGatewayImplJPA: SELECT * FROM users WHERE cpf = ?">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1320" y="450" as="sourcePoint" />
+            <mxPoint x="1560" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="20" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#0277BD;fontColor=#0277BD;fontSize=11;strokeWidth=1.2;" value="7. Retorna Entidade User (Hash BCrypt)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1560" y="485" as="sourcePoint" />
+            <mxPoint x="1320" y="485" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="21" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#00695C;fontColor=#00695C;fontSize=10;strokeWidth=1.2;" value="8. Valida senha (BCrypt.checkpw) &amp; JwtService.generateToken(user)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1355" y="510" />
+              <mxPoint x="1355" y="535" />
+            </Array>
+            <mxPoint x="1320" y="510" as="sourcePoint" />
+            <mxPoint x="1360" y="535" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="22" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#00796B;fontColor=#00796B;fontSize=11;strokeWidth=1.2;" value="9. Retorna TokenResponse { token, type: &quot;Bearer&quot;, expiresIn: 86400, cpf }">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1320" y="555" as="sourcePoint" />
+            <mxPoint x="605" y="555" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="23" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#7B1FA2;fontColor=#7B1FA2;fontSize=10;strokeWidth=1.2;" value="10. Injeta Headers OWASP (HSTS, X-Content-Type, X-Frame, Cache-Control)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="640" y="575" />
+              <mxPoint x="640" y="600" />
+            </Array>
+            <mxPoint x="605" y="575" as="sourcePoint" />
+            <mxPoint x="645" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="24" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#6A1B9A;fontColor=#6A1B9A;fontSize=11;strokeWidth=1.2;" value="11. Resposta 200 OK + Body Token + Headers OWASP">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="605" y="615" as="sourcePoint" />
+            <mxPoint x="370" y="615" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#1565C0;fontColor=#1565C0;fontSize=11;strokeWidth=1.2;" value="12. 200 OK: { &quot;token&quot;: &quot;Bearer eyJhbGci...&quot;, &quot;expiresIn&quot;: 86400 } (Cliente salva o token)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="640" as="sourcePoint" />
+            <mxPoint x="135" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="26" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;width=490;height=30;boundedLbl=1;verticalAlign=top;align=left;spacingLeft=10;fillColor=#E8F5E9;strokeColor=#43A047;strokeWidth=1.5;fontColor=#1B5E20;dashed=0;opacity=40;" value="&lt;b&gt;FASE 2: ABERTURA DE ORDEM DE SERVIÇO (OS) PROTEGIDA (POST /service-orders)&lt;/b&gt;" vertex="1">
+          <mxGeometry height="1080" width="1820" x="50" y="680" as="geometry" />
+        </mxCell>
+        <mxCell id="27" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#1565C0;fontColor=#1565C0;fontSize=11;strokeWidth=1.5;entryX=0.5;entryY=0;" value="13. POST /service-orders [Header: Authorization: Bearer &lt;token&gt;] [Body: CreateServiceOrderRequest]">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="135" y="720" as="sourcePoint" />
+            <mxPoint x="370" y="720" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="28" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#E65100;fontColor=#E65100;fontSize=11;strokeWidth=1.5;entryX=0.5;entryY=0;" value="14. Rota ANY /{proxy+} -&gt; Integração HTTP_PROXY (Load Balancer EKS :8080)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="760" as="sourcePoint" />
+            <mxPoint x="840" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="29" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#0288D1;fontColor=#0288D1;fontSize=11;strokeWidth=1.5;entryX=0.5;entryY=0;" value="15. Encaminha requisição ao Pod da Aplicação (Namespace: repairshop)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="840" y="800" as="sourcePoint" />
+            <mxPoint x="1075" y="800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="30" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#2E7D32;fontColor=#2E7D32;fontSize=10;strokeWidth=1.2;" value="16. JwtAuthenticationFilter: Intercepta e extrai Token do Header Authorization">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1110" y="825" />
+              <mxPoint x="1110" y="850" />
+            </Array>
+            <mxPoint x="1075" y="825" as="sourcePoint" />
+            <mxPoint x="1115" y="850" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="31" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#2E7D32;fontColor=#2E7D32;fontSize=10;strokeWidth=1.2;" value="17. JwtService.validateToken(): Valida assinatura HMAC-SHA256 e tempo de expiração">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1110" y="860" />
+              <mxPoint x="1110" y="885" />
+            </Array>
+            <mxPoint x="1075" y="860" as="sourcePoint" />
+            <mxPoint x="1115" y="885" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="32" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;width=240;height=22;boundedLbl=1;verticalAlign=top;align=left;spacingLeft=5;fillColor=#FFEBEE;strokeColor=#E53935;fontColor=#C62828;dashed=1;fontSize=10;" value="&lt;b&gt;[alt: Token Ausente, Inválido ou Expirado]&lt;/b&gt;" vertex="1">
+          <mxGeometry height="75" width="1000" x="110" y="895" as="geometry" />
+        </mxCell>
+        <mxCell id="33" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#C62828;fontColor=#C62828;fontSize=11;strokeWidth=1.2;" value="18a. [Erro] 401 Unauthorized (JWT Inválido ou Expirado)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1075" y="925" as="sourcePoint" />
+            <mxPoint x="840" y="925" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="34" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#C62828;fontColor=#C62828;fontSize=11;strokeWidth=1.2;" value="18b. Repassa 401">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="840" y="945" as="sourcePoint" />
+            <mxPoint x="370" y="945" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="35" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#C62828;fontColor=#C62828;fontSize=11;strokeWidth=1.2;" value="18c. Retorna 401 Unauthorized ao Cliente">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="960" as="sourcePoint" />
+            <mxPoint x="135" y="960" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="36" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#2E7D32;fontColor=#2E7D32;fontSize=10;strokeWidth=1.2;" value="19. SecurityContextHolder: Autenticação do Usuário é registrada no contexto">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1110" y="995" />
+              <mxPoint x="1110" y="1020" />
+            </Array>
+            <mxPoint x="1075" y="995" as="sourcePoint" />
+            <mxPoint x="1115" y="1020" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="37" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#00796B;fontColor=#00796B;fontSize=11;strokeWidth=1.5;entryX=0.5;entryY=0;" value="20. ServiceOrderController.create(@Valid request) -&gt; CreateServiceOrder.execute()">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1075" y="1035" as="sourcePoint" />
+            <mxPoint x="1320" y="1035" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="38" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#004D40;fontColor=#004D40;fontSize=10;strokeWidth=1.2;" value="21. CreateServiceOrderImpl: Inicia transação de negócio (@Transactional)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1355" y="1060" />
+              <mxPoint x="1355" y="1085" />
+            </Array>
+            <mxPoint x="1320" y="1060" as="sourcePoint" />
+            <mxPoint x="1360" y="1085" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="39" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#00796B;fontColor=#00796B;fontSize=11;strokeWidth=1.5;entryX=0.5;entryY=0;" value="22. CustomerGateway.findByEmail(Email(request.customerEmail))">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1320" y="1100" as="sourcePoint" />
+            <mxPoint x="1560" y="1100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="40" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#0277BD;fontColor=#0277BD;fontSize=11;strokeWidth=1.2;" value="23. SELECT * FROM customers -&gt; Retorna Entidade Customer">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1560" y="1130" as="sourcePoint" />
+            <mxPoint x="1320" y="1130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="41" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#00796B;fontColor=#00796B;fontSize=11;strokeWidth=1.5;entryX=0.5;entryY=0;" value="24. VehicleGateway.findByPlate(Plate(request.vehiclePlate))">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1320" y="1165" as="sourcePoint" />
+            <mxPoint x="1560" y="1165" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="42" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#0277BD;fontColor=#0277BD;fontSize=11;strokeWidth=1.2;" value="25. SELECT * FROM vehicles -&gt; Retorna Entidade Vehicle">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1560" y="1195" as="sourcePoint" />
+            <mxPoint x="1320" y="1195" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="43" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#004D40;fontColor=#004D40;fontSize=10;strokeWidth=1.2;" value="26. Instancia Entidade ServiceOrder(customerId, vehicleId, enterTime = now())">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1355" y="1220" />
+              <mxPoint x="1355" y="1245" />
+            </Array>
+            <mxPoint x="1320" y="1220" as="sourcePoint" />
+            <mxPoint x="1360" y="1245" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="44" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;width=270;height=22;boundedLbl=1;verticalAlign=top;align=left;spacingLeft=5;fillColor=#F1F8E9;strokeColor=#7CB342;fontColor=#33691E;dashed=1;fontSize=10;" value="&lt;b&gt;[loop: Para cada Serviço e Insumo Solicitado]&lt;/b&gt;" vertex="1">
+          <mxGeometry height="120" width="370" x="1250" y="1260" as="geometry" />
+        </mxCell>
+        <mxCell id="45" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#00796B;fontColor=#00796B;fontSize=11;strokeWidth=1.5;entryX=0.5;entryY=0;" value="27a. InsumeGateway.findById(insumeId)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1320" y="1295" as="sourcePoint" />
+            <mxPoint x="1560" y="1295" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="46" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#0277BD;fontColor=#0277BD;fontSize=11;strokeWidth=1.2;" value="27b. SELECT * FROM insumes -&gt; Retorna Insumo e Estoque">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1560" y="1325" as="sourcePoint" />
+            <mxPoint x="1320" y="1325" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="47" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#004D40;fontColor=#004D40;fontSize=10;strokeWidth=1.2;" value="27c. order.addExecution(basicDesc, fullDesc, price, insumes)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1355" y="1345" />
+              <mxPoint x="1355" y="1370" />
+            </Array>
+            <mxPoint x="1320" y="1345" as="sourcePoint" />
+            <mxPoint x="1360" y="1370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="48" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#004D40;fontColor=#004D40;fontSize=10;strokeWidth=1.2;" value="28. order.recordHistory(ServiceOrderStatus.RECEIVED) [Status Inicial da OS]">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1355" y="1405" />
+              <mxPoint x="1355" y="1430" />
+            </Array>
+            <mxPoint x="1320" y="1405" as="sourcePoint" />
+            <mxPoint x="1360" y="1430" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="49" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#00796B;fontColor=#00796B;fontSize=11;strokeWidth=1.5;entryX=0.5;entryY=0;" value="29. ServiceOrderGateway.save(order): INSERT INTO service_orders, executions, history">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1320" y="1445" as="sourcePoint" />
+            <mxPoint x="1560" y="1445" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="50" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#0277BD;fontColor=#0277BD;fontSize=11;strokeWidth=1.2;" value="30. Confirmação de persistência &amp; Commit da transação ACID no PostgreSQL">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1560" y="1480" as="sourcePoint" />
+            <mxPoint x="1320" y="1480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="51" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#004D40;fontColor=#004D40;fontSize=10;strokeWidth=1.2;" value="31. NotifyCustomer.execute(saved, RECEIVED): Dispara evento/notificação de abertura">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1355" y="1505" />
+              <mxPoint x="1355" y="1530" />
+            </Array>
+            <mxPoint x="1320" y="1505" as="sourcePoint" />
+            <mxPoint x="1360" y="1530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="52" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#512DA8;fontColor=#512DA8;fontSize=11;strokeWidth=1.2;" value="32. [Async] OTel JavaAgent emite Spans de Trace W3C e Métricas de OS Criada">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1320" y="1545" as="sourcePoint" />
+            <mxPoint x="1780" y="1545" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="53" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#004D40;fontColor=#004D40;fontSize=10;strokeWidth=1.2;" value="33. saved.toResponse(): Mapeia para DTO ServiceOrderResponse">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1355" y="1570" />
+              <mxPoint x="1355" y="1595" />
+            </Array>
+            <mxPoint x="1320" y="1570" as="sourcePoint" />
+            <mxPoint x="1360" y="1595" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="54" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#00796B;fontColor=#00796B;fontSize=11;strokeWidth=1.2;" value="34. Retorna ServiceOrderResponse com Status HTTP 201 Created">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1320" y="1610" as="sourcePoint" />
+            <mxPoint x="1075" y="1610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="55" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#2E7D32;fontColor=#2E7D32;fontSize=11;strokeWidth=1.2;" value="35. Resposta HTTP 201 Created com payload completo da OS">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1075" y="1640" as="sourcePoint" />
+            <mxPoint x="840" y="1640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="56" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#0288D1;fontColor=#0288D1;fontSize=11;strokeWidth=1.2;" value="36. Encaminha resposta 201 Created">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="840" y="1670" as="sourcePoint" />
+            <mxPoint x="370" y="1670" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="57" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeColor=#1565C0;fontColor=#1565C0;fontSize=11;strokeWidth=1.2;" value="37. 201 Created: { &quot;id&quot;: &quot;uuid&quot;, &quot;status&quot;: &quot;RECEIVED&quot;, &quot;customer&quot;: {...}, &quot;total&quot;: 250.00 }">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="1700" as="sourcePoint" />
+            <mxPoint x="135" y="1700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="58" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#94A3B8;fontColor=#334155;fontSize=11;align=left;verticalAlign=top;spacing=12;shadow=1;arcSize=6;" value="&lt;b&gt;📐 DIRETRIZES DE ARQUITETURA, SEGURANÇA E OBSERVABILIDADE (AWS WELL-ARCHITECTED &amp; CLEAN ARCHITECTURE)&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;&amp;bull; &lt;b&gt;Segurança e Princípio do Menor Privilégio (Zero Trust):&lt;/b&gt; A AWS Lambda Auth realiza validação defensiva de formato antes de qualquer processamento pesado. Os tokens JWT utilizam HMAC-SHA256 com expiração de 24h. EKS Worker Nodes e RDS PostgreSQL operam isolados em &lt;b&gt;Sub-redes Privadas&lt;/b&gt; da VPC sem IP público direto.&lt;br/&gt;&amp;bull; &lt;b&gt;Governança de Comunicação:&lt;/b&gt; API Gateway HTTP API v2 centraliza o roteamento público HTTPS com CORS configurado. Requisições autenticadas de abertura de OS passam pelo proxy de entrada até os Pods EKS, sendo inspecionadas por filtros Spring Security.&lt;br/&gt;&amp;bull; &lt;b&gt;Clean Architecture e DDD:&lt;/b&gt; O caso de uso &lt;code&gt;CreateServiceOrder&lt;/code&gt; isola a orquestração de negócio; validações de domínio (Placa, Email, Cálculos de Insumos e Status da OS) são expressas nas entidades de domínio e orquestradas transacionalmente.&lt;br/&gt;&amp;bull; &lt;b&gt;Observabilidade e Resiliência (OpenTelemetry):&lt;/b&gt; A aplicação e a Lambda Auth contam com rastreamento distribuído compatível com padrão W3C (TraceContext), exportando métricas e traces ao OTel Collector Gateway nas portas 4317/4318." vertex="1">
+          <mxGeometry height="170" width="1820" x="50" y="1790" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

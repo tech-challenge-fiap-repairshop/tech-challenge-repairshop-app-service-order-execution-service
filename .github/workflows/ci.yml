@@ -16,6 +16,7 @@ on:
       - 'pom.xml'
       - 'Dockerfile'
       - 'k8s/**'
+      - 'sonar-project.properties'
       - '.github/workflows/ci.yml'
   pull_request:
     branches: [ 'main', 'homolog', 'develop' ]
@@ -24,6 +25,7 @@ on:
       - 'pom.xml'
       - 'Dockerfile'
       - 'k8s/**'
+      - 'sonar-project.properties'
       - '.github/workflows/ci.yml'
   workflow_dispatch:
     inputs:
@@ -81,26 +83,30 @@ jobs:
       - name: Package application (skip tests)
         run: mvn package -B -ntp -DskipTests
 
-      - name: Start dependencies (Postgres & Mailpit)
-        run: docker compose up -d postgres mailpit
+      - name: Start dependencies (Postgres)
+        run: |
+          docker run -d --name smoke-postgres -e POSTGRES_USER=repairshop -e POSTGRES_PASSWORD=repairshop -e POSTGRES_DB=repairshop -p 5432:5432 postgres:16-alpine
+          sleep 5
 
       - name: Run Application JAR
         env:
           SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL || 'jdbc:postgresql://localhost:5432/repairshop' }}
           SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME || 'repairshop' }}
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD || 'repairshop' }}
-          SPRING_MAIL_HOST: ${{ secrets.SPRING_MAIL_HOST || 'localhost' }}
-          SPRING_MAIL_PORT: ${{ secrets.SPRING_MAIL_PORT || '1025' }}
+          SERVER_PORT: "8080"
+          SQS_HEALTH_CHECK_ENABLED: "false"
+          AWS_REGION: "us-east-1"
           JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv4Stack=true"
         run: |
-          docker run -d --name smoke-jar --network host --add-host mailpit:127.0.0.1 \
+          docker run -d --name smoke-jar --network host \
             -v ${{ github.workspace }}:/app \
             -w /app \
             -e SPRING_DATASOURCE_URL="$SPRING_DATASOURCE_URL" \
             -e SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
             -e SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
-            -e SPRING_MAIL_HOST="$SPRING_MAIL_HOST" \
-            -e SPRING_MAIL_PORT="$SPRING_MAIL_PORT" \
+            -e SERVER_PORT="$SERVER_PORT" \
+            -e SQS_HEALTH_CHECK_ENABLED="$SQS_HEALTH_CHECK_ENABLED" \
+            -e AWS_REGION="$AWS_REGION" \
             -e JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS" \
             eclipse-temurin:24-jre java -jar target/repairshop-0.0.1-SNAPSHOT.jar
 
@@ -110,9 +116,8 @@ jobs:
           for i in {1..30}; do
             if curl -s http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
               echo "Post-Build Smoke Test Passed! Application is UP."
-              docker stop smoke-jar
-              docker rm smoke-jar
-              docker compose down
+              docker stop smoke-jar smoke-postgres
+              docker rm smoke-jar smoke-postgres
               exit 0
             fi
             echo "Waiting..."
@@ -120,9 +125,8 @@ jobs:
           done
           echo "Post-Build Smoke Test Failed! Application log output:"
           docker logs smoke-jar
-          docker stop smoke-jar
-          docker rm smoke-jar
-          docker compose down
+          docker stop smoke-jar smoke-postgres
+          docker rm smoke-jar smoke-postgres
           exit 1
 
   # ==========================================================================
@@ -156,17 +160,7 @@ jobs:
         uses: actions/upload-artifact@v4 # v4.4.3
         with:
           name: coverage-report
-          path: |
-            target/site/jacoco/
-            target/jacoco.exec
-          retention-days: 1
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4 # v4.4.3
-        with:
-          name: test-results
-          path: target/surefire-reports/
+          path: target/site/jacoco/jacoco.xml
           retention-days: 1
 
   # ==========================================================================
@@ -177,8 +171,8 @@ jobs:
     needs: test
     if: |
       needs.test.result == 'success' &&
-      ((github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/homolog') ||
-       (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository))
+      github.event_name != 'pull_request' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/homolog' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -207,7 +201,7 @@ jobs:
         uses: actions/download-artifact@v4 # v4.1.8
         with:
           name: coverage-report
-          path: target/
+          path: target/site/jacoco/
 
       - name: Recompile for Sonar binaries
         run: mvn compile -B -ntp -DskipTests
@@ -220,8 +214,9 @@ jobs:
             echo "⚠️ SONAR_TOKEN secret não configurada. Ignorando análise do SonarCloud."
             exit 0
           fi
-          mvn -B -ntp sonar:sonar \
-            -Dsonar.projectKey=alexandre-agamin_tech-challenge-fiap \
+          mvn -B -ntp org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=alexandre-agamin_tech-challenge-repairshop-app-service-order-execution-service \
+            -Dsonar.projectName=tech-challenge-repairshop-app-service-order-execution-service \
             -Dsonar.organization=alexandre-agamin \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token="$SONAR_TOKEN" \
@@ -234,8 +229,11 @@ jobs:
   # ==========================================================================
   docker-build-push:
     name: "🐳 Docker Build & Trivy Scan"
-    needs: test
-    if: needs.test.result == 'success'
+    needs: [test, quality]
+    if: |
+      needs.quality.result == 'success' &&
+      github.event_name != 'pull_request' &&
+      (github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target_env == 'prd'))
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -269,12 +267,12 @@ jobs:
             TARGET="dev"
           fi
           
-          REPO_NAME=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, '${TARGET}')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
+          REPO_NAME=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'service-order') && contains(repositoryName, '${TARGET}')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
           if [ -z "$REPO_NAME" ] || [ "$REPO_NAME" = "None" ]; then
-            REPO_NAME=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'repairshop')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
+            REPO_NAME=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'service-order')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
           fi
           if [ -z "$REPO_NAME" ] || [ "$REPO_NAME" = "None" ]; then
-            REPO_NAME="repairshop-repairshop-eks-${TARGET}"
+            REPO_NAME="service-order-execution-service-${TARGET}"
           fi
           echo "target_env=${TARGET}" >> $GITHUB_OUTPUT
           echo "repository_name=${REPO_NAME}" >> $GITHUB_OUTPUT
@@ -352,39 +350,20 @@ jobs:
           exit 1
 
       - name: Push Docker image to Amazon ECR
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/homolog' || github.event_name == 'workflow_dispatch'
         run: |
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ steps.ecr-target.outputs.repository_name }}:latest
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ steps.ecr-target.outputs.repository_name }}:${{ github.sha }}
 
   # ==========================================================================
-  # STAGE 5 — APPROVAL: Aprovação Manual para Deploy em Produção (Main)
-  # ==========================================================================
-  approve-deploy:
-    name: "⏳ Approve Deployment"
-    needs: [docker-build-push]
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/homolog' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      contents: read
-    steps:
-      - name: Manual Approval (Produção apenas)
-        if: github.ref == 'refs/heads/main'
-        uses: trstringer/manual-approval@74d99dff7380e3e4b122d4ededcbca2b6ce59367
-        with:
-          secret: ${{ secrets.GITHUB_TOKEN }}
-          approvers: ${{ github.actor }}
-          minimum-approvals: 1
-          issue-title: "Deploying to Production (EKS)"
-          issue-body: "Please approve or deny the deployment of version ${{ github.sha }} to AWS EKS."
-
-  # ==========================================================================
-  # STAGE 6 — DEPLOY: Deploy no Kubernetes EKS via Kustomize
+  # STAGE 5 — DEPLOY: Deploy no Kubernetes EKS (Direto pós-merge na Main)
   # ==========================================================================
   deploy:
-    name: "🚀 Deploy to EKS (Kustomize)"
-    needs: approve-deploy
+    name: "🚀 Deploy to EKS"
+    needs: [docker-build-push]
+    if: |
+      needs.docker-build-push.result == 'success' &&
+      github.event_name != 'pull_request' &&
+      (github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target_env == 'prd'))
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -434,12 +413,12 @@ jobs:
           
           # Busca dinamicamente o repositório ECR correspondente
           ENV_NAME="${{ steps.env-target.outputs.environment }}"
-          ECR_REPO=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, '${ENV_NAME}')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
+          ECR_REPO=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'service-order') && contains(repositoryName, '${ENV_NAME}')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
           if [ -z "$ECR_REPO" ] || [ "$ECR_REPO" = "None" ]; then
-            ECR_REPO=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'repairshop')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
+            ECR_REPO=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'service-order')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
           fi
           if [ -z "$ECR_REPO" ] || [ "$ECR_REPO" = "None" ]; then
-            ECR_REPO="repairshop-repairshop-eks-${ENV_NAME}"
+            ECR_REPO="service-order-execution-service-${ENV_NAME}"
           fi
           echo "Using ECR Repository: $ECR_REPO"
           
@@ -493,4 +472,4 @@ jobs:
       - name: Wait for Deployment Rollout
         run: |
           echo "Aguardando a inicialização e prontidão dos novos pods..."
-          kubectl rollout status deployment/repairshop-app -n repairshop --timeout=5m
+          kubectl rollout status deployment/service-order-execution-service -n repairshop --timeout=5m

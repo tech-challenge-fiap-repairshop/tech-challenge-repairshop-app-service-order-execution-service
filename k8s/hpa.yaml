@@ -1,15 +1,15 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: repairshop-hpa
+  name: service-order-execution-service-hpa
   namespace: repairshop
   labels:
-    app: repairshop
+    app: service-order-execution-service
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: repairshop-app
+    name: service-order-execution-service
   minReplicas: 1
   maxReplicas: 3
   metrics:
