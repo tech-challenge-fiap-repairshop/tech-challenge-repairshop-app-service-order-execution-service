@@ -4,10 +4,6 @@ import com.cao.repairshop.core.exception.EntityNotFoundException
 import com.cao.repairshop.core.exception.ErrorMessages
 import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.inventory.application.gateways.InsumeGateway
-import com.cao.repairshop.register.application.gateways.CustomerGateway
-import com.cao.repairshop.register.application.gateways.VehicleGateway
-import com.cao.repairshop.register.domain.entities.Email
-import com.cao.repairshop.register.domain.entities.Plate
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import com.cao.repairshop.serviceorder.application.usecases.CreateServiceOrder
 import com.cao.repairshop.serviceorder.application.usecases.NotifyCustomer
@@ -20,34 +16,35 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Service
 class CreateServiceOrderImpl(
     private val serviceOrderGateway: ServiceOrderGateway,
-    private val customerGateway: CustomerGateway,
-    private val vehicleGateway: VehicleGateway,
     private val insumeGateway: InsumeGateway,
     private val notifyCustomer: NotifyCustomer
 ) : CreateServiceOrder {
 
     @Transactional
     override fun execute(request: CreateServiceOrderRequest): ServiceOrderResponse {
-        val customer = customerGateway.findByEmail(Email(request.customerEmail))
-            ?: throw EntityNotFoundException(ErrorMessages.Customer.NOT_FOUND)
-        val vehicle = vehicleGateway.findByPlate(Plate(request.vehiclePlate))
-            ?: throw EntityNotFoundException(ErrorMessages.Vehicle.NOT_FOUND)
+        val customerId = request.customerId
+            ?: request.customerEmail?.let { UUID.nameUUIDFromBytes(it.toByteArray()) }
+            ?: UUID.randomUUID()
+
+        val vehicleId = request.vehicleId
+            ?: request.vehiclePlate?.let { UUID.nameUUIDFromBytes(it.toByteArray()) }
+            ?: UUID.randomUUID()
 
         val order = ServiceOrder(
-            customerId = customer.id,
-            vehicleId = vehicle.id,
+            customerId = customerId,
+            vehicleId = vehicleId,
             enterTime = LocalDateTime.now()
         )
 
         request.services.forEach { sd ->
-            val resolvedInsumes = sd.insumes.map {
+            val resolvedInsumes = sd.insumes.mapNotNull {
                 val insume = insumeGateway.findById(it.insumeId)
-                    ?: throw EntityNotFoundException(ErrorMessages.Insume.notFoundById(it.insumeId))
-                insume to it.quantity
+                if (insume != null) insume to it.quantity else null
             }
             order.addExecution(
                 basicDescription = BasicExecution.valueOf(sd.basicDescription.uppercase()),

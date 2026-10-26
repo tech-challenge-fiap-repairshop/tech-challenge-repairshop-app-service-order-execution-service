@@ -15,18 +15,21 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest
 import software.amazon.awssdk.services.dynamodb.model.QueryResponse
 import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
 import java.util.UUID
 
 class DynamoServiceOrderRepositoryTest {
 
     private lateinit var dynamoDbClient: DynamoDbClient
+    private lateinit var enhancedClient: DynamoDbEnhancedClient
     private lateinit var repository: DynamoServiceOrderRepository
     private val tableName = "tb-service_order-test"
 
     @BeforeEach
     fun setup() {
         dynamoDbClient = mockk(relaxed = true)
-        repository = DynamoServiceOrderRepository(dynamoDbClient, tableName)
+        enhancedClient = mockk(relaxed = true)
+        repository = DynamoServiceOrderRepository(dynamoDbClient, enhancedClient, tableName)
     }
 
     @Test

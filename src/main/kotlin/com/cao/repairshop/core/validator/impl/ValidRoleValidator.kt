@@ -1,7 +1,7 @@
 package com.cao.repairshop.core.validator.impl
 
+import com.cao.repairshop.core.security.UserRole
 import com.cao.repairshop.core.validator.annotation.ValidRole
-import com.cao.repairshop.user.domain.entities.UserRole
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 

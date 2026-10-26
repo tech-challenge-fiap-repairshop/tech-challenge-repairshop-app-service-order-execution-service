@@ -1,7 +1,5 @@
 package com.cao.repairshop.serviceorder.infra.persistence.specifications
 
-import com.cao.repairshop.register.infra.persistence.models.CustomerEntity
-import com.cao.repairshop.register.infra.persistence.models.VehicleEntity
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 import com.cao.repairshop.serviceorder.infra.persistence.models.ServiceOrderEntity
 import io.mockk.every
@@ -375,18 +373,12 @@ class ServiceOrderSpecificationsTest {
         val query = mockk<CriteriaQuery<*>>()
         val cb = mockk<CriteriaBuilder>()
 
-        val customerPath = mockk<Path<CustomerEntity>>()
         val customerIdPath = mockk<Path<UUID>>()
-        val vehiclePath = mockk<Path<VehicleEntity>>()
         val vehicleIdPath = mockk<Path<UUID>>()
         val statusPath = mockk<Path<ServiceOrderStatus>>()
 
-        every { root.get<CustomerEntity>("customer") } returns customerPath
-        every { customerPath.get<UUID>("id") } returns customerIdPath
-
-        every { root.get<VehicleEntity>("vehicle") } returns vehiclePath
-        every { vehiclePath.get<UUID>("id") } returns vehicleIdPath
-
+        every { root.get<UUID>("customerId") } returns customerIdPath
+        every { root.get<UUID>("vehicleId") } returns vehicleIdPath
         every { root.get<ServiceOrderStatus>("status") } returns statusPath
 
         val eqCustomer = mockk<Predicate>()

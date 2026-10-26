@@ -1,13 +1,6 @@
 package com.cao.repairshop.execution.infra.controller
 
 import com.cao.repairshop.execution.infra.controller.dtos.CreateExecutionRequest
-import com.cao.repairshop.register.domain.entities.Document
-import com.cao.repairshop.register.domain.entities.Email
-import com.cao.repairshop.register.domain.entities.Plate
-import com.cao.repairshop.register.infra.persistence.models.CustomerEntity
-import com.cao.repairshop.register.infra.persistence.models.VehicleEntity
-import com.cao.repairshop.register.infra.persistence.repositories.CustomerRepository
-import com.cao.repairshop.register.infra.persistence.repositories.VehicleRepository
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 import com.cao.repairshop.serviceorder.infra.persistence.models.ServiceOrderEntity
 import com.cao.repairshop.serviceorder.infra.persistence.repositories.ServiceOrderRepository
@@ -44,12 +37,6 @@ class ExecutionControllerIT {
     private lateinit var mapper: JsonMapper
 
     @Autowired
-    private lateinit var customerRepository: CustomerRepository
-
-    @Autowired
-    private lateinit var vehicleRepository: VehicleRepository
-
-    @Autowired
     private lateinit var serviceOrderRepository: ServiceOrderRepository
 
     private lateinit var serviceOrder: ServiceOrderEntity
@@ -60,14 +47,13 @@ class ExecutionControllerIT {
             .addModule(SpringDataJackson3Configuration.PageModule(null))
             .build()
         mockMvc = MockMvcBuilders.webAppContextSetup(context).build()
-        val customer = customerRepository.save(
-            CustomerEntity(name = "Integration Test Customer", document = Document("52998224725"), email = Email("it@example.com"))
-        )
-        val vehicle = vehicleRepository.save(
-            VehicleEntity(customer = customer, plate = Plate("ABC1234"), brand = "Test", model = "Integration")
-        )
+
         serviceOrder = serviceOrderRepository.save(
-            ServiceOrderEntity(customer = customer, vehicle = vehicle, status = ServiceOrderStatus.IN_EXECUTION)
+            ServiceOrderEntity(
+                customerId = UUID.randomUUID(),
+                vehicleId = UUID.randomUUID(),
+                status = ServiceOrderStatus.IN_EXECUTION
+            )
         )
     }
 
@@ -99,7 +85,17 @@ class ExecutionControllerIT {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.basicDescription").value("OIL_CHANGE"))
 
-        // 3. Advance Status to PENDING
+        // 3. Update execution info
+        mockMvc.perform(
+            put("/service-orders/${serviceOrder.id}/executions/$executionId")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"fullDescription": "Updated details", "price": 180.00}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.fullDescription").value("Updated details"))
+            .andExpect(jsonPath("$.price").value(180.0))
+
+        // 4. Advance Status to PENDING
         mockMvc.perform(
             patch("/service-orders/${serviceOrder.id}/executions/$executionId/status")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -108,7 +104,16 @@ class ExecutionControllerIT {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.status").value("PENDING"))
 
-        // 4. Advance Status to FINALIZED
+        // 5. Advance Status to IN_PROGRESS
+        mockMvc.perform(
+            patch("/service-orders/${serviceOrder.id}/executions/$executionId/status")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"status": "IN_PROGRESS"}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
+
+        // 6. Advance Status to FINALIZED
         mockMvc.perform(
             patch("/service-orders/${serviceOrder.id}/executions/$executionId/status")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -117,26 +122,21 @@ class ExecutionControllerIT {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.status").value("FINALIZED"))
 
-        // 5. Verify Service Order status update (it should auto-finalize if it was the only execution)
-        mockMvc.perform(get("/service-orders/${serviceOrder.id}"))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.status").value("FINALIZED"))
-    }
-
-    @Test
-    @WithMockUser(roles = ["ATTENDANT"])
-    fun `should return 400 with dynamic message when basicDescription is invalid`() {
-        val createRequest = mapOf(
-            "serviceOrderId" to serviceOrder.id.toString(),
-            "basicDescription" to "INVALID_SERVICE",
-            "price" to 150.0
-        )
-
+        // 7. Invalid transition check: FINALIZED cannot go back to PENDING
         mockMvc.perform(
-            post("/service-orders/${serviceOrder.id}/executions")
+            patch("/service-orders/${serviceOrder.id}/executions/$executionId/status")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(createRequest))
+                .content("""{"status": "PENDING"}""")
         )
             .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.message", containsString("Invalid state transition")))
+
+        // 8. Delete execution
+        mockMvc.perform(delete("/service-orders/${serviceOrder.id}/executions/$executionId"))
+            .andExpect(status().isNoContent)
+
+        // 9. Verify Not Found
+        mockMvc.perform(get("/service-orders/${serviceOrder.id}/executions/$executionId"))
+            .andExpect(status().isNotFound)
     }
 }

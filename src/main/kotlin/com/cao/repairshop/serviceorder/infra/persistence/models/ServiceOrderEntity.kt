@@ -1,9 +1,6 @@
 package com.cao.repairshop.serviceorder.infra.persistence.models
 
 import com.cao.repairshop.execution.infra.persistence.models.ExecutionEntity
-import com.cao.repairshop.payment.infra.persistence.models.InvoiceEntity
-import com.cao.repairshop.register.infra.persistence.models.CustomerEntity
-import com.cao.repairshop.register.infra.persistence.models.VehicleEntity
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
@@ -20,13 +17,11 @@ class ServiceOrderEntity(
     @Column(name = "id_tb_service_order")
     val id: UUID = UUID.randomUUID(),
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "customer_id", nullable = false)
-    var customer: CustomerEntity,
+    @Column(name = "customer_id", nullable = false)
+    var customerId: UUID,
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "vehicle_id", nullable = false)
-    var vehicle: VehicleEntity,
+    @Column(name = "vehicle_id", nullable = false)
+    var vehicleId: UUID,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
@@ -51,9 +46,6 @@ class ServiceOrderEntity(
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "service_order", insertable = false, updatable = false)
     var executions: MutableSet<ExecutionEntity> = mutableSetOf(),
-
-    @OneToOne(mappedBy = "serviceOrder", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var invoice: InvoiceEntity? = null,
 
     @CreationTimestamp
     @Column(name = "created", updatable = false)

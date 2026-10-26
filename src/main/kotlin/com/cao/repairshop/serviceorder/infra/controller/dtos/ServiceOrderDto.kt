@@ -37,12 +37,18 @@ data class ExecutionDefinitionRequest(
 )
 
 data class CreateServiceOrderRequest(
+    @Schema(description = "Customer ID (UUID)", example = "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d")
+    val customerId: UUID? = null,
+
+    @Schema(description = "Vehicle ID (UUID)", example = "b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e")
+    val vehicleId: UUID? = null,
+
     @Schema(description = "Customer email who requested the order", example = "customer@example.com")
-    @field:NotNull
-    @field:Email val customerEmail: String,
+    @field:Email(message = "Invalid email format")
+    val customerEmail: String? = null,
 
     @Schema(description = "Vehicle plate for this order", example = "ABC-1234")
-    @field:NotNull val vehiclePlate: String,
+    val vehiclePlate: String? = null,
 
     @Schema(description = "List of services to include in the order")
     @field:Size(max = 30, message = "Maximum of 30 services allowed per order")

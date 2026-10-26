@@ -29,6 +29,11 @@ class ServiceOrderController(
     override fun create(@Valid @RequestBody request: CreateServiceOrderRequest): ServiceOrderResponse =
         createServiceOrder.execute(request)
 
+    @PostMapping("/create_service_order")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun createServiceOrderDirect(@Valid @RequestBody request: CreateServiceOrderRequest): ServiceOrderResponse =
+        createServiceOrder.execute(request)
+
     @GetMapping
     override fun findAll(
         @RequestParam(required = false) customerId: UUID?,

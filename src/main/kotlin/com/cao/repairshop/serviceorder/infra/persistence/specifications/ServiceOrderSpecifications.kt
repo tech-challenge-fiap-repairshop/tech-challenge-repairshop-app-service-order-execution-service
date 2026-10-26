@@ -1,7 +1,5 @@
 package com.cao.repairshop.serviceorder.infra.persistence.specifications
 
-import com.cao.repairshop.register.infra.persistence.models.CustomerEntity
-import com.cao.repairshop.register.infra.persistence.models.VehicleEntity
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 import com.cao.repairshop.serviceorder.infra.persistence.models.ServiceOrderEntity
 import org.springframework.data.domain.Pageable
@@ -20,10 +18,10 @@ object ServiceOrderSpecifications {
             val predicates = mutableListOf<jakarta.persistence.criteria.Predicate>()
 
             customerId?.let {
-                predicates.add(cb.equal(root.get<CustomerEntity>("customer").get<UUID>("id"), it))
+                predicates.add(cb.equal(root.get<UUID>("customerId"), it))
             }
             vehicleId?.let {
-                predicates.add(cb.equal(root.get<VehicleEntity>("vehicle").get<UUID>("id"), it))
+                predicates.add(cb.equal(root.get<UUID>("vehicleId"), it))
             }
             if (status != null) {
                 predicates.add(cb.equal(root.get<ServiceOrderStatus>("status"), status))

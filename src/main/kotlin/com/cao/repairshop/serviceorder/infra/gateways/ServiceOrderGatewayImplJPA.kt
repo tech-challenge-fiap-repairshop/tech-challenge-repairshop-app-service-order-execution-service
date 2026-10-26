@@ -1,8 +1,5 @@
 package com.cao.repairshop.serviceorder.infra.gateways
 
-import com.cao.repairshop.core.exception.EntityNotFoundException
-import com.cao.repairshop.register.infra.persistence.repositories.CustomerRepository
-import com.cao.repairshop.register.infra.persistence.repositories.VehicleRepository
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
@@ -17,17 +14,11 @@ import java.util.*
 
 @Component
 class ServiceOrderGatewayImplJPA(
-    private val serviceOrderRepository: ServiceOrderRepository,
-    private val customerRepository: CustomerRepository,
-    private val vehicleRepository: VehicleRepository
+    private val serviceOrderRepository: ServiceOrderRepository
 ) : ServiceOrderGateway {
 
     override fun save(order: ServiceOrder): ServiceOrder {
-        val customerEntity = customerRepository.findById(order.customerId)
-            .orElseThrow { EntityNotFoundException("Customer not found with ID ${order.customerId}") }
-        val vehicleEntity = vehicleRepository.findById(order.vehicleId)
-            .orElseThrow { EntityNotFoundException("Vehicle not found with ID ${order.vehicleId}") }
-        val entity = order.toEntity(customerEntity, vehicleEntity)
+        val entity = order.toEntity()
         val saved = serviceOrderRepository.save(entity)
         return saved.toDomain()
     }

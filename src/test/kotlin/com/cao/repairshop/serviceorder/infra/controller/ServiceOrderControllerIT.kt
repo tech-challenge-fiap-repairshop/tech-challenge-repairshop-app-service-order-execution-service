@@ -1,12 +1,5 @@
 package com.cao.repairshop.serviceorder.infra.controller
 
-import com.cao.repairshop.register.domain.entities.Document
-import com.cao.repairshop.register.domain.entities.Email
-import com.cao.repairshop.register.domain.entities.Plate
-import com.cao.repairshop.register.infra.persistence.models.CustomerEntity
-import com.cao.repairshop.register.infra.persistence.models.VehicleEntity
-import com.cao.repairshop.register.infra.persistence.repositories.CustomerRepository
-import com.cao.repairshop.register.infra.persistence.repositories.VehicleRepository
 import com.cao.repairshop.serviceorder.infra.controller.dtos.CreateServiceOrderRequest
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ExecutionDefinitionRequest
 import org.junit.jupiter.api.BeforeEach
@@ -40,14 +33,8 @@ class ServiceOrderControllerIT {
 
     private lateinit var mapper: JsonMapper
 
-    @Autowired
-    private lateinit var customerRepository: CustomerRepository
-
-    @Autowired
-    private lateinit var vehicleRepository: VehicleRepository
-
-    private val customerEmail = "so_it@example.com"
-    private val vehiclePlate = "ABC1234"
+    private val customerId = UUID.randomUUID()
+    private val vehicleId = UUID.randomUUID()
 
     @BeforeEach
     fun setUp() {
@@ -55,20 +42,16 @@ class ServiceOrderControllerIT {
             .addModule(SpringDataJackson3Configuration.PageModule(null))
             .build()
         mockMvc = MockMvcBuilders.webAppContextSetup(context).build()
-        val customer = customerRepository.save(
-            CustomerEntity(name = "SO IT Customer", document = Document("52998224725"), email = Email(customerEmail))
-        )
-        vehicleRepository.save(
-            VehicleEntity(customer = customer, plate = Plate(vehiclePlate), brand = "SO", model = "Integration")
-        )
     }
 
     @Test
     @WithMockUser(roles = ["ATTENDANT"])
     fun `should create and transition service order lifecycle`() {
         val createRequest = CreateServiceOrderRequest(
-            customerEmail = customerEmail,
-            vehiclePlate = vehiclePlate,
+            customerId = customerId,
+            vehicleId = vehicleId,
+            customerEmail = "so_it@example.com",
+            vehiclePlate = "ABC1234",
             services = listOf(
                 ExecutionDefinitionRequest(
                     basicDescription = "BRAKE_INSPECTION",

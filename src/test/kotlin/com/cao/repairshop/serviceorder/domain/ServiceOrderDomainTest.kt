@@ -4,10 +4,6 @@ import com.cao.repairshop.core.exception.InvalidStateTransitionException
 import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.domain.ExecutionStatus
 import com.cao.repairshop.inventory.domain.entities.Insume
-import com.cao.repairshop.register.domain.entities.Customer
-import com.cao.repairshop.register.domain.entities.Vehicle
-import com.cao.repairshop.register.domain.entities.Document
-import com.cao.repairshop.register.domain.entities.Plate
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -19,9 +15,7 @@ import java.util.UUID
 class ServiceOrderDomainTest {
 
     private fun buildOrder(status: ServiceOrderStatus = ServiceOrderStatus.RECEIVED): ServiceOrder {
-        val customer = Customer(id = UUID.randomUUID(), name = "Test", document = Document("52998224725"))
-        val vehicle = Vehicle(id = UUID.randomUUID(), brand = "T", model = "C", plate = Plate("ABC1234"), customerId = customer.id)
-        return ServiceOrder(customerId = customer.id, vehicleId = vehicle.id, status = status, enterTime = LocalDateTime.now())
+        return ServiceOrder(customerId = UUID.randomUUID(), vehicleId = UUID.randomUUID(), status = status, enterTime = LocalDateTime.now())
     }
 
     private fun buildInsume() = Insume(id = UUID.randomUUID(), name = "Oil Filter", price = BigDecimal("25.00"), unityPrice = BigDecimal("25.00"), quantity = 10)

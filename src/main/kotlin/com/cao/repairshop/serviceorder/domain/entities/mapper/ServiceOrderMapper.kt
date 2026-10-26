@@ -2,8 +2,6 @@ package com.cao.repairshop.serviceorder.domain.entities.mapper
 
 import com.cao.repairshop.execution.domain.entities.mapper.toDomain
 import com.cao.repairshop.execution.domain.entities.mapper.toEntity
-import com.cao.repairshop.register.infra.persistence.models.CustomerEntity
-import com.cao.repairshop.register.infra.persistence.models.VehicleEntity
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrderHistory
 import com.cao.repairshop.serviceorder.infra.persistence.models.ServiceOrderEntity
@@ -55,8 +53,8 @@ fun ServiceOrderHistory.toServiceOrderHistoryEntry() = ServiceOrderHistoryEntry(
 fun ServiceOrderEntity.toDomain(): ServiceOrder {
     val serviceOrder = ServiceOrder(
         id = id,
-        customerId = customer.id,
-        vehicleId = vehicle.id,
+        customerId = customerId,
+        vehicleId = vehicleId,
         status = status,
         totalPrice = totalPrice,
         enterTime = enterTime,
@@ -70,11 +68,11 @@ fun ServiceOrderEntity.toDomain(): ServiceOrder {
     return serviceOrder
 }
 
-fun ServiceOrder.toEntity(customerEntity: CustomerEntity, vehicleEntity: VehicleEntity): ServiceOrderEntity {
+fun ServiceOrder.toEntity(): ServiceOrderEntity {
     val serviceOrderEntity = ServiceOrderEntity(
         id = id,
-        customer = customerEntity,
-        vehicle = vehicleEntity,
+        customerId = customerId,
+        vehicleId = vehicleId,
         status = status,
         totalPrice = totalPrice,
         enterTime = enterTime,

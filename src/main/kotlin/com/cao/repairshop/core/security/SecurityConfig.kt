@@ -1,6 +1,6 @@
 package com.cao.repairshop.core.security
 
-import com.cao.repairshop.user.domain.entities.UserRole
+import com.cao.repairshop.core.security.UserRole
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -27,34 +27,26 @@ class SecurityConfig(
             csrf { disable() }
             sessionManagement { sessionCreationPolicy = SessionCreationPolicy.STATELESS }
             authorizeHttpRequests {
-                // Public endpoints
-                authorize(HttpMethod.POST, "/auth/login", permitAll)
-                authorize(HttpMethod.POST, "/auth/register", permitAll)
-
-                // Swagger / OpenAPI
+                // Public / Swagger / OpenAPI / Actuator
                 authorize("/swagger-ui/**", permitAll)
                 authorize("/v3/api-docs/**", permitAll)
                 authorize("/swagger-ui.html", permitAll)
                 authorize("/swagger-custom.css", permitAll)
                 authorize("/actuator/**", permitAll)
 
-                // Customers and Vehicles: Attendant only
-                authorize("/customers/**", hasRole(UserRole.ATTENDANT.name))
-                authorize("/vehicles/**", hasRole(UserRole.ATTENDANT.name))
+                // Endpoints da Fase 4 (desenho arquitetural)
+                authorize(HttpMethod.POST, "/create_service_order", permitAll)
+                authorize(HttpMethod.POST, "/execute_task/**", permitAll)
+                authorize(HttpMethod.POST, "/increment_execution_task/**", permitAll)
 
-                // Service Orders: Customer can GET and APPROVE, Attendant can do everything
-                authorize(HttpMethod.GET, "/service-orders/**", hasAnyRole(UserRole.ATTENDANT.name, UserRole.CUSTOMER.name))
-                authorize(HttpMethod.POST, "/service-orders/*/approve", hasAnyRole(UserRole.ATTENDANT.name, UserRole.CUSTOMER.name))
-                authorize("/service-orders/**", hasRole(UserRole.ATTENDANT.name))
+                // Service Orders & Executions
+                authorize(HttpMethod.GET, "/service-orders/**", permitAll)
+                authorize(HttpMethod.POST, "/service-orders/*/approve", permitAll)
+                authorize("/service-orders/**", permitAll)
+                authorize("/executions/**", permitAll)
 
-                // Inventory/Insumes: Attendant only
-                authorize("/insumes/**", hasRole(UserRole.ATTENDANT.name))
-
-                // Invoices: Attendant only
-                authorize("/invoices/**", hasRole(UserRole.ATTENDANT.name))
-
-                // Default: authenticated
-                authorize(anyRequest, authenticated)
+                // Default
+                authorize(anyRequest, permitAll)
             }
             addFilterBefore<UsernamePasswordAuthenticationFilter>(jwtAuthenticationFilter)
         }
