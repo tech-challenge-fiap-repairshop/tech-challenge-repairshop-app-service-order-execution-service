@@ -32,15 +32,23 @@
 		<sonar.exclusions>
 			**/config/**,
 			**/dto/**,
+			**/dtos/**,
+			**/infra/persistence/models/**,
+			**/models/**,
 			**/mapper/**,
-			com/cao/repairshop/register/entity/**,
-			com/cao/repairshop/inventory/entity/**,
-			com/cao/repairshop/payment/entity/**,
-			com/cao/repairshop/user/entity/**,
-			**/entity/*History*,
-			**/entity/*Insume*,
+			**/converter/**,
 			**/RepairshopApplication.kt
 		</sonar.exclusions>
+		<sonar.coverage.exclusions>
+			**/config/**,
+			**/dto/**,
+			**/dtos/**,
+			**/infra/persistence/models/**,
+			**/models/**,
+			**/mapper/**,
+			**/converter/**,
+			**/RepairshopApplication.kt
+		</sonar.coverage.exclusions>
 	</properties>
 
 	<dependencyManagement>
@@ -314,9 +322,11 @@
 						<exclude>**/config/**</exclude>
 						<exclude>**/dto/**</exclude>
 						<exclude>**/dtos/**</exclude>
-						<exclude>**/persistence/models/**</exclude>
+						<exclude>**/infra/persistence/models/**</exclude>
+						<exclude>**/models/**</exclude>
 						<exclude>**/mapper/**</exclude>
-						<exclude>com/cao/repairshop/RepairshopApplication*</exclude>
+						<exclude>**/converter/**</exclude>
+						<exclude>**/RepairshopApplication*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
