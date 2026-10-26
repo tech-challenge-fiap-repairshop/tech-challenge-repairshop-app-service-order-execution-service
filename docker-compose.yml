@@ -1,173 +1,40 @@
 services:
-  # =========================================================================
-  # 1. DATABASE
-  # =========================================================================
-  postgres:
-    image: postgres:16
-    container_name: repairshop-db
+  localstack:
+    image: localstack/localstack:latest
+    container_name: service-order-localstack
     environment:
-      POSTGRES_USER: repairshop
-      POSTGRES_PASSWORD: repairshop
-      POSTGRES_DB: repairshop
+      - SERVICES=dynamodb,sqs
+      - DEFAULT_REGION=us-east-1
+      - AWS_DEFAULT_REGION=us-east-1
     ports:
-      - "5432:5432"
-    volumes:
-      - repairshop-data:/var/lib/postgresql/data
+      - "4566:4566"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U repairshop"]
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
       interval: 5s
-      timeout: 3s
-      retries: 5
+      timeout: 5s
+      retries: 10
 
-  # =========================================================================
-  # 2. EMAIL MOCK SERVER
-  # =========================================================================
-  mailpit:
-    image: axllent/mailpit:latest
-    container_name: mailpit
-    environment:
-      MP_MAX_MESSAGES: 500
-    ports:
-      - "1025:1025" # SMTP
-      - "8025:8025" # Dashboard Web
-
-  # =========================================================================
-  # 3. OPENTELEMETRY COLLECTOR
-  # =========================================================================
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
-    container_name: otel-collector
-    command: ["--config=/etc/otel-collector-config.yaml"]
-    volumes:
-      - ./local/observability/configs/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
-    ports:
-      - "4317:4317" # OTLP gRPC receiver
-      - "4318:4318" # OTLP HTTP receiver
-      - "8889:8889" # Prometheus metrics exporter
-      - "8888:8888" # OTel Collector self-metrics
-    depends_on:
-      - jaeger
-      - loki
-
-  # =========================================================================
-  # 4. DISTRIBUTED TRACING (JAEGER)
-  # =========================================================================
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    container_name: jaeger
-    command:
-      - "--sampling.strategies-file=/etc/jaeger/sampling-strategies.json"
-    environment:
-      COLLECTOR_OTLP_ENABLED: "true"
-      SPAN_STORAGE_TYPE: "memory"
-      MEMORY_MAX_TRACES: "100000"
-    volumes:
-      - ./local/observability/configs/jaeger-sampling-strategies.json:/etc/jaeger/sampling-strategies.json:ro
-    ports:
-      - "16686:16686" # Web UI
-      - "14268:14268" # HTTP Ingest
-
-  # =========================================================================
-  # 5. METRICS (PROMETHEUS)
-  # =========================================================================
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--web.enable-lifecycle"
-    volumes:
-      - ./local/observability/configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
-    ports:
-      - "9090:9090"
-    depends_on:
-      - otel-collector
-
-  # =========================================================================
-  # 6. LOGS (LOKI)
-  # =========================================================================
-  loki:
-    image: grafana/loki:latest
-    container_name: loki
-    command: ["-config.file=/etc/loki/local-config.yaml"]
-    volumes:
-      - ./local/observability/configs/loki-config.yaml:/etc/loki/local-config.yaml:ro
-      - loki_data:/loki
-    ports:
-      - "3100:3100"
-
-  # =========================================================================
-  # 7. OBSERVABILITY DASHBOARD (GRAFANA)
-  # =========================================================================
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_USERS_ALLOW_SIGN_UP: "false"
-      GF_AUTH_ANONYMOUS_ENABLED: "true"
-      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
-    volumes:
-      - ./local/observability/grafana/provisioning:/etc/grafana/provisioning:ro
-      - ./local/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
-      - grafana_data:/var/lib/grafana
-    ports:
-      - "3000:3000"
-    depends_on:
-      - prometheus
-      - jaeger
-      - loki
-
-  # =========================================================================
-  # 8. APPLICATION (SPRING BOOT + OTEL JAVA AGENT)
-  # =========================================================================
-  app:
+  service-order-execution-service:
     build: .
-    container_name: repairshop-app
+    container_name: service-order-standalone
     environment:
-      # Database Config
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/repairshop
-      SPRING_DATASOURCE_USERNAME: repairshop
-      SPRING_DATASOURCE_PASSWORD: repairshop
-      # Mail Config
-      SPRING_MAIL_HOST: mailpit
-      SPRING_MAIL_PORT: 1025
-      # OpenTelemetry Java Agent Config
-      OTEL_SERVICE_NAME: repairshop-app
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
-      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
-      OTEL_TRACES_EXPORTER: otlp
-      OTEL_METRICS_EXPORTER: otlp
-      OTEL_LOGS_EXPORTER: otlp
-      OTEL_RESOURCE_ATTRIBUTES: service.name=repairshop-app,deployment.environment=local
+      SERVER_PORT: 8080
+      AWS_ENDPOINT_URL: http://localstack:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-east-1
+      DYNAMODB_TABLE_SERVICE_ORDER: tb-service_order-dev
+      SQS_QUEUE_APPROVE_NOTIFICATION: approve-notification-queue-dev
+      SQS_QUEUE_CALLBACK_APPROVE: callback-approve-notification-queue-dev
+      SQS_QUEUE_CREATE_PAYMENT: create-payment-order-queue-dev
+      SQS_QUEUE_CALLBACK_PAYMENT: callback-payment-order-queue-dev
+      # OpenTelemetry
+      OTEL_SERVICE_NAME: service-order-execution-service
+      OTEL_TRACES_EXPORTER: none
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_LOGS_EXPORTER: none
     ports:
       - "8080:8080"
     depends_on:
-      postgres:
+      localstack:
         condition: service_healthy
-      otel-collector:
-        condition: service_started
-
-  # =========================================================================
-  # 9. CODE QUALITY & SECURITY (SONARQUBE) - DESABILITADO
-  # =========================================================================
-  # sonarqube:
-  #   image: sonarqube:community
-  #   container_name: sonarqube
-  #   ports:
-  #     - "9000:9000"
-  #   volumes:
-  #     - sonarqube_data:/opt/sonarqube/data
-  #     - sonarqube_extensions:/opt/sonarqube/extensions
-  #     - sonarqube_logs:/opt/sonarqube/logs
-
-volumes:
-  repairshop-data:
-  prometheus_data:
-  loki_data:
-  grafana_data:
-  # sonarqube_data:
-  # sonarqube_extensions:
-  # sonarqube_logs:
