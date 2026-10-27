@@ -14,6 +14,7 @@ import software.amazon.awssdk.services.dynamodb.model.GetItemResponse
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest
 import software.amazon.awssdk.services.dynamodb.model.QueryResponse
+import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsRequest
 import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
 import java.util.UUID
@@ -169,31 +170,44 @@ class DynamoServiceOrderRepositoryTest {
     @Test
     fun `updateStatus should update status without dispatch status`() {
         val id = UUID.randomUUID()
-        val slot = slot<UpdateItemRequest>()
-        every { dynamoDbClient.updateItem(capture(slot)) } returns mockk()
+        val slot = slot<TransactWriteItemsRequest>()
+        every { dynamoDbClient.transactWriteItems(capture(slot)) } returns mockk()
 
         repository.updateStatus(id, "FINALIZED")
 
-        verify(exactly = 1) { dynamoDbClient.updateItem(any<UpdateItemRequest>()) }
+        verify(exactly = 1) { dynamoDbClient.transactWriteItems(any<TransactWriteItemsRequest>()) }
         val captured = slot.captured
-        assertEquals(tableName, captured.tableName())
-        assertEquals("ORDER#$id", captured.key()["PK"]?.s())
-        assertEquals("FINALIZED", captured.expressionAttributeValues()[":newStatus"]?.s())
-        assertFalse(captured.updateExpression().contains("#pds"))
+        assertEquals(2, captured.transactItems().size)
+        val update = captured.transactItems()[0].update()
+        assertEquals(tableName, update.tableName())
+        assertEquals("ORDER#$id", update.key()["PK"]?.s())
+        assertEquals("FINALIZED", update.expressionAttributeValues()[":newStatus"]?.s())
+        assertFalse(update.updateExpression().contains("#pds"))
+
+        val putHist = captured.transactItems()[1].put()
+        assertEquals(tableName, putHist.tableName())
+        assertEquals("ORDER#$id", putHist.item()["PK"]?.s())
+        assertTrue(putHist.item()["SK"]?.s()?.startsWith("HIST#") == true)
+        assertEquals("FINALIZED", putHist.item()["status"]?.s())
     }
 
     @Test
     fun `updateStatus should update status with new dispatch status`() {
         val id = UUID.randomUUID()
-        val slot = slot<UpdateItemRequest>()
-        every { dynamoDbClient.updateItem(capture(slot)) } returns mockk()
+        val slot = slot<TransactWriteItemsRequest>()
+        every { dynamoDbClient.transactWriteItems(capture(slot)) } returns mockk()
 
         repository.updateStatus(id, "PAID", "DISPATCHED")
 
-        verify(exactly = 1) { dynamoDbClient.updateItem(any<UpdateItemRequest>()) }
+        verify(exactly = 1) { dynamoDbClient.transactWriteItems(any<TransactWriteItemsRequest>()) }
         val captured = slot.captured
-        assertTrue(captured.updateExpression().contains("#pds = :pds"))
-        assertEquals("DISPATCHED", captured.expressionAttributeValues()[":pds"]?.s())
+        assertEquals(2, captured.transactItems().size)
+        val update = captured.transactItems()[0].update()
+        assertTrue(update.updateExpression().contains("#pds = :pds"))
+        assertEquals("DISPATCHED", update.expressionAttributeValues()[":pds"]?.s())
+
+        val putHist = captured.transactItems()[1].put()
+        assertEquals("PAID", putHist.item()["status"]?.s())
     }
 
     @Test

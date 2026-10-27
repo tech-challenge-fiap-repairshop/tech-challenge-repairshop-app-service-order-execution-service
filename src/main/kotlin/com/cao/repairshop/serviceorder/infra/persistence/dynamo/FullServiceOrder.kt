@@ -6,8 +6,8 @@ import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ServiceOr
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ServiceOrderMetadataDynamoItem
 
 data class FullServiceOrder(
-    val metadata: ServiceOrderMetadataDynamoItem?,
-    val histories: List<ServiceOrderHistoryDynamoItem>,
-    val executions: List<ExecutionDynamoItem>,
-    val extraExecutions: List<ExtraExecutionDynamoItem>
+    val metadata: ServiceOrderMetadataDynamoItem? = null,
+    val histories: List<ServiceOrderHistoryDynamoItem> = emptyList(),
+    val executions: List<ExecutionDynamoItem> = emptyList(),
+    val extraExecutions: List<ExtraExecutionDynamoItem> = emptyList()
 )
