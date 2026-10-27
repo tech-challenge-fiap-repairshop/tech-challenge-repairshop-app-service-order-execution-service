@@ -10,6 +10,8 @@ import java.util.UUID
 
 interface ServiceOrderGateway {
     fun save(order: ServiceOrder): ServiceOrder
+    fun saveWithExtraExecution(order: ServiceOrder, extraItem: ExtraExecutionDynamoItem): ServiceOrder
+    fun saveWithExtraExecutions(order: ServiceOrder, extraItems: List<ExtraExecutionDynamoItem>): ServiceOrder
     fun findDetailedById(id: UUID): ServiceOrder?
     fun findAll(
         customerId: UUID?,

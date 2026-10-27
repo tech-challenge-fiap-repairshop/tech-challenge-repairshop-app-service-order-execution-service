@@ -8,6 +8,7 @@ import com.cao.repairshop.execution.domain.entities.mapper.toResponse
 import com.cao.repairshop.execution.infra.controller.dtos.CreateExecutionRequest
 import com.cao.repairshop.execution.infra.controller.dtos.ExecutionResponse
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -16,7 +17,13 @@ class AddExecutionImpl(
     private val serviceOrderGateway: ServiceOrderGateway
 ) : AddExecution {
 
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     override fun execute(serviceOrderId: UUID, request: CreateExecutionRequest): ExecutionResponse {
+        logger.info(
+            "Adicionando execução na OS [ORDER#{}]: tarefa='{}', preço={}, insumos={}",
+            serviceOrderId, request.basicDescription, request.price, request.insumes.size
+        )
         val order = serviceOrderGateway.findDetailedById(serviceOrderId)
             ?: throw EntityNotFoundException(ErrorMessages.ServiceOrder.NOT_FOUND)
 
@@ -43,6 +50,11 @@ class AddExecutionImpl(
         )
 
         serviceOrderGateway.save(order)
+        logger.info(
+            "Execução [EXEC#{}] adicionada com SUCESSO na OS [ORDER#{}]: novo total={}",
+            execution.id, serviceOrderId, order.totalPrice
+        )
+
         return execution.toResponse()
     }
 }

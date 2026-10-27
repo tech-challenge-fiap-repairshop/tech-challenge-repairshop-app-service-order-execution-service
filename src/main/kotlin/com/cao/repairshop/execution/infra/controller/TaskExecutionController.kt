@@ -7,6 +7,7 @@ import com.cao.repairshop.execution.infra.controller.dtos.CreateExecutionRequest
 import com.cao.repairshop.execution.infra.controller.dtos.ExecutionResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
@@ -22,6 +23,7 @@ class TaskExecutionController(
     private val addExecution: AddExecution,
     private val advanceExecutionStatus: AdvanceExecutionStatus
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @PostMapping("/execute_task/{executionId}")
     @Operation(summary = "Executa / avança status de uma tarefa técnica")
@@ -31,7 +33,10 @@ class TaskExecutionController(
         @RequestParam(defaultValue = "FINALIZED") status: ExecutionStatus
     ): ExecutionResponse {
         val sId = serviceOrderId ?: executionId
-        return advanceExecutionStatus.execute(sId, executionId, status)
+        logger.info("REST POST /execute_task/{} recebido: serviceOrderId={}, status={}", executionId, sId, status)
+        val response = advanceExecutionStatus.execute(sId, executionId, status)
+        logger.info("REST POST /execute_task/{} concluído: status={}", executionId, response.status)
+        return response
     }
 
     @PostMapping("/increment_execution_task/{serviceOrderId}")
@@ -41,6 +46,9 @@ class TaskExecutionController(
         @PathVariable serviceOrderId: UUID,
         @RequestBody request: CreateExecutionRequest
     ): ExecutionResponse {
-        return addExecution.execute(serviceOrderId, request)
+        logger.info("REST POST /increment_execution_task/{} recebido: tarefa='{}'", serviceOrderId, request.basicDescription)
+        val response = addExecution.execute(serviceOrderId, request)
+        logger.info("REST POST /increment_execution_task/{} concluído: executionId={}", serviceOrderId, response.id)
+        return response
     }
 }

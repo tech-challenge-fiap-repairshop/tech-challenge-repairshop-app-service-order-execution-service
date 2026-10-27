@@ -10,6 +10,7 @@ import com.cao.repairshop.serviceorder.infra.controller.dtos.ExecutionSummary
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ExtraExecutionResponse
 import com.cao.repairshop.serviceorder.infra.controller.dtos.InsumeSummaryResponse
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ServiceOrderResponse
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -21,7 +22,10 @@ class FindServiceOrderImpl(
     private val serviceOrderGateway: ServiceOrderGateway
 ) : FindServiceOrder {
 
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     override fun findById(id: UUID): ServiceOrderResponse {
+        logger.debug("Buscando detalhes consolidados da OS [ORDER#{}]", id)
         val order = serviceOrderGateway.findDetailedById(id)
             ?: throw EntityNotFoundException(ErrorMessages.ServiceOrder.NOT_FOUND)
 
@@ -56,6 +60,8 @@ class FindServiceOrderImpl(
             )
         }
 
+        logger.info("OS [ORDER#{}] encontrada: status={}, total_execuções={}, total_extras={}", id, order.status, order.executions.size, extraResponses.size)
+
         return order.toResponse().copy(
             hasExtraServices = order.hasExtraServices,
             extraServicesAccepted = order.extraServicesAccepted,
@@ -69,6 +75,7 @@ class FindServiceOrderImpl(
         status: ServiceOrderStatus?,
         pageable: Pageable
     ): Page<ServiceOrderResponse> {
+        logger.debug("Listagem de Ordens de Serviço: customerId={}, vehicleId={}, status={}", customerId, vehicleId, status)
         return serviceOrderGateway.findAll(customerId, vehicleId, status, pageable).map { it.toResponse() }
     }
 }

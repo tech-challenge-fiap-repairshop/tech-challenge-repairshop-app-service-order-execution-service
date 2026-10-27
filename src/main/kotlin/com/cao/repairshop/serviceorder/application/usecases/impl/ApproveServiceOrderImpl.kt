@@ -8,6 +8,7 @@ import com.cao.repairshop.serviceorder.domain.ApprovalDomainService
 import com.cao.repairshop.serviceorder.domain.entities.mapper.toResponse
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ApprovalRequest
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ServiceOrderResponse
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -17,7 +18,10 @@ class ApproveServiceOrderImpl(
     private val approvalDomainService: ApprovalDomainService
 ) : ApproveServiceOrder {
 
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     override fun execute(id: UUID, request: ApprovalRequest): ServiceOrderResponse {
+        logger.info("Processando decisão de orçamento para OS [ORDER#{}]: aprovado={}", id, request.approved)
         val order = serviceOrderGateway.findDetailedById(id)
             ?: throw EntityNotFoundException(ErrorMessages.ServiceOrder.NOT_FOUND)
 
@@ -28,6 +32,8 @@ class ApproveServiceOrderImpl(
         }
 
         val saved = serviceOrderGateway.save(order)
+        logger.info("Decisão de orçamento da OS [ORDER#{}] processada com SUCESSO: novo status={}", id, saved.status)
+
         return saved.toResponse()
     }
 }

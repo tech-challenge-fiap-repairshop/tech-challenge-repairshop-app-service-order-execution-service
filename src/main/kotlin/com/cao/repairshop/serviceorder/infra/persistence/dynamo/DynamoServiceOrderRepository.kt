@@ -15,9 +15,13 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import software.amazon.awssdk.services.dynamodb.model.GetItemRequest
+import software.amazon.awssdk.services.dynamodb.model.Put
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest
-import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest
+import software.amazon.awssdk.services.dynamodb.model.TransactWriteItem
+import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsRequest
+import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException
+import software.amazon.awssdk.services.dynamodb.model.Update
 import java.time.Instant
 import java.util.UUID
 
@@ -66,6 +70,71 @@ class DynamoServiceOrderRepository(
     }
 
     /**
+     * Executa operação de gravação transacional atômica no DynamoDB (ACID):
+     * Persiste ou atualiza Metadata, Históricos, Execuções, Execuções Extras e Deleta Execuções
+     * removidas em um único TransactWriteItems. Ou acontecem todas as operações, ou nenhuma!
+     */
+    fun saveTransactional(
+        metadata: ServiceOrderMetadataDynamoItem,
+        histories: List<ServiceOrderHistoryDynamoItem> = emptyList(),
+        executions: List<ExecutionDynamoItem> = emptyList(),
+        extraExecutions: List<ExtraExecutionDynamoItem> = emptyList(),
+        executionsToDelete: List<String> = emptyList()
+    ) {
+        val totalOperations = 1 + histories.size + executions.size + extraExecutions.size + executionsToDelete.size
+        logger.info(
+            "Iniciando transação atômica no DynamoDB para OS [{}]: {} operações totais (1 metadata, {} históricos, {} execuções, {} extras, {} deleções)",
+            metadata.serviceOrderId, totalOperations, histories.size, executions.size, extraExecutions.size, executionsToDelete.size
+        )
+
+        try {
+            enhancedClient.transactWriteItems { builder ->
+                if (metadata.pk.isBlank()) metadata.pk = "ORDER#${metadata.serviceOrderId}"
+                if (metadata.sk.isBlank()) metadata.sk = "METADATA"
+                builder.addPutItem(metadataTable, metadata)
+
+                histories.forEach { h ->
+                    if (h.pk.isBlank()) h.pk = metadata.pk
+                    if (h.sk.isBlank()) h.sk = "HIST#${Instant.now().toEpochMilli()}#${h.historyId}"
+                    builder.addPutItem(historyTable, h)
+                }
+
+                executions.forEach { e ->
+                    if (e.pk.isBlank()) e.pk = metadata.pk
+                    if (e.sk.isBlank()) e.sk = "EXEC#${Instant.now().toEpochMilli()}#${e.executionId}"
+                    builder.addPutItem(executionTable, e)
+                }
+
+                extraExecutions.forEach { ex ->
+                    if (ex.pk.isBlank()) ex.pk = metadata.pk
+                    if (ex.sk.isBlank()) ex.sk = "EXTRA_EXEC#${Instant.now().toEpochMilli()}#${ex.extraExecutionId}"
+                    builder.addPutItem(extraExecutionTable, ex)
+                }
+
+                executionsToDelete.forEach { skToDelete ->
+                    builder.addDeleteItem(executionTable, Key.builder().partitionValue(metadata.pk).sortValue(skToDelete).build())
+                }
+            }
+            logger.info(
+                "Transação atômica no DynamoDB concluída com SUCESSO para OS [{}] (todas as {} operações persistidas)",
+                metadata.serviceOrderId, totalOperations
+            )
+        } catch (e: TransactionCanceledException) {
+            logger.error(
+                "Transação DynamoDB CANCELADA para OS [{}]: Motivos de cancelamento: {}",
+                metadata.serviceOrderId, e.cancellationReasons(), e
+            )
+            throw e
+        } catch (e: Exception) {
+            logger.error(
+                "Falha ao executar transação atômica no DynamoDB para OS [{}]: {}",
+                metadata.serviceOrderId, e.message, e
+            )
+            throw e
+        }
+    }
+
+    /**
      * Salva ou atualiza os metadados da Ordem de Serviço (PK=ORDER#id, SK=METADATA)
      */
     fun saveMetadata(metadata: ServiceOrderMetadataDynamoItem) {
@@ -80,7 +149,13 @@ class DynamoServiceOrderRepository(
      */
     fun findMetadataById(orderId: UUID): ServiceOrderMetadataDynamoItem? {
         val key = Key.builder().partitionValue("ORDER#$orderId").sortValue("METADATA").build()
-        return runCatching { metadataTable.getItem(key) }.getOrNull()
+        val result = runCatching { metadataTable.getItem(key) }.getOrNull()
+        if (result != null) {
+            logger.debug("Metadata da OS encontrado no DynamoDB: ORDER#{}", orderId)
+        } else {
+            logger.debug("Metadata da OS não encontrado no DynamoDB: ORDER#{}", orderId)
+        }
+        return result
     }
 
     /**
@@ -118,6 +193,8 @@ class DynamoServiceOrderRepository(
      */
     fun getFullOrder(orderId: UUID): FullServiceOrder {
         val pk = "ORDER#$orderId"
+        logger.debug("Consultando Ordem de Serviço completa no DynamoDB: {}", pk)
+
         val request = QueryRequest.builder()
             .tableName(tableName)
             .keyConditionExpression("PK = :pk")
@@ -125,7 +202,10 @@ class DynamoServiceOrderRepository(
             .build()
 
         val response = runCatching { dynamoDbClient.query(request) }.getOrNull()
-            ?: return FullServiceOrder(null, emptyList(), emptyList(), emptyList())
+        if (response == null || response.items().isEmpty()) {
+            logger.debug("Nenhum item retornado para {}", pk)
+            return FullServiceOrder(null, emptyList(), emptyList(), emptyList())
+        }
 
         var metadata: ServiceOrderMetadataDynamoItem? = null
         val histories = mutableListOf<ServiceOrderHistoryDynamoItem>()
@@ -238,6 +318,11 @@ class DynamoServiceOrderRepository(
             }
         }
 
+        logger.info(
+            "Consulta Single-Table concluída para OS [{}]: metadata={}, históricos={}, execuções={}, extra_executions={}",
+            orderId, metadata != null, histories.size, executions.size, extraExecutions.size
+        )
+
         return FullServiceOrder(metadata, histories, executions, extraExecutions)
     }
 
@@ -260,6 +345,7 @@ class DynamoServiceOrderRepository(
      * Busca ordens pendentes de envio ao serviço de pagamento através do GSI pending-dispatch-index
      */
     fun findPendingNotification(): List<ServiceOrderDynamoItem> {
+        logger.debug("Buscando ordens pendentes de notificação via GSI pending-dispatch-index")
         val request = QueryRequest.builder()
             .tableName(tableName)
             .indexName("pending-dispatch-index")
@@ -272,7 +358,7 @@ class DynamoServiceOrderRepository(
 
         return runCatching {
             val response = dynamoDbClient.query(request)
-            response.items().mapNotNull { item ->
+            val results = response.items().mapNotNull { item ->
                 val idStr = item["id"]?.s() ?: item["service_order_id"]?.s() ?: return@mapNotNull null
                 ServiceOrderDynamoItem(
                     id = UUID.fromString(idStr),
@@ -287,11 +373,18 @@ class DynamoServiceOrderRepository(
                     originTraceId = item["origin_trace_id"]?.s()
                 )
             }
-        }.getOrDefault(emptyList())
+            logger.info("Consulta ao GSI pending-dispatch-index retornou {} ordens", results.size)
+            results
+        }.getOrElse { e ->
+            logger.error("Erro ao consultar GSI pending-dispatch-index: {}", e.message, e)
+            emptyList()
+        }
     }
 
     /**
-     * Atualiza o status e/ou payment_dispatch_status no DynamoDB
+     * Atualiza o status e/ou payment_dispatch_status no DynamoDB de forma TRANSACIONAL ATÔMICA:
+     * O update em METADATA e o insert em HIST# são realizados juntos em um TransactWriteItems.
+     * Ou acontecem ambos, ou nenhum!
      */
     fun updateStatus(
         id: UUID,
@@ -300,7 +393,8 @@ class DynamoServiceOrderRepository(
         paymentStatus: String? = null,
         hasExtraServices: Boolean? = null,
         extraServicesAccepted: Boolean? = null,
-        totalPrice: Double? = null
+        totalPrice: Double? = null,
+        historyDescription: String? = null
     ) {
         val key = mapOf(
             "PK" to AttributeValue.builder().s("ORDER#$id").build(),
@@ -345,31 +439,58 @@ class DynamoServiceOrderRepository(
             values[":top"] = AttributeValue.builder().n(totalPrice.toString()).build()
         }
 
-        val request = UpdateItemRequest.builder()
-            .tableName(tableName)
-            .key(key)
-            .updateExpression(updateExpr.toString())
-            .expressionAttributeNames(names)
-            .expressionAttributeValues(values)
-            .build()
-
-        dynamoDbClient.updateItem(request)
-        logger.info("Status da OS atualizado no DynamoDB: ORDER#{} -> {}", id, newStatus)
-
-        // Grava item no histórico a cada mudança de status
         val histTimestamp = Instant.now().toEpochMilli()
         val histId = UUID.randomUUID().toString()
-        saveHistory(
-            ServiceOrderHistoryDynamoItem(
-                pk = "ORDER#$id",
-                sk = "HIST#$histTimestamp#$histId",
-                entityType = "SERVICE_ORDER_HISTORY",
-                historyId = histId,
-                status = newStatus,
-                registerTime = now,
-                description = "Status transitioned to $newStatus"
-            )
+        val historyValues = mutableMapOf<String, AttributeValue>(
+            "PK" to AttributeValue.builder().s("ORDER#$id").build(),
+            "SK" to AttributeValue.builder().s("HIST#$histTimestamp#$histId").build(),
+            "entityType" to AttributeValue.builder().s("SERVICE_ORDER_HISTORY").build(),
+            "history_id" to AttributeValue.builder().s(histId).build(),
+            "status" to AttributeValue.builder().s(newStatus).build(),
+            "register_time" to AttributeValue.builder().s(now).build(),
+            "description" to AttributeValue.builder().s(historyDescription ?: "Status transitioned to $newStatus").build()
         )
+        paymentStatus?.let { historyValues["payment_status"] = AttributeValue.builder().s(it).build() }
+
+        val transactRequest = TransactWriteItemsRequest.builder()
+            .transactItems(
+                TransactWriteItem.builder()
+                    .update(
+                        Update.builder()
+                            .tableName(tableName)
+                            .key(key)
+                            .updateExpression(updateExpr.toString())
+                            .expressionAttributeNames(names)
+                            .expressionAttributeValues(values)
+                            .build()
+                    )
+                    .build(),
+                TransactWriteItem.builder()
+                    .put(
+                        Put.builder()
+                            .tableName(tableName)
+                            .item(historyValues)
+                            .build()
+                    )
+                    .build()
+            )
+            .build()
+
+        logger.info(
+            "Iniciando transação atômica DynamoDB para updateStatus: OS [ORDER#{}] -> Novo status={}, Dispatch={}, Payment={}",
+            id, newStatus, newDispatchStatus, paymentStatus
+        )
+
+        try {
+            dynamoDbClient.transactWriteItems(transactRequest)
+            logger.info("Transação atômica DynamoDB de updateStatus concluída com SUCESSO para OS [ORDER#{}] -> {}", id, newStatus)
+        } catch (e: TransactionCanceledException) {
+            logger.error("Transação de updateStatus CANCELADA para OS [ORDER#{}]: Motivos: {}", id, e.cancellationReasons(), e)
+            throw e
+        } catch (e: Exception) {
+            logger.error("Falha ao executar transação de updateStatus para OS [ORDER#{}]: {}", id, e.message, e)
+            throw e
+        }
     }
 
     // Métodos legados/compatibilidade com ServiceOrderDynamoItem
