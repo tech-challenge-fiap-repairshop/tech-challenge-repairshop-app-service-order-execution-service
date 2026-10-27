@@ -19,12 +19,14 @@ import java.util.UUID
 class AddExecutionImplTest {
 
     private lateinit var serviceOrderGateway: ServiceOrderGateway
+    private lateinit var addExecutionBatch: AddExecutionBatchImpl
     private lateinit var addExecutionImpl: AddExecutionImpl
 
     @BeforeEach
     fun setup() {
         serviceOrderGateway = mockk()
-        addExecutionImpl = AddExecutionImpl(serviceOrderGateway)
+        addExecutionBatch = AddExecutionBatchImpl(serviceOrderGateway)
+        addExecutionImpl = AddExecutionImpl(addExecutionBatch)
     }
 
     @Test

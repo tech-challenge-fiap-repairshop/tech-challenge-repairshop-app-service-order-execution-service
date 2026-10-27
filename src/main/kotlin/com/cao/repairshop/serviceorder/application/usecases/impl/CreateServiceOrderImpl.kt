@@ -1,6 +1,6 @@
 package com.cao.repairshop.serviceorder.application.usecases.impl
 
-import com.cao.repairshop.execution.domain.entities.Insume
+import com.cao.repairshop.execution.domain.entities.mapper.toDomainInsumes
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import com.cao.repairshop.serviceorder.application.usecases.CreateServiceOrder
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDateTime
-import java.util.UUID
 
 @Service
 class CreateServiceOrderImpl(
@@ -35,23 +34,12 @@ class CreateServiceOrderImpl(
         )
 
         request.services.forEach { sd ->
-            val resolvedInsumes = sd.insumes.map {
-                val insume = Insume(
-                    id = it.insumeId ?: UUID.randomUUID(),
-                    name = it.name,
-                    brand = it.brand,
-                    skuId = it.skuId,
-                    quantity = it.quantity,
-                    unityPrice = it.unityPrice
-                )
-                insume to it.quantity
-            }
             order.addExecution(
                 basicDescription = sd.basicDescription,
                 fullDescription = sd.fullDescription,
                 price = sd.price ?: BigDecimal.ZERO,
                 estimatedTime = sd.estimatedTime,
-                insumes = resolvedInsumes
+                insumes = sd.insumes.toDomainInsumes()
             )
         }
 
