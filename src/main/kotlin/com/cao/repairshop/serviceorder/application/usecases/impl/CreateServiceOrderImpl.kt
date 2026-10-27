@@ -1,53 +1,45 @@
 package com.cao.repairshop.serviceorder.application.usecases.impl
 
-import com.cao.repairshop.core.exception.EntityNotFoundException
-import com.cao.repairshop.core.exception.ErrorMessages
-import com.cao.repairshop.execution.domain.BasicExecution
-import com.cao.repairshop.inventory.application.gateways.InsumeGateway
+import com.cao.repairshop.execution.domain.entities.Insume
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import com.cao.repairshop.serviceorder.application.usecases.CreateServiceOrder
-import com.cao.repairshop.serviceorder.application.usecases.NotifyCustomer
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
 import com.cao.repairshop.serviceorder.domain.entities.mapper.toResponse
 import com.cao.repairshop.serviceorder.infra.controller.dtos.CreateServiceOrderRequest
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ServiceOrderResponse
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
 class CreateServiceOrderImpl(
-    private val serviceOrderGateway: ServiceOrderGateway,
-    private val insumeGateway: InsumeGateway,
-    private val notifyCustomer: NotifyCustomer
+    private val serviceOrderGateway: ServiceOrderGateway
 ) : CreateServiceOrder {
 
-    @Transactional
     override fun execute(request: CreateServiceOrderRequest): ServiceOrderResponse {
-        val customerId = request.customerId
-            ?: request.customerEmail?.let { UUID.nameUUIDFromBytes(it.toByteArray()) }
-            ?: UUID.randomUUID()
-
-        val vehicleId = request.vehicleId
-            ?: request.vehiclePlate?.let { UUID.nameUUIDFromBytes(it.toByteArray()) }
-            ?: UUID.randomUUID()
-
         val order = ServiceOrder(
-            customerId = customerId,
-            vehicleId = vehicleId,
+            customerId = request.customerId,
+            vehicleId = request.vehicleId,
+            status = ServiceOrderStatus.IN_DIAGNOSIS,
             enterTime = LocalDateTime.now()
         )
 
         request.services.forEach { sd ->
-            val resolvedInsumes = sd.insumes.mapNotNull {
-                val insume = insumeGateway.findById(it.insumeId)
-                if (insume != null) insume to it.quantity else null
+            val resolvedInsumes = sd.insumes.map {
+                val insume = Insume(
+                    id = it.insumeId ?: UUID.randomUUID(),
+                    name = it.name,
+                    brand = it.brand,
+                    skuId = it.skuId,
+                    quantity = it.quantity,
+                    unityPrice = it.unityPrice
+                )
+                insume to it.quantity
             }
             order.addExecution(
-                basicDescription = BasicExecution.valueOf(sd.basicDescription.uppercase()),
+                basicDescription = sd.basicDescription,
                 fullDescription = sd.fullDescription,
                 price = sd.price ?: BigDecimal.ZERO,
                 estimatedTime = sd.estimatedTime,
@@ -55,10 +47,9 @@ class CreateServiceOrderImpl(
             )
         }
 
-        order.recordHistory(ServiceOrderStatus.RECEIVED)
+        order.recordHistory(ServiceOrderStatus.IN_DIAGNOSIS, "Ordem de serviço criada em diagnóstico")
 
         val saved = serviceOrderGateway.save(order)
-        notifyCustomer.execute(saved, ServiceOrderStatus.RECEIVED)
         return saved.toResponse()
     }
 }

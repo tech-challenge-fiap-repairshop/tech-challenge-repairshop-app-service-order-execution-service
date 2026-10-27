@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.WebApplicationContext
 import tools.jackson.databind.json.JsonMapper
 import java.math.BigDecimal
@@ -23,7 +22,6 @@ import java.util.UUID
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Transactional
 class ServiceOrderControllerIT {
 
     private lateinit var mockMvc: MockMvc
@@ -50,38 +48,34 @@ class ServiceOrderControllerIT {
         val createRequest = CreateServiceOrderRequest(
             customerId = customerId,
             vehicleId = vehicleId,
-            customerEmail = "so_it@example.com",
-            vehiclePlate = "ABC1234",
             services = listOf(
                 ExecutionDefinitionRequest(
-                    basicDescription = "BRAKE_INSPECTION",
+                    basicDescription = "Inspeção de Freios",
                     fullDescription = "Brake repair",
                     price = BigDecimal("500.00")
                 )
             )
         )
 
-        // 1. Create
+        // 1. Create (initial state is IN_DIAGNOSIS)
         val createResult = mockMvc.perform(
             post("/service-orders")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(createRequest))
         )
             .andExpect(status().isCreated)
-            .andExpect(jsonPath("$.status").value("RECEIVED"))
+            .andExpect(jsonPath("$.status").value("IN_DIAGNOSIS"))
             .andExpect(jsonPath("$.totalPrice").value(500.0))
             .andReturn()
 
         val orderId = UUID.fromString(mapper.readTree(createResult.response.contentAsString).get("id").asText())
 
-        // 2. Advance to IN_DIAGNOSIS
+        // 2. Finish diagnosis to move to WAITING_APPROVAL
         mockMvc.perform(
-            patch("/service-orders/$orderId/status")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""{"status": "IN_DIAGNOSIS"}""")
+            post("/service-orders/$orderId/finish-diagnosis")
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.status").value("IN_DIAGNOSIS"))
+            .andExpect(jsonPath("$.status").value("WAITING_APPROVAL"))
 
         // 3. List with pagination
         mockMvc.perform(get("/service-orders?page=0&size=10"))

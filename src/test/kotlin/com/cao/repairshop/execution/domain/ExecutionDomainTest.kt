@@ -2,7 +2,7 @@ package com.cao.repairshop.execution.domain
 
 import com.cao.repairshop.core.exception.InvalidStateTransitionException
 import com.cao.repairshop.execution.domain.entities.Execution
-import com.cao.repairshop.inventory.domain.entities.Insume
+import com.cao.repairshop.execution.domain.entities.Insume
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -14,10 +14,10 @@ class ExecutionDomainTest {
 
     private fun buildExecution(status: ExecutionStatus = ExecutionStatus.INITIATED): Execution {
         val order = ServiceOrder(customerId = UUID.randomUUID(), vehicleId = UUID.randomUUID())
-        return Execution(serviceOrderId = order.id, basicDescription = BasicExecution.OIL_CHANGE, price = BigDecimal("100"), status = status)
+        return Execution(serviceOrderId = order.id, basicDescription = "OIL_CHANGE", price = BigDecimal("100"), status = status)
     }
 
-    private fun buildInsume(price: String = "25") = Insume(id = UUID.randomUUID(), name = "Oil Filter", price = BigDecimal(price), unityPrice = BigDecimal(price), quantity = 10)
+    private fun buildInsume(price: String = "25") = Insume(id = UUID.randomUUID(), name = "Oil Filter", unityPrice = BigDecimal(price), quantity = 10)
 
     @Test
     fun `advanceStatus valid transition INITIATED to PENDING records history`() {

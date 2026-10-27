@@ -2,7 +2,6 @@ package com.cao.repairshop.execution.infra.controller
 
 import com.cao.repairshop.execution.application.usecases.AddExecution
 import com.cao.repairshop.execution.application.usecases.AdvanceExecutionStatus
-import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.domain.ExecutionStatus
 import com.cao.repairshop.execution.infra.controller.dtos.CreateExecutionRequest
 import com.cao.repairshop.execution.infra.controller.dtos.ExecutionResponse
@@ -42,7 +41,7 @@ class TaskExecutionControllerTest {
         val response = ExecutionResponse(
             id = executionId,
             serviceOrderId = serviceOrderId,
-            basicDescription = BasicExecution.OIL_CHANGE,
+            basicDescription = "OIL_CHANGE",
             fullDescription = "Oil change",
             laborPrice = BigDecimal("150.00"),
             totalPrice = BigDecimal("150.00"),
@@ -68,7 +67,7 @@ class TaskExecutionControllerTest {
         val response = ExecutionResponse(
             id = executionId,
             serviceOrderId = serviceOrderId,
-            basicDescription = BasicExecution.BRAKE_INSPECTION,
+            basicDescription = "BRAKE_INSPECTION",
             fullDescription = "Inspect brake pads",
             laborPrice = BigDecimal("80.00"),
             totalPrice = BigDecimal("80.00"),

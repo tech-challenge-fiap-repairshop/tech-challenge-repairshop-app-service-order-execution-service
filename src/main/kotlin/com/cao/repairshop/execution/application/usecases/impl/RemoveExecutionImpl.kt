@@ -5,7 +5,6 @@ import com.cao.repairshop.core.exception.ErrorMessages
 import com.cao.repairshop.execution.application.usecases.RemoveExecution
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Service
@@ -13,7 +12,6 @@ class RemoveExecutionImpl(
     private val serviceOrderGateway: ServiceOrderGateway
 ) : RemoveExecution {
 
-    @Transactional
     override fun execute(serviceOrderId: UUID, executionId: UUID) {
         val order = serviceOrderGateway.findDetailedById(serviceOrderId)
             ?: throw EntityNotFoundException(ErrorMessages.ServiceOrder.NOT_FOUND)

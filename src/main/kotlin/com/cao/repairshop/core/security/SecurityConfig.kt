@@ -1,6 +1,5 @@
 package com.cao.repairshop.core.security
 
-import com.cao.repairshop.core.security.UserRole
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -9,8 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
@@ -34,25 +31,32 @@ class SecurityConfig(
                 authorize("/swagger-custom.css", permitAll)
                 authorize("/actuator/**", permitAll)
 
-                // Endpoints da Fase 4 (desenho arquitetural)
-                authorize(HttpMethod.POST, "/create_service_order", permitAll)
-                authorize(HttpMethod.POST, "/execute_task/**", permitAll)
-                authorize(HttpMethod.POST, "/increment_execution_task/**", permitAll)
+                // Service Orders: Customer / Attendant can view and approve
+                authorize(HttpMethod.GET, "/service-orders/**", hasAnyRole(UserRole.ATTENDANT.name, UserRole.CUSTOMER.name, UserRole.MECHANIC.name, UserRole.ADMIN.name))
+                authorize(HttpMethod.POST, "/service-orders/*/approve", hasAnyRole(UserRole.ATTENDANT.name, UserRole.CUSTOMER.name))
+                authorize(HttpMethod.POST, "/service-orders/*/extra-executions/approve", hasAnyRole(UserRole.ATTENDANT.name, UserRole.CUSTOMER.name))
 
-                // Service Orders & Executions
-                authorize(HttpMethod.GET, "/service-orders/**", permitAll)
-                authorize(HttpMethod.POST, "/service-orders/*/approve", permitAll)
-                authorize("/service-orders/**", permitAll)
-                authorize("/executions/**", permitAll)
+                // Attendant / Admin can create service orders
+                authorize(HttpMethod.POST, "/service-orders", hasAnyRole(UserRole.ATTENDANT.name, UserRole.ADMIN.name))
+                authorize(HttpMethod.POST, "/service-orders/create_service_order", hasAnyRole(UserRole.ATTENDANT.name, UserRole.ADMIN.name))
+                authorize(HttpMethod.POST, "/create_service_order", hasAnyRole(UserRole.ATTENDANT.name, UserRole.ADMIN.name))
 
-                // Default
-                authorize(anyRequest, permitAll)
+                // Mechanic / Attendant / Admin can handle diagnosis, advance status, manage executions and extra executions
+                authorize(HttpMethod.POST, "/service-orders/*/finish-diagnosis", hasAnyRole(UserRole.ATTENDANT.name, UserRole.MECHANIC.name, UserRole.ADMIN.name))
+                authorize(HttpMethod.POST, "/service-orders/*/extra-executions", hasAnyRole(UserRole.ATTENDANT.name, UserRole.MECHANIC.name, UserRole.ADMIN.name))
+                authorize(HttpMethod.PATCH, "/service-orders/*/status", hasAnyRole(UserRole.ATTENDANT.name, UserRole.MECHANIC.name, UserRole.ADMIN.name))
+                authorize("/service-orders/**", hasAnyRole(UserRole.ATTENDANT.name, UserRole.ADMIN.name))
+
+                // Executions (Mechanic / Attendant / Admin)
+                authorize("/executions/**", hasAnyRole(UserRole.ATTENDANT.name, UserRole.MECHANIC.name, UserRole.ADMIN.name))
+                authorize("/execute_task/**", hasAnyRole(UserRole.ATTENDANT.name, UserRole.MECHANIC.name, UserRole.ADMIN.name))
+                authorize("/increment_execution_task/**", hasAnyRole(UserRole.ATTENDANT.name, UserRole.MECHANIC.name, UserRole.ADMIN.name))
+
+                // Default: authenticated
+                authorize(anyRequest, authenticated)
             }
             addFilterBefore<UsernamePasswordAuthenticationFilter>(jwtAuthenticationFilter)
         }
         return http.build()
     }
-
-    @Bean
-    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder(10)
 }

@@ -54,7 +54,7 @@ data class ServiceOrderMetadataDynamoItem(
     var updateDate: String = Instant.now().toString(),
 
     @get:DynamoDbAttribute("status")
-    var status: String = "RECEIVED",
+    var status: String = "IN_DIAGNOSIS",
 
     @get:DynamoDbAttribute("valid_date")
     var validDate: String? = null,
@@ -65,6 +65,12 @@ data class ServiceOrderMetadataDynamoItem(
     @get:DynamoDbSecondaryPartitionKey(indexNames = ["pending-dispatch-index"])
     @get:DynamoDbAttribute("payment_dispatch_status")
     var paymentDispatchStatus: String = "PENDING",
+
+    @get:DynamoDbAttribute("has_extra_services")
+    var hasExtraServices: Boolean = false,
+
+    @get:DynamoDbAttribute("extra_services_accepted")
+    var extraServicesAccepted: Boolean? = null,
 
     @get:DynamoDbAttribute("description")
     var description: String? = null,

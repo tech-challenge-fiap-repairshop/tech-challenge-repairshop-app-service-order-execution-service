@@ -1,7 +1,6 @@
 package com.cao.repairshop.execution.application.usecases.impl
 
 import com.cao.repairshop.core.exception.EntityNotFoundException
-import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.domain.entities.Execution
 import com.cao.repairshop.execution.infra.controller.dtos.UpdateExecutionRequest
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
@@ -50,7 +49,7 @@ class UpdateExecutionImplTest {
         val execution = Execution(
             id = executionId,
             serviceOrderId = serviceOrderId,
-            basicDescription = BasicExecution.OIL_CHANGE,
+            basicDescription = "OIL_CHANGE",
             fullDescription = "Oil change",
             price = BigDecimal("100.00")
         )
@@ -61,7 +60,7 @@ class UpdateExecutionImplTest {
 
         val response = updateExecutionImpl.execute(serviceOrderId, executionId, request)
 
-        assertEquals("BRAKE_INSPECTION", response.basicDescription.name)
+        assertEquals("BRAKE_INSPECTION", response.basicDescription)
         assertEquals("Check front brakes", response.fullDescription)
         assertEquals(BigDecimal("150.00"), response.laborPrice)
         assertEquals(BigDecimal("150.00"), serviceOrder.totalPrice)

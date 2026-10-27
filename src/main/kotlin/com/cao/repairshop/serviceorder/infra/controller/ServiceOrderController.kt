@@ -1,17 +1,16 @@
 package com.cao.repairshop.serviceorder.infra.controller
 
 import com.cao.repairshop.execution.infra.controller.dtos.ExecutionMetricsResponse
+import com.cao.repairshop.serviceorder.application.usecases.*
+import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 import com.cao.repairshop.serviceorder.infra.controller.dtos.*
 import com.cao.repairshop.serviceorder.infra.controller.interfaces.ServiceOrderApi
-import com.cao.repairshop.serviceorder.application.usecases.*
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
-
-import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 
 @RestController
 @RequestMapping("/service-orders")
@@ -20,6 +19,8 @@ class ServiceOrderController(
     private val findServiceOrder: FindServiceOrder,
     private val advanceServiceOrderStatus: AdvanceServiceOrderStatus,
     private val approveServiceOrder: ApproveServiceOrder,
+    private val finishDiagnosis: FinishDiagnosis,
+    private val manageExtraExecutions: ManageExtraExecutions,
     private val getServiceOrderMetrics: GetServiceOrderMetrics,
     private val getExecutionMetrics: GetExecutionMetrics
 ) : ServiceOrderApi {
@@ -48,6 +49,10 @@ class ServiceOrderController(
     override fun findById(@PathVariable id: UUID): ServiceOrderResponse =
         findServiceOrder.findById(id)
 
+    @PostMapping("/{id}/finish-diagnosis")
+    override fun finishDiagnosis(@PathVariable id: UUID): ServiceOrderResponse =
+        finishDiagnosis.execute(id)
+
     @PatchMapping("/{id}/status")
     override fun advanceStatus(
         @PathVariable id: UUID,
@@ -61,6 +66,20 @@ class ServiceOrderController(
         @Valid @RequestBody request: ApprovalRequest
     ): ServiceOrderResponse =
         approveServiceOrder.execute(id, request)
+
+    @PostMapping("/{id}/extra-executions")
+    override fun addExtraExecutions(
+        @PathVariable id: UUID,
+        @Valid @RequestBody request: AddExtraExecutionsRequest
+    ): ServiceOrderResponse =
+        manageExtraExecutions.addExtraExecutions(id, request)
+
+    @PostMapping("/{id}/extra-executions/approve")
+    override fun approveExtraExecutions(
+        @PathVariable id: UUID,
+        @Valid @RequestBody request: ApprovalRequest
+    ): ServiceOrderResponse =
+        manageExtraExecutions.approveExtraExecutions(id, request)
 
     @GetMapping("/metrics")
     override fun getMetrics(): ServiceOrderMetricsResponse =

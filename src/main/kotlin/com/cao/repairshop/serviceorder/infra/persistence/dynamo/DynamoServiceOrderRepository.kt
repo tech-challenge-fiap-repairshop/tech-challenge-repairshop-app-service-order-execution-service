@@ -1,6 +1,7 @@
 package com.cao.repairshop.serviceorder.infra.persistence.dynamo
 
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ExecutionDynamoItem
+import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ExtraExecutionDynamoItem
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.InsumeDynamoItem
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ServiceOrderHistoryDynamoItem
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ServiceOrderMetadataDynamoItem
@@ -11,7 +12,6 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable
 import software.amazon.awssdk.enhanced.dynamodb.Key
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import software.amazon.awssdk.services.dynamodb.model.GetItemRequest
@@ -21,7 +21,6 @@ import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest
 import java.time.Instant
 import java.util.UUID
 
-// Compatibilidade com DTO existente
 data class ServiceOrderDynamoItem(
     val id: UUID,
     val customerId: UUID,
@@ -32,6 +31,13 @@ data class ServiceOrderDynamoItem(
     val paymentDispatchStatus: String = "PENDING",
     val updateDate: String = Instant.now().toString(),
     val originTraceId: String? = null
+)
+
+data class FullServiceOrder(
+    val metadata: ServiceOrderMetadataDynamoItem?,
+    val histories: List<ServiceOrderHistoryDynamoItem>,
+    val executions: List<ExecutionDynamoItem>,
+    val extraExecutions: List<ExtraExecutionDynamoItem>
 )
 
 @Repository
@@ -53,6 +59,10 @@ class DynamoServiceOrderRepository(
 
     private val executionTable: DynamoDbTable<ExecutionDynamoItem> by lazy {
         enhancedClient.table(tableName, TableSchema.fromBean(ExecutionDynamoItem::class.java))
+    }
+
+    private val extraExecutionTable: DynamoDbTable<ExtraExecutionDynamoItem> by lazy {
+        enhancedClient.table(tableName, TableSchema.fromBean(ExtraExecutionDynamoItem::class.java))
     }
 
     /**
@@ -77,6 +87,8 @@ class DynamoServiceOrderRepository(
      * Registra histórico de mudança de status (PK=ORDER#id, SK=HIST#timestamp#historyId)
      */
     fun saveHistory(history: ServiceOrderHistoryDynamoItem) {
+        if (history.pk.isBlank()) history.pk = "ORDER#${history.historyId}"
+        if (history.sk.isBlank()) history.sk = "HIST#${Instant.now().toEpochMilli()}#${history.historyId}"
         historyTable.putItem(history)
         logger.info("Histórico registrado no DynamoDB: PK={}, Status={}", history.pk, history.status)
     }
@@ -85,15 +97,26 @@ class DynamoServiceOrderRepository(
      * Registra tarefa de execução técnica com insumos embutidos (PK=ORDER#id, SK=EXEC#timestamp#executionId)
      */
     fun saveExecution(execution: ExecutionDynamoItem) {
+        if (execution.pk.isBlank()) execution.pk = "ORDER#${execution.executionId}"
+        if (execution.sk.isBlank()) execution.sk = "EXEC#${Instant.now().toEpochMilli()}#${execution.executionId}"
         executionTable.putItem(execution)
         logger.info("Execução registrada no DynamoDB: PK={}, Task={}, Status={}", execution.pk, execution.taskName, execution.status)
     }
 
     /**
-     * Recupera a Ordem de Serviço COMPLETA (Metadata + Histórico + Execuções) via Single-Table Query
-     * Uma única chamada na partição PK = ORDER#<id> recupera tudo!
+     * Registra item de execuções extras (PK=ORDER#id, SK=EXTRA_EXEC#timestamp#extraExecutionId)
      */
-    fun getFullOrder(orderId: UUID): Triple<ServiceOrderMetadataDynamoItem?, List<ServiceOrderHistoryDynamoItem>, List<ExecutionDynamoItem>> {
+    fun saveExtraExecution(extraItem: ExtraExecutionDynamoItem) {
+        if (extraItem.pk.isBlank()) extraItem.pk = "ORDER#${extraItem.serviceOrderId}"
+        if (extraItem.sk.isBlank()) extraItem.sk = "EXTRA_EXEC#${Instant.now().toEpochMilli()}#${extraItem.extraExecutionId}"
+        extraExecutionTable.putItem(extraItem)
+        logger.info("Item de Execução Extra registrado no DynamoDB: PK={}, ExtraId={}, Status={}", extraItem.pk, extraItem.extraExecutionId, extraItem.status)
+    }
+
+    /**
+     * Recupera a Ordem de Serviço COMPLETA (Metadata + Histórico + Execuções + Execuções Extras) via Single-Table Query
+     */
+    fun getFullOrder(orderId: UUID): FullServiceOrder {
         val pk = "ORDER#$orderId"
         val request = QueryRequest.builder()
             .tableName(tableName)
@@ -101,11 +124,13 @@ class DynamoServiceOrderRepository(
             .expressionAttributeValues(mapOf(":pk" to AttributeValue.builder().s(pk).build()))
             .build()
 
-        val response = runCatching { dynamoDbClient.query(request) }.getOrNull() ?: return Triple(null, emptyList(), emptyList())
+        val response = runCatching { dynamoDbClient.query(request) }.getOrNull()
+            ?: return FullServiceOrder(null, emptyList(), emptyList(), emptyList())
 
         var metadata: ServiceOrderMetadataDynamoItem? = null
         val histories = mutableListOf<ServiceOrderHistoryDynamoItem>()
         val executions = mutableListOf<ExecutionDynamoItem>()
+        val extraExecutions = mutableListOf<ExtraExecutionDynamoItem>()
 
         for (item in response.items()) {
             val sk = item["SK"]?.s() ?: ""
@@ -118,15 +143,18 @@ class DynamoServiceOrderRepository(
                         serviceOrderId = item["service_order_id"]?.s() ?: orderId.toString(),
                         customerId = item["customer_id"]?.s() ?: "",
                         vehicleId = item["vehicle_id"]?.s() ?: "",
-                        totalServiceOrderPrice = item["total_service_order_price"]?.n()?.toDouble() ?: item["total_price"]?.n()?.toDouble() ?: 0.0,
+                        totalServiceOrderPrice = item["total_service_order_price"]?.n()?.toDouble()
+                            ?: item["total_price"]?.n()?.toDouble() ?: 0.0,
                         enterTime = item["enter_time"]?.s() ?: "",
                         endTime = item["end_time"]?.s(),
                         createDate = item["create_date"]?.s() ?: "",
                         updateDate = item["update_date"]?.s() ?: "",
-                        status = item["status"]?.s() ?: "RECEIVED",
+                        status = item["status"]?.s() ?: "IN_DIAGNOSIS",
                         validDate = item["valid_date"]?.s(),
                         paymentStatus = item["payment_status"]?.s() ?: "PENDING",
                         paymentDispatchStatus = item["payment_dispatch_status"]?.s() ?: "PENDING",
+                        hasExtraServices = item["has_extra_services"]?.bool() ?: false,
+                        extraServicesAccepted = item["extra_services_accepted"]?.bool(),
                         description = item["description"]?.s(),
                         originTraceId = item["origin_trace_id"]?.s()
                     )
@@ -147,19 +175,7 @@ class DynamoServiceOrderRepository(
                     )
                 }
                 sk.startsWith("EXEC#") -> {
-                    val insumesList = item["insumes"]?.l()?.mapNotNull { iv ->
-                        val m = iv.m() ?: return@mapNotNull null
-                        InsumeDynamoItem(
-                            idInsume = m["id_insume"]?.s() ?: "",
-                            name = m["name"]?.s() ?: "",
-                            brand = m["brand"]?.s() ?: "",
-                            quantity = m["quantity"]?.n()?.toDouble() ?: 1.0,
-                            insumePrice = m["insume_price"]?.n()?.toDouble() ?: 0.0,
-                            skuId = m["sku_id"]?.s() ?: "",
-                            unityInsumePrice = m["unity_insume_price"]?.n()?.toDouble() ?: 0.0
-                        )
-                    } ?: emptyList()
-
+                    val insumesList = parseInsumes(item["insumes"])
                     executions.add(
                         ExecutionDynamoItem(
                             pk = pk,
@@ -179,10 +195,65 @@ class DynamoServiceOrderRepository(
                         )
                     )
                 }
+                sk.startsWith("EXTRA_EXEC#") -> {
+                    val rawExecs = item["executions"]?.l() ?: emptyList()
+                    val extraExecList = rawExecs.mapNotNull { ev ->
+                        val m = ev.m() ?: return@mapNotNull null
+                        ExecutionDynamoItem(
+                            pk = pk,
+                            sk = m["SK"]?.s() ?: "",
+                            entityType = m["entityType"]?.s() ?: "EXECUTION",
+                            executionId = m["execution_id"]?.s() ?: UUID.randomUUID().toString(),
+                            taskName = m["task_name"]?.s() ?: "",
+                            executionPrice = m["execution_price"]?.n()?.toDouble() ?: 0.0,
+                            status = m["status"]?.s() ?: "INITIATED",
+                            createDate = m["create_date"]?.s() ?: "",
+                            updateDate = m["update_date"]?.s() ?: "",
+                            basicDescription = m["basic_description"]?.s() ?: "",
+                            fullDescription = m["full_description"]?.s(),
+                            estimatedTime = m["estimated_time"]?.n()?.toDouble(),
+                            intervalTime = m["interval_time"]?.n()?.toLong(),
+                            insumes = parseInsumes(m["insumes"])
+                        )
+                    }
+
+                    extraExecutions.add(
+                        ExtraExecutionDynamoItem(
+                            pk = pk,
+                            sk = sk,
+                            entityType = item["entityType"]?.s() ?: "EXTRA_EXECUTION",
+                            extraExecutionId = item["extra_execution_id"]?.s() ?: UUID.randomUUID().toString(),
+                            serviceOrderId = item["service_order_id"]?.s() ?: orderId.toString(),
+                            hasExtraServices = item["has_extra_services"]?.bool() ?: true,
+                            extraServicesAccepted = item["extra_services_accepted"]?.bool(),
+                            status = item["status"]?.s() ?: "WAITING_APPROVAL",
+                            totalExtraPrice = item["total_extra_price"]?.n()?.toDouble() ?: 0.0,
+                            notes = item["notes"]?.s(),
+                            createDate = item["create_date"]?.s() ?: "",
+                            updateDate = item["update_date"]?.s() ?: "",
+                            executions = extraExecList
+                        )
+                    )
+                }
             }
         }
 
-        return Triple(metadata, histories, executions)
+        return FullServiceOrder(metadata, histories, executions, extraExecutions)
+    }
+
+    private fun parseInsumes(insumesAttribute: AttributeValue?): List<InsumeDynamoItem> {
+        return insumesAttribute?.l()?.mapNotNull { iv ->
+            val m = iv.m() ?: return@mapNotNull null
+            InsumeDynamoItem(
+                idInsume = m["id_insume"]?.s() ?: "",
+                name = m["name"]?.s() ?: "",
+                brand = m["brand"]?.s() ?: "",
+                quantity = m["quantity"]?.n()?.toDouble() ?: 1.0,
+                insumePrice = m["insume_price"]?.n()?.toDouble() ?: 0.0,
+                skuId = m["sku_id"]?.s() ?: "",
+                unityInsumePrice = m["unity_insume_price"]?.n()?.toDouble() ?: 0.0
+            )
+        } ?: emptyList()
     }
 
     /**
@@ -208,7 +279,8 @@ class DynamoServiceOrderRepository(
                     customerId = UUID.fromString(item["customer_id"]!!.s()),
                     vehicleId = UUID.fromString(item["vehicle_id"]!!.s()),
                     status = item["status"]!!.s(),
-                    totalPrice = item["total_service_order_price"]?.n()?.toDouble() ?: item["total_price"]?.n()?.toDouble() ?: 0.0,
+                    totalPrice = item["total_service_order_price"]?.n()?.toDouble()
+                        ?: item["total_price"]?.n()?.toDouble() ?: 0.0,
                     description = item["description"]?.s(),
                     paymentDispatchStatus = item["payment_dispatch_status"]?.s() ?: "PENDING",
                     updateDate = item["update_date"]?.s() ?: Instant.now().toString(),
@@ -221,7 +293,15 @@ class DynamoServiceOrderRepository(
     /**
      * Atualiza o status e/ou payment_dispatch_status no DynamoDB
      */
-    fun updateStatus(id: UUID, newStatus: String, newDispatchStatus: String? = null, paymentStatus: String? = null) {
+    fun updateStatus(
+        id: UUID,
+        newStatus: String,
+        newDispatchStatus: String? = null,
+        paymentStatus: String? = null,
+        hasExtraServices: Boolean? = null,
+        extraServicesAccepted: Boolean? = null,
+        totalPrice: Double? = null
+    ) {
         val key = mapOf(
             "PK" to AttributeValue.builder().s("ORDER#$id").build(),
             "SK" to AttributeValue.builder().s("METADATA").build()
@@ -247,6 +327,24 @@ class DynamoServiceOrderRepository(
             values[":ps"] = AttributeValue.builder().s(paymentStatus).build()
         }
 
+        if (hasExtraServices != null) {
+            updateExpr.append(", #hes = :hes")
+            names["#hes"] = "has_extra_services"
+            values[":hes"] = AttributeValue.builder().bool(hasExtraServices).build()
+        }
+
+        if (extraServicesAccepted != null) {
+            updateExpr.append(", #esa = :esa")
+            names["#esa"] = "extra_services_accepted"
+            values[":esa"] = AttributeValue.builder().bool(extraServicesAccepted).build()
+        }
+
+        if (totalPrice != null) {
+            updateExpr.append(", #top = :top")
+            names["#top"] = "total_service_order_price"
+            values[":top"] = AttributeValue.builder().n(totalPrice.toString()).build()
+        }
+
         val request = UpdateItemRequest.builder()
             .tableName(tableName)
             .key(key)
@@ -257,6 +355,21 @@ class DynamoServiceOrderRepository(
 
         dynamoDbClient.updateItem(request)
         logger.info("Status da OS atualizado no DynamoDB: ORDER#{} -> {}", id, newStatus)
+
+        // Grava item no histórico a cada mudança de status
+        val histTimestamp = Instant.now().toEpochMilli()
+        val histId = UUID.randomUUID().toString()
+        saveHistory(
+            ServiceOrderHistoryDynamoItem(
+                pk = "ORDER#$id",
+                sk = "HIST#$histTimestamp#$histId",
+                entityType = "SERVICE_ORDER_HISTORY",
+                historyId = histId,
+                status = newStatus,
+                registerTime = now,
+                description = "Status transitioned to $newStatus"
+            )
+        )
     }
 
     // Métodos legados/compatibilidade com ServiceOrderDynamoItem
@@ -305,7 +418,8 @@ class DynamoServiceOrderRepository(
             customerId = UUID.fromString(item["customer_id"]?.s() ?: UUID.randomUUID().toString()),
             vehicleId = UUID.fromString(item["vehicle_id"]?.s() ?: UUID.randomUUID().toString()),
             status = item["status"]?.s() ?: "",
-            totalPrice = item["total_price"]?.n()?.toDouble() ?: item["total_service_order_price"]?.n()?.toDouble() ?: 0.0,
+            totalPrice = item["total_price"]?.n()?.toDouble()
+                ?: item["total_service_order_price"]?.n()?.toDouble() ?: 0.0,
             description = item["description"]?.s(),
             paymentDispatchStatus = item["payment_dispatch_status"]?.s() ?: "PENDING",
             updateDate = item["update_date"]?.s() ?: "",

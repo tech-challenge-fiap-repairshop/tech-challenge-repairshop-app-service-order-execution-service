@@ -3,13 +3,11 @@ package com.cao.repairshop.execution.application.usecases.impl
 import com.cao.repairshop.core.exception.EntityNotFoundException
 import com.cao.repairshop.core.exception.ErrorMessages
 import com.cao.repairshop.execution.application.usecases.UpdateExecution
-import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.domain.entities.mapper.toResponse
 import com.cao.repairshop.execution.infra.controller.dtos.ExecutionResponse
 import com.cao.repairshop.execution.infra.controller.dtos.UpdateExecutionRequest
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -18,7 +16,6 @@ class UpdateExecutionImpl(
     private val serviceOrderGateway: ServiceOrderGateway
 ) : UpdateExecution {
 
-    @Transactional
     override fun execute(serviceOrderId: UUID, executionId: UUID, request: UpdateExecutionRequest): ExecutionResponse {
         val order = serviceOrderGateway.findDetailedById(serviceOrderId)
             ?: throw EntityNotFoundException(ErrorMessages.ServiceOrder.NOT_FOUND)
@@ -29,7 +26,7 @@ class UpdateExecutionImpl(
             ?: throw EntityNotFoundException(ErrorMessages.Execution.NOT_FOUND)
 
         execution.apply {
-            basicDescription = BasicExecution.valueOf(request.basicDescription.uppercase())
+            basicDescription = request.basicDescription
             fullDescription = request.fullDescription
             price = request.price
             estimatedTime = request.estimatedTime

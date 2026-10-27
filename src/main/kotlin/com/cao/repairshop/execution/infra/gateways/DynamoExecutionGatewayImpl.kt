@@ -1,8 +1,9 @@
 package com.cao.repairshop.execution.infra.gateways
 
 import com.cao.repairshop.execution.application.gateways.ExecutionGateway
+import com.cao.repairshop.execution.domain.ExecutionStatus
 import com.cao.repairshop.execution.domain.entities.Execution
-import com.cao.repairshop.inventory.domain.entities.Insume
+import com.cao.repairshop.execution.domain.entities.Insume
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.DynamoServiceOrderRepository
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ExecutionDynamoItem
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.InsumeDynamoItem
@@ -26,11 +27,11 @@ class DynamoExecutionGatewayImpl(
             InsumeDynamoItem(
                 idInsume = ei.insume.id.toString(),
                 name = ei.insume.name,
-                brand = "GENERIC",
+                brand = ei.insume.brand ?: "GENERIC",
                 quantity = ei.quantity.toDouble(),
-                insumePrice = ei.insume.price.toDouble(),
-                skuId = "SKU-${ei.insume.id.toString().take(8)}",
-                unityInsumePrice = ei.insume.price.toDouble()
+                insumePrice = ei.insume.totalPrice.toDouble(),
+                skuId = ei.insume.skuId ?: "SKU-${ei.insume.id.toString().take(8)}",
+                unityInsumePrice = ei.insume.unityPrice.toDouble()
             )
         }
 
@@ -39,12 +40,12 @@ class DynamoExecutionGatewayImpl(
             sk = "EXEC#$timestamp#${execution.id}",
             entityType = "EXECUTION",
             executionId = execution.id.toString(),
-            taskName = execution.basicDescription.name,
+            taskName = execution.basicDescription,
             executionPrice = execution.price.toDouble(),
             status = execution.status.name,
             createDate = (execution.created ?: LocalDateTime.now()).toInstant(ZoneOffset.UTC).toString(),
             updateDate = Instant.now().toString(),
-            basicDescription = execution.basicDescription.name,
+            basicDescription = execution.basicDescription,
             fullDescription = execution.fullDescription,
             estimatedTime = execution.estimatedTime?.toDouble(),
             insumes = insumesItems
@@ -54,21 +55,20 @@ class DynamoExecutionGatewayImpl(
     }
 
     override fun findById(id: UUID): Execution? {
-        // Busca na OS correspondente
         return null
     }
 
     override fun findByServiceOrderId(serviceOrderId: UUID): List<Execution> {
-        val (_, _, executions) = dynamoRepository.getFullOrder(serviceOrderId)
-        return executions.map { ei ->
+        val fullOrder = dynamoRepository.getFullOrder(serviceOrderId)
+        return fullOrder.executions.map { ei ->
             val exec = Execution(
                 id = UUID.fromString(ei.executionId),
                 serviceOrderId = serviceOrderId,
-                basicDescription = runCatching { com.cao.repairshop.execution.domain.BasicExecution.valueOf(ei.basicDescription) }.getOrDefault(com.cao.repairshop.execution.domain.BasicExecution.OTHER),
+                basicDescription = ei.basicDescription.ifBlank { ei.taskName },
                 fullDescription = ei.fullDescription,
                 price = BigDecimal.valueOf(ei.executionPrice),
                 estimatedTime = ei.estimatedTime?.let { BigDecimal.valueOf(it) },
-                status = runCatching { com.cao.repairshop.execution.domain.ExecutionStatus.valueOf(ei.status) }.getOrDefault(com.cao.repairshop.execution.domain.ExecutionStatus.INITIATED)
+                status = runCatching { ExecutionStatus.valueOf(ei.status) }.getOrDefault(ExecutionStatus.INITIATED)
             )
             ei.insumes.forEach { ins ->
                 exec.addInsume(
@@ -78,7 +78,6 @@ class DynamoExecutionGatewayImpl(
                         brand = ins.brand.ifBlank { null },
                         skuId = ins.skuId,
                         quantity = ins.quantity.toInt(),
-                        price = BigDecimal.valueOf(ins.insumePrice),
                         unityPrice = BigDecimal.valueOf(if (ins.unityInsumePrice > 0.0) ins.unityInsumePrice else ins.insumePrice)
                     ),
                     ins.quantity.toInt()
@@ -89,7 +88,7 @@ class DynamoExecutionGatewayImpl(
     }
 
     override fun delete(id: UUID) {
-        // soft delete ou no-op no Dynamo
+        // no-op
     }
 
     override fun getAverageExecutionTimeMinutes(): Double? = 30.0

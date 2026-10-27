@@ -1,15 +1,15 @@
 package com.cao.repairshop.serviceorder.infra.gateways
 
-import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.domain.ExecutionStatus
 import com.cao.repairshop.execution.domain.entities.Execution
-import com.cao.repairshop.inventory.domain.entities.Insume
+import com.cao.repairshop.execution.domain.entities.Insume
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrderHistory
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.DynamoServiceOrderRepository
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ExecutionDynamoItem
+import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ExtraExecutionDynamoItem
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.InsumeDynamoItem
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ServiceOrderHistoryDynamoItem
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ServiceOrderMetadataDynamoItem
@@ -47,7 +47,9 @@ class DynamoServiceOrderGatewayImpl(
             status = order.status.name,
             validDate = order.validDate?.toString(),
             paymentStatus = if (order.status == ServiceOrderStatus.PAID) "PAID" else "PENDING",
-            paymentDispatchStatus = if (order.status == ServiceOrderStatus.FINALIZED) "PENDING" else "DISPATCHED"
+            paymentDispatchStatus = if (order.status == ServiceOrderStatus.FINALIZED) "PENDING" else "DISPATCHED",
+            hasExtraServices = order.hasExtraServices,
+            extraServicesAccepted = order.extraServicesAccepted
         )
         dynamoRepository.saveMetadata(meta)
 
@@ -75,11 +77,11 @@ class DynamoServiceOrderGatewayImpl(
                 InsumeDynamoItem(
                     idInsume = ei.insume.id.toString(),
                     name = ei.insume.name,
-                    brand = "GENERIC",
+                    brand = ei.insume.brand ?: "GENERIC",
                     quantity = ei.quantity.toDouble(),
-                    insumePrice = ei.insume.price.toDouble(),
-                    skuId = "SKU-${ei.insume.id.toString().take(8)}",
-                    unityInsumePrice = ei.insume.price.toDouble()
+                    insumePrice = ei.insume.totalPrice.toDouble(),
+                    skuId = ei.insume.skuId ?: "SKU-${ei.insume.id.toString().take(8)}",
+                    unityInsumePrice = ei.insume.unityPrice.toDouble()
                 )
             }
 
@@ -88,12 +90,12 @@ class DynamoServiceOrderGatewayImpl(
                 sk = "EXEC#$timestamp#${exec.id}",
                 entityType = "EXECUTION",
                 executionId = exec.id.toString(),
-                taskName = exec.basicDescription.name,
+                taskName = exec.basicDescription,
                 executionPrice = exec.price.toDouble(),
                 status = exec.status.name,
                 createDate = (exec.created ?: LocalDateTime.now()).toInstant(ZoneOffset.UTC).toString(),
                 updateDate = Instant.now().toString(),
-                basicDescription = exec.basicDescription.name,
+                basicDescription = exec.basicDescription,
                 fullDescription = exec.fullDescription,
                 estimatedTime = exec.estimatedTime?.toDouble(),
                 insumes = insumesItems
@@ -105,24 +107,25 @@ class DynamoServiceOrderGatewayImpl(
     }
 
     override fun findDetailedById(id: UUID): ServiceOrder? {
-        val (metadata, histories, executions) = dynamoRepository.getFullOrder(id)
-        if (metadata == null) return null
+        val fullOrder = dynamoRepository.getFullOrder(id)
+        val metadata = fullOrder.metadata ?: return null
 
         val order = ServiceOrder(
             id = UUID.fromString(metadata.serviceOrderId),
             customerId = UUID.fromString(metadata.customerId),
             vehicleId = UUID.fromString(metadata.vehicleId),
-            status = runCatching { ServiceOrderStatus.valueOf(metadata.status) }.getOrDefault(ServiceOrderStatus.RECEIVED),
-            totalPrice = BigDecimal.valueOf(metadata.totalServiceOrderPrice)
+            status = runCatching { ServiceOrderStatus.valueOf(metadata.status) }.getOrDefault(ServiceOrderStatus.IN_DIAGNOSIS),
+            totalPrice = BigDecimal.valueOf(metadata.totalServiceOrderPrice),
+            hasExtraServices = metadata.hasExtraServices,
+            extraServicesAccepted = metadata.extraServicesAccepted
         )
 
         // Reconstrói execuções
-        executions.forEach { ei ->
-            val basicDesc = runCatching { BasicExecution.valueOf(ei.basicDescription) }.getOrDefault(BasicExecution.OTHER)
+        fullOrder.executions.forEach { ei ->
             val exec = Execution(
                 id = UUID.fromString(ei.executionId),
                 serviceOrderId = order.id,
-                basicDescription = basicDesc,
+                basicDescription = ei.basicDescription.ifBlank { ei.taskName },
                 fullDescription = ei.fullDescription,
                 price = BigDecimal.valueOf(ei.executionPrice),
                 estimatedTime = ei.estimatedTime?.let { BigDecimal.valueOf(it) },
@@ -136,7 +139,6 @@ class DynamoServiceOrderGatewayImpl(
                     brand = ins.brand.ifBlank { null },
                     skuId = ins.skuId,
                     quantity = ins.quantity.toInt(),
-                    price = BigDecimal.valueOf(ins.insumePrice),
                     unityPrice = BigDecimal.valueOf(if (ins.unityInsumePrice > 0.0) ins.unityInsumePrice else ins.insumePrice)
                 )
                 exec.addInsume(insumeEntity, ins.quantity.toInt())
@@ -146,8 +148,8 @@ class DynamoServiceOrderGatewayImpl(
         }
 
         // Reconstrói histórico
-        histories.forEach { h ->
-            val status = runCatching { ServiceOrderStatus.valueOf(h.status) }.getOrDefault(ServiceOrderStatus.RECEIVED)
+        fullOrder.histories.forEach { h ->
+            val status = runCatching { ServiceOrderStatus.valueOf(h.status) }.getOrDefault(ServiceOrderStatus.IN_DIAGNOSIS)
             order.histories.add(
                 ServiceOrderHistory(
                     id = UUID.fromString(h.historyId),
@@ -171,6 +173,32 @@ class DynamoServiceOrderGatewayImpl(
     ): Page<ServiceOrder> {
         val items = dynamoRepository.findPendingNotification().mapNotNull { findDetailedById(it.id) }
         return PageImpl(items, pageable, items.size.toLong())
+    }
+
+    override fun saveExtraExecution(extraItem: ExtraExecutionDynamoItem) {
+        dynamoRepository.saveExtraExecution(extraItem)
+    }
+
+    override fun getFullOrder(orderId: UUID) = dynamoRepository.getFullOrder(orderId)
+
+    override fun updateStatus(
+        id: UUID,
+        newStatus: String,
+        newDispatchStatus: String?,
+        paymentStatus: String?,
+        hasExtraServices: Boolean?,
+        extraServicesAccepted: Boolean?,
+        totalPrice: Double?
+    ) {
+        dynamoRepository.updateStatus(
+            id = id,
+            newStatus = newStatus,
+            newDispatchStatus = newDispatchStatus,
+            paymentStatus = paymentStatus,
+            hasExtraServices = hasExtraServices,
+            extraServicesAccepted = extraServicesAccepted,
+            totalPrice = totalPrice
+        )
     }
 
     override fun existsByCustomerId(customerId: UUID): Boolean = true

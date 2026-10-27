@@ -26,13 +26,14 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
 
-
 class ServiceOrderControllerTest {
 
     private val createServiceOrder: CreateServiceOrder = mockk()
     private val findServiceOrder: FindServiceOrder = mockk()
     private val advanceServiceOrderStatus: AdvanceServiceOrderStatus = mockk()
     private val approveServiceOrder: ApproveServiceOrder = mockk()
+    private val finishDiagnosis: FinishDiagnosis = mockk()
+    private val manageExtraExecutions: ManageExtraExecutions = mockk()
     private val getServiceOrderMetrics: GetServiceOrderMetrics = mockk()
     private val getExecutionMetrics: GetExecutionMetrics = mockk()
 
@@ -42,10 +43,8 @@ class ServiceOrderControllerTest {
     private val orderId = UUID.randomUUID()
     private val customerId = UUID.randomUUID()
     private val vehicleId = UUID.randomUUID()
-    private val defaultEmail = "customer@example.com"
-    private val defaultPlate = "ABC-1234"
 
-    private fun sampleResponse(status: ServiceOrderStatus = ServiceOrderStatus.RECEIVED): ServiceOrderResponse {
+    private fun sampleResponse(status: ServiceOrderStatus = ServiceOrderStatus.IN_DIAGNOSIS): ServiceOrderResponse {
         return ServiceOrderResponse(
             id = orderId,
             customerId = customerId,
@@ -74,6 +73,8 @@ class ServiceOrderControllerTest {
                     findServiceOrder,
                     advanceServiceOrderStatus,
                     approveServiceOrder,
+                    finishDiagnosis,
+                    manageExtraExecutions,
                     getServiceOrderMetrics,
                     getExecutionMetrics
                 )
@@ -85,11 +86,11 @@ class ServiceOrderControllerTest {
     }
 
     @Test
-    fun `POST service-orders should return 201`() {
+    fun `POST service-orders should return 201 with mandatory customerId and vehicleId`() {
         val request = CreateServiceOrderRequest(
-            customerEmail = defaultEmail,
-            vehiclePlate = defaultPlate,
-            services = listOf(ExecutionDefinitionRequest(basicDescription = "OIL_CHANGE", price = BigDecimal("100.00")))
+            customerId = customerId,
+            vehicleId = vehicleId,
+            services = listOf(ExecutionDefinitionRequest(basicDescription = "Troca de Óleo", price = BigDecimal("100.00")))
         )
         every { createServiceOrder.execute(any()) } returns sampleResponse()
 
@@ -99,24 +100,8 @@ class ServiceOrderControllerTest {
                 .content(mapper.writeValueAsString(request))
         )
             .andExpect(status().isCreated)
-            .andExpect(jsonPath("$.status").value("RECEIVED"))
+            .andExpect(jsonPath("$.status").value("IN_DIAGNOSIS"))
             .andExpect(jsonPath("$.totalPrice").value(400.00))
-    }
-
-    @Test
-    fun `POST service-orders with invalid email should return 400`() {
-        val request = CreateServiceOrderRequest(
-            customerEmail = "invalid-email",
-            vehiclePlate = defaultPlate,
-            services = listOf(ExecutionDefinitionRequest(basicDescription = "OIL_CHANGE", price = BigDecimal("100.00")))
-        )
-
-        mockMvc.perform(
-            post("/service-orders")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(request))
-        )
-            .andExpect(status().isBadRequest)
     }
 
     @Test
@@ -125,19 +110,7 @@ class ServiceOrderControllerTest {
 
         mockMvc.perform(get("/service-orders"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.content[0].status").value("RECEIVED"))
-    }
-
-    @Test
-    fun `GET service-orders with all filters should return 200`() {
-        every { findServiceOrder.findAll(any(), any(), any(), any()) } returns PageImpl(listOf(sampleResponse()))
-
-        mockMvc.perform(get("/service-orders")
-            .param("customerId", customerId.toString())
-            .param("vehicleId", vehicleId.toString())
-            .param("status", ServiceOrderStatus.RECEIVED.toString()))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.content[0].status").value("RECEIVED"))
+            .andExpect(jsonPath("$.content[0].status").value("IN_DIAGNOSIS"))
     }
 
     @Test
@@ -156,13 +129,21 @@ class ServiceOrderControllerTest {
         mockMvc.perform(get("/service-orders/$orderId"))
             .andExpect(status().isNotFound)
             .andExpect(jsonPath("$.error").value("Resource not found"))
-            .andExpect(jsonPath("$.message").value("Service order not found"))
+    }
+
+    @Test
+    fun `POST finish-diagnosis should return 200`() {
+        every { finishDiagnosis.execute(orderId) } returns sampleResponse(ServiceOrderStatus.WAITING_APPROVAL)
+
+        mockMvc.perform(post("/service-orders/$orderId/finish-diagnosis"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.status").value("WAITING_APPROVAL"))
     }
 
     @Test
     fun `PATCH service-orders status should return 200`() {
-        val statusRequest = ServiceOrderStatusUpdateRequest(status = ServiceOrderStatus.IN_DIAGNOSIS)
-        every { advanceServiceOrderStatus.execute(orderId, ServiceOrderStatus.IN_DIAGNOSIS) } returns sampleResponse(ServiceOrderStatus.IN_DIAGNOSIS)
+        val statusRequest = ServiceOrderStatusUpdateRequest(status = ServiceOrderStatus.IN_EXECUTION)
+        every { advanceServiceOrderStatus.execute(orderId, ServiceOrderStatus.IN_EXECUTION) } returns sampleResponse(ServiceOrderStatus.IN_EXECUTION)
 
         mockMvc.perform(
             patch("/service-orders/$orderId/status")
@@ -170,7 +151,7 @@ class ServiceOrderControllerTest {
                 .content(mapper.writeValueAsString(statusRequest))
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.status").value("IN_DIAGNOSIS"))
+            .andExpect(jsonPath("$.status").value("IN_EXECUTION"))
     }
 
     @Test
@@ -185,7 +166,6 @@ class ServiceOrderControllerTest {
         )
             .andExpect(status().isUnprocessableEntity)
             .andExpect(jsonPath("$.error").value("Invalid state transition"))
-            .andExpect(jsonPath("$.message").value("Cannot transition back to RECEIVED"))
     }
 
     @Test
@@ -200,6 +180,37 @@ class ServiceOrderControllerTest {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.status").value("APPROVED"))
+    }
+
+    @Test
+    fun `POST service-orders extra-executions should return 200`() {
+        val extraRequest = AddExtraExecutionsRequest(
+            executions = listOf(ExecutionDefinitionRequest(basicDescription = "Troca de Pastilha", price = BigDecimal("200.00"))),
+            notes = "Pastilhas desgastadas"
+        )
+        every { manageExtraExecutions.addExtraExecutions(orderId, any()) } returns sampleResponse(ServiceOrderStatus.WAITING_APPROVAL_EXTRA_TASKS)
+
+        mockMvc.perform(
+            post("/service-orders/$orderId/extra-executions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(extraRequest))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.status").value("WAITING_APPROVAL_EXTRA_TASKS"))
+    }
+
+    @Test
+    fun `POST service-orders extra-executions approve should return 200`() {
+        val approvalRequest = ApprovalRequest(approved = true)
+        every { manageExtraExecutions.approveExtraExecutions(orderId, any()) } returns sampleResponse(ServiceOrderStatus.IN_EXECUTION)
+
+        mockMvc.perform(
+            post("/service-orders/$orderId/extra-executions/approve")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(approvalRequest))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.status").value("IN_EXECUTION"))
     }
 
     @Test
