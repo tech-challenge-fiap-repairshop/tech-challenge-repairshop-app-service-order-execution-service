@@ -3,6 +3,7 @@ package com.cao.repairshop.serviceorder.application.usecases.impl
 import com.cao.repairshop.core.exception.EntityNotFoundException
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
+import com.cao.repairshop.serviceorder.infra.persistence.dynamo.FullServiceOrder
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -14,8 +15,6 @@ import org.springframework.data.domain.PageRequest
 import java.time.LocalDateTime
 import java.util.UUID
 
-
-
 class FindServiceOrderImplTest {
 
     private lateinit var serviceOrderGateway: ServiceOrderGateway
@@ -23,7 +22,7 @@ class FindServiceOrderImplTest {
 
     @BeforeEach
     fun setup() {
-        serviceOrderGateway = mockk()
+        serviceOrderGateway = mockk(relaxed = true)
         findServiceOrderImpl = FindServiceOrderImpl(serviceOrderGateway)
     }
 
@@ -39,6 +38,7 @@ class FindServiceOrderImplTest {
         )
 
         every { serviceOrderGateway.findDetailedById(orderId) } returns serviceOrder
+        every { serviceOrderGateway.getFullOrder(orderId) } returns FullServiceOrder(null, emptyList(), emptyList(), emptyList())
 
         val response = findServiceOrderImpl.findById(orderId)
 

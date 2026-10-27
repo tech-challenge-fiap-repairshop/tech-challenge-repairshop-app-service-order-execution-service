@@ -6,15 +6,12 @@ import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import com.cao.repairshop.serviceorder.application.usecases.FindServiceOrder
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 import com.cao.repairshop.serviceorder.domain.entities.mapper.toResponse
-import com.cao.repairshop.serviceorder.infra.controller.dtos.ExecutionSummary
-import com.cao.repairshop.serviceorder.infra.controller.dtos.ExtraExecutionResponse
-import com.cao.repairshop.serviceorder.infra.controller.dtos.InsumeSummaryResponse
+import com.cao.repairshop.serviceorder.domain.entities.mapper.toResponseWithExtras
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ServiceOrderResponse
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
 import java.util.UUID
 
 @Service
@@ -30,43 +27,9 @@ class FindServiceOrderImpl(
             ?: throw EntityNotFoundException(ErrorMessages.ServiceOrder.NOT_FOUND)
 
         val fullOrder = serviceOrderGateway.getFullOrder(id)
-        val extraResponses = fullOrder.extraExecutions.map { ei ->
-            ExtraExecutionResponse(
-                id = UUID.fromString(ei.extraExecutionId),
-                serviceOrderId = UUID.fromString(ei.serviceOrderId),
-                hasExtraServices = ei.hasExtraServices,
-                extraServicesAccepted = ei.extraServicesAccepted,
-                status = ei.status,
-                totalExtraPrice = BigDecimal.valueOf(ei.totalExtraPrice),
-                notes = ei.notes,
-                executions = ei.executions.map { ee ->
-                    ExecutionSummary(
-                        id = UUID.fromString(ee.executionId),
-                        basicDescription = ee.basicDescription.ifBlank { ee.taskName },
-                        fullDescription = ee.fullDescription,
-                        laborPrice = BigDecimal.valueOf(ee.executionPrice),
-                        insumes = ee.insumes.map { ii ->
-                            InsumeSummaryResponse(
-                                name = ii.name,
-                                quantity = ii.quantity.toInt(),
-                                unitPrice = BigDecimal.valueOf(ii.unityInsumePrice),
-                                totalPrice = BigDecimal.valueOf(ii.insumePrice)
-                            )
-                        },
-                        totalPrice = BigDecimal.valueOf(ee.executionPrice + ee.insumes.sumOf { it.insumePrice }),
-                        status = ee.status
-                    )
-                }
-            )
-        }
+        logger.info("OS [ORDER#{}] encontrada: status={}, total_execuções={}, total_extras={}", id, order.status, order.executions.size, fullOrder.extraExecutions.size)
 
-        logger.info("OS [ORDER#{}] encontrada: status={}, total_execuções={}, total_extras={}", id, order.status, order.executions.size, extraResponses.size)
-
-        return order.toResponse().copy(
-            hasExtraServices = order.hasExtraServices,
-            extraServicesAccepted = order.extraServicesAccepted,
-            extraExecutions = extraResponses
-        )
+        return order.toResponseWithExtras(fullOrder.extraExecutions)
     }
 
     override fun findAll(
