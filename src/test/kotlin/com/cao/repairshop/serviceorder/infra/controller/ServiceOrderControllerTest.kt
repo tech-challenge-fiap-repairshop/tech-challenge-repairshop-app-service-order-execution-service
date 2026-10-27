@@ -105,6 +105,24 @@ class ServiceOrderControllerTest {
     }
 
     @Test
+    fun `POST service-orders create_service_order alias should return 201`() {
+        val request = CreateServiceOrderRequest(
+            customerId = customerId,
+            vehicleId = vehicleId,
+            services = listOf(ExecutionDefinitionRequest(basicDescription = "Troca de Óleo", price = BigDecimal("100.00")))
+        )
+        every { createServiceOrder.execute(any()) } returns sampleResponse()
+
+        mockMvc.perform(
+            post("/service-orders/create_service_order")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(request))
+        )
+            .andExpect(status().isCreated)
+            .andExpect(jsonPath("$.status").value("IN_DIAGNOSIS"))
+    }
+
+    @Test
     fun `GET service-orders should return 200`() {
         every { findServiceOrder.findAll(any(), any(), any(), any()) } returns PageImpl(listOf(sampleResponse()))
 

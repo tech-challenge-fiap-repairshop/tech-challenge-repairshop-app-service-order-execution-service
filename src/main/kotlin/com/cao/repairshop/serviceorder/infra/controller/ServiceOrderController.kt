@@ -28,21 +28,12 @@ class ServiceOrderController(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @PostMapping
+    @PostMapping("", "/create_service_order")
     @ResponseStatus(HttpStatus.CREATED)
     override fun create(@Valid @RequestBody request: CreateServiceOrderRequest): ServiceOrderResponse {
         logger.info("REST POST /service-orders recebido: customerId={}, vehicleId={}", request.customerId, request.vehicleId)
         val response = createServiceOrder.execute(request)
         logger.info("REST POST /service-orders concluído com sucesso: orderId={}", response.id)
-        return response
-    }
-
-    @PostMapping("/create_service_order")
-    @ResponseStatus(HttpStatus.CREATED)
-    fun createServiceOrderDirect(@Valid @RequestBody request: CreateServiceOrderRequest): ServiceOrderResponse {
-        logger.info("REST POST /service-orders/create_service_order recebido: customerId={}, vehicleId={}", request.customerId, request.vehicleId)
-        val response = createServiceOrder.execute(request)
-        logger.info("REST POST /service-orders/create_service_order concluído com sucesso: orderId={}", response.id)
         return response
     }
 
