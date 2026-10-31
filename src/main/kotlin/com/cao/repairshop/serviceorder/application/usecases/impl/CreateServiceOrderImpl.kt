@@ -1,67 +1,56 @@
 package com.cao.repairshop.serviceorder.application.usecases.impl
 
-import com.cao.repairshop.core.exception.EntityNotFoundException
-import com.cao.repairshop.core.exception.ErrorMessages
-import com.cao.repairshop.execution.domain.BasicExecution
-import com.cao.repairshop.inventory.application.gateways.InsumeGateway
-import com.cao.repairshop.register.application.gateways.CustomerGateway
-import com.cao.repairshop.register.application.gateways.VehicleGateway
-import com.cao.repairshop.register.domain.entities.Email
-import com.cao.repairshop.register.domain.entities.Plate
+import com.cao.repairshop.execution.domain.entities.mapper.toDomainInsumes
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import com.cao.repairshop.serviceorder.application.usecases.CreateServiceOrder
-import com.cao.repairshop.serviceorder.application.usecases.NotifyCustomer
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
 import com.cao.repairshop.serviceorder.domain.entities.mapper.toResponse
 import com.cao.repairshop.serviceorder.infra.controller.dtos.CreateServiceOrderRequest
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ServiceOrderResponse
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @Service
 class CreateServiceOrderImpl(
-    private val serviceOrderGateway: ServiceOrderGateway,
-    private val customerGateway: CustomerGateway,
-    private val vehicleGateway: VehicleGateway,
-    private val insumeGateway: InsumeGateway,
-    private val notifyCustomer: NotifyCustomer
+    private val serviceOrderGateway: ServiceOrderGateway
 ) : CreateServiceOrder {
 
-    @Transactional
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     override fun execute(request: CreateServiceOrderRequest): ServiceOrderResponse {
-        val customer = customerGateway.findByEmail(Email(request.customerEmail))
-            ?: throw EntityNotFoundException(ErrorMessages.Customer.NOT_FOUND)
-        val vehicle = vehicleGateway.findByPlate(Plate(request.vehiclePlate))
-            ?: throw EntityNotFoundException(ErrorMessages.Vehicle.NOT_FOUND)
+        logger.info(
+            "Iniciando criação de Ordem de Serviço: customerId={}, vehicleId={}, quantidade_servicos={}",
+            request.customerId, request.vehicleId, request.services.size
+        )
 
         val order = ServiceOrder(
-            customerId = customer.id,
-            vehicleId = vehicle.id,
+            customerId = request.customerId,
+            vehicleId = request.vehicleId,
+            status = ServiceOrderStatus.IN_DIAGNOSIS,
             enterTime = LocalDateTime.now()
         )
 
         request.services.forEach { sd ->
-            val resolvedInsumes = sd.insumes.map {
-                val insume = insumeGateway.findById(it.insumeId)
-                    ?: throw EntityNotFoundException(ErrorMessages.Insume.notFoundById(it.insumeId))
-                insume to it.quantity
-            }
             order.addExecution(
-                basicDescription = BasicExecution.valueOf(sd.basicDescription.uppercase()),
+                basicDescription = sd.basicDescription,
                 fullDescription = sd.fullDescription,
                 price = sd.price ?: BigDecimal.ZERO,
                 estimatedTime = sd.estimatedTime,
-                insumes = resolvedInsumes
+                insumes = sd.insumes.toDomainInsumes()
             )
         }
 
-        order.recordHistory(ServiceOrderStatus.RECEIVED)
+        order.recordHistory(ServiceOrderStatus.IN_DIAGNOSIS, "Ordem de serviço criada em diagnóstico")
 
         val saved = serviceOrderGateway.save(order)
-        notifyCustomer.execute(saved, ServiceOrderStatus.RECEIVED)
+        logger.info(
+            "Ordem de Serviço criada com SUCESSO: [ORDER#{}], status={}, preço_total={}",
+            saved.id, saved.status, saved.totalPrice
+        )
+
         return saved.toResponse()
     }
 }
