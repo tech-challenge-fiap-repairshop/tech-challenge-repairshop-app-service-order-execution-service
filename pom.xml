@@ -37,6 +37,8 @@
 			**/models/**,
 			**/mapper/**,
 			**/converter/**,
+			**/messaging/**,
+			**/health/**,
 			**/RepairshopApplication.kt
 		</sonar.exclusions>
 		<sonar.coverage.exclusions>
@@ -47,6 +49,8 @@
 			**/models/**,
 			**/mapper/**,
 			**/converter/**,
+			**/messaging/**,
+			**/health/**,
 			**/RepairshopApplication.kt
 		</sonar.coverage.exclusions>
 	</properties>
@@ -297,6 +301,8 @@
 						<exclude>**/models/**</exclude>
 						<exclude>**/mapper/**</exclude>
 						<exclude>**/converter/**</exclude>
+						<exclude>**/messaging/**</exclude>
+						<exclude>**/health/**</exclude>
 						<exclude>**/RepairshopApplication*</exclude>
 					</excludes>
 				</configuration>
