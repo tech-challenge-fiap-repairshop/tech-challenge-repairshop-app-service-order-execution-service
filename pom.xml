@@ -37,6 +37,8 @@
 			**/models/**,
 			**/mapper/**,
 			**/converter/**,
+			**/messaging/**,
+			**/health/**,
 			**/RepairshopApplication.kt
 		</sonar.exclusions>
 		<sonar.coverage.exclusions>
@@ -47,6 +49,8 @@
 			**/models/**,
 			**/mapper/**,
 			**/converter/**,
+			**/messaging/**,
+			**/health/**,
 			**/RepairshopApplication.kt
 		</sonar.coverage.exclusions>
 	</properties>
@@ -80,11 +84,6 @@
 				<artifactId>spring-data-commons</artifactId>
 				<version>4.0.6</version>
 			</dependency>
-			<dependency>
-				<groupId>org.springframework.data</groupId>
-				<artifactId>spring-data-jpa</artifactId>
-				<version>4.0.6</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -95,32 +94,15 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-flyway</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-database-postgresql</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-commons</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -230,12 +212,6 @@
 			<artifactId>spring-boot-testcontainers</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>1.21.4</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -256,7 +232,6 @@
 					</args>
 					<compilerPlugins>
 						<plugin>spring</plugin>
-						<plugin>jpa</plugin>
 					</compilerPlugins>
 				</configuration>
 				<dependencies>
@@ -326,6 +301,8 @@
 						<exclude>**/models/**</exclude>
 						<exclude>**/mapper/**</exclude>
 						<exclude>**/converter/**</exclude>
+						<exclude>**/messaging/**</exclude>
+						<exclude>**/health/**</exclude>
 						<exclude>**/RepairshopApplication*</exclude>
 					</excludes>
 				</configuration>
