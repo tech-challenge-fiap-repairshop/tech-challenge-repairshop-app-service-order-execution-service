@@ -2,9 +2,7 @@ package com.cao.repairshop.execution.domain.entities
 
 import com.cao.repairshop.core.exception.ErrorMessages
 import com.cao.repairshop.core.exception.InvalidStateTransitionException
-import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.domain.ExecutionStatus
-import com.cao.repairshop.inventory.domain.entities.Insume
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -13,7 +11,7 @@ import java.util.UUID
 class Execution(
     val id: UUID = UUID.randomUUID(),
     var serviceOrderId: UUID,
-    var basicDescription: BasicExecution,
+    var basicDescription: String,
     var fullDescription: String? = null,
     var price: BigDecimal,
     var estimatedTime: BigDecimal? = null,
@@ -26,7 +24,7 @@ class Execution(
 
     fun getTotalPrice(): BigDecimal {
         val insumesTotal = insumes.fold(BigDecimal.ZERO) { acc, ei ->
-            acc.add(ei.insume.price.multiply(BigDecimal.valueOf(ei.quantity.toLong())))
+            acc.add(ei.insume.unityPrice.multiply(BigDecimal.valueOf(ei.quantity.toLong())))
         }
         return price.add(insumesTotal)
     }

@@ -1,18 +1,15 @@
 package com.cao.repairshop.serviceorder.domain.entities.mapper
 
-import com.cao.repairshop.execution.domain.entities.mapper.toDomain
-import com.cao.repairshop.execution.domain.entities.mapper.toEntity
-import com.cao.repairshop.register.infra.persistence.models.CustomerEntity
-import com.cao.repairshop.register.infra.persistence.models.VehicleEntity
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrderHistory
-import com.cao.repairshop.serviceorder.infra.persistence.models.ServiceOrderEntity
-import com.cao.repairshop.serviceorder.infra.persistence.models.ServiceOrderHistoryEntity
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ExecutionSummary
+import com.cao.repairshop.serviceorder.infra.controller.dtos.ExtraExecutionResponse
 import com.cao.repairshop.serviceorder.infra.controller.dtos.InsumeSummaryResponse
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ServiceOrderHistoryEntry
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ServiceOrderResponse
+import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ExtraExecutionDynamoItem
 import java.math.BigDecimal
+import java.util.UUID
 
 fun ServiceOrder.toResponse() = ServiceOrderResponse(
     id = id,
@@ -22,6 +19,8 @@ fun ServiceOrder.toResponse() = ServiceOrderResponse(
     totalPrice = totalPrice,
     enterTime = enterTime,
     endTime = endTime,
+    hasExtraServices = hasExtraServices,
+    extraServicesAccepted = extraServicesAccepted,
     created = created,
     updated = updated,
     services = executions.map {
@@ -34,14 +33,15 @@ fun ServiceOrder.toResponse() = ServiceOrderResponse(
                 InsumeSummaryResponse(
                     name = ei.insume.name,
                     quantity = ei.quantity,
-                    unitPrice = ei.insume.price,
-                    totalPrice = ei.insume.price.multiply(BigDecimal.valueOf(ei.quantity.toLong()))
+                    unitPrice = ei.insume.unityPrice,
+                    totalPrice = ei.insume.unityPrice.multiply(BigDecimal.valueOf(ei.quantity.toLong()))
                 )
             },
             totalPrice = it.getTotalPrice(),
             status = it.status.name
         )
     },
+    extraExecutions = emptyList(),
     history = histories.sortedBy { it.registerTime }.map { it.toServiceOrderHistoryEntry() }
 )
 
@@ -49,59 +49,44 @@ fun ServiceOrderHistory.toServiceOrderHistoryEntry() = ServiceOrderHistoryEntry(
     id = id,
     status = status,
     registerTime = registerTime,
-    intervalTime = intervalTime
+    intervalTime = intervalTime,
+    description = description
 )
 
-fun ServiceOrderEntity.toDomain(): ServiceOrder {
-    val serviceOrder = ServiceOrder(
-        id = id,
-        customerId = customer.id,
-        vehicleId = vehicle.id,
-        status = status,
-        totalPrice = totalPrice,
-        enterTime = enterTime,
-        endTime = endTime,
-        validDate = validDate,
-        created = created,
-        updated = updated
-    )
-    serviceOrder.histories = histories.map { it.toDomain() }.toMutableSet()
-    serviceOrder.executions = executions.map { it.toDomain() }.toMutableSet()
-    return serviceOrder
-}
-
-fun ServiceOrder.toEntity(customerEntity: CustomerEntity, vehicleEntity: VehicleEntity): ServiceOrderEntity {
-    val serviceOrderEntity = ServiceOrderEntity(
-        id = id,
-        customer = customerEntity,
-        vehicle = vehicleEntity,
-        status = status,
-        totalPrice = totalPrice,
-        enterTime = enterTime,
-        endTime = endTime,
-        validDate = validDate,
-        created = created,
-        updated = updated
-    )
-    serviceOrderEntity.histories = histories.map { it.toEntity(serviceOrderEntity) }.toMutableSet()
-    serviceOrderEntity.executions = executions.map { it.toEntity(serviceOrderEntity) }.toMutableSet()
-    return serviceOrderEntity
-}
-
-fun ServiceOrderHistory.toEntity(serviceOrderEntity: ServiceOrderEntity) = ServiceOrderHistoryEntity(
-    id = id,
-    serviceOrder = serviceOrderEntity,
+fun ExtraExecutionDynamoItem.toResponse() = ExtraExecutionResponse(
+    id = UUID.fromString(extraExecutionId),
+    serviceOrderId = UUID.fromString(serviceOrderId),
+    hasExtraServices = hasExtraServices,
+    extraServicesAccepted = extraServicesAccepted,
     status = status,
-    description = description,
-    registerTime = registerTime,
-    intervalTime = intervalTime
+    totalExtraPrice = BigDecimal.valueOf(totalExtraPrice),
+    notes = notes,
+    executions = executions.map { ee ->
+        ExecutionSummary(
+            id = UUID.fromString(ee.executionId),
+            basicDescription = ee.basicDescription.ifBlank { ee.taskName },
+            fullDescription = ee.fullDescription,
+            laborPrice = BigDecimal.valueOf(ee.executionPrice),
+            insumes = ee.insumes.map { ii ->
+                InsumeSummaryResponse(
+                    name = ii.name,
+                    quantity = ii.quantity.toInt(),
+                    unitPrice = BigDecimal.valueOf(ii.unityInsumePrice),
+                    totalPrice = BigDecimal.valueOf(ii.insumePrice)
+                )
+            },
+            totalPrice = BigDecimal.valueOf(ee.executionPrice + ee.insumes.sumOf { it.insumePrice }),
+            status = ee.status
+        )
+    }
 )
 
-fun ServiceOrderHistoryEntity.toDomain() = ServiceOrderHistory(
-    id = id,
-    serviceOrderId = serviceOrder.id,
-    status = status,
-    description = description,
-    registerTime = registerTime,
-    intervalTime = intervalTime
-)
+fun List<ExtraExecutionDynamoItem>.toExtraResponses(): List<ExtraExecutionResponse> =
+    this.map { it.toResponse() }
+
+fun ServiceOrder.toResponseWithExtras(extraItems: List<ExtraExecutionDynamoItem>): ServiceOrderResponse =
+    this.toResponse().copy(
+        hasExtraServices = this.hasExtraServices,
+        extraServicesAccepted = this.extraServicesAccepted,
+        extraExecutions = extraItems.toExtraResponses()
+    )

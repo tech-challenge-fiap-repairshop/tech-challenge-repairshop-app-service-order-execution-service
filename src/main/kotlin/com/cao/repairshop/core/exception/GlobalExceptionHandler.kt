@@ -81,6 +81,12 @@ class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, "Bad request", "Malformed or incomplete request body", request)
     }
 
+    @ExceptionHandler(software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException::class)
+    fun handleTransactionCanceled(ex: software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException, request: HttpServletRequest): ResponseEntity<DefaultError> {
+        logger.error(ex) { "DynamoDB Transaction Canceled: ${ex.cancellationReasons()} [${request.requestURI}]" }
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Database transaction failed", "A operação atômica no banco de dados falhou: ${ex.message}", request)
+    }
+
     @ExceptionHandler(Exception::class)
     fun handleUnexpected(ex: Exception, request: HttpServletRequest): ResponseEntity<DefaultError> {
         logger.error(ex) { "UnexpectedException: ${ex.javaClass.simpleName} [${request.requestURI}]" }
