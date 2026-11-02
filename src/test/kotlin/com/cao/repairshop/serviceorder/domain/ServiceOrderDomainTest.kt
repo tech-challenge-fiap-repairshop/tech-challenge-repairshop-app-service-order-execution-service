@@ -1,13 +1,8 @@
 package com.cao.repairshop.serviceorder.domain
 
 import com.cao.repairshop.core.exception.InvalidStateTransitionException
-import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.domain.ExecutionStatus
-import com.cao.repairshop.inventory.domain.entities.Insume
-import com.cao.repairshop.register.domain.entities.Customer
-import com.cao.repairshop.register.domain.entities.Vehicle
-import com.cao.repairshop.register.domain.entities.Document
-import com.cao.repairshop.register.domain.entities.Plate
+import com.cao.repairshop.execution.domain.entities.Insume
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -18,13 +13,11 @@ import java.util.UUID
 
 class ServiceOrderDomainTest {
 
-    private fun buildOrder(status: ServiceOrderStatus = ServiceOrderStatus.RECEIVED): ServiceOrder {
-        val customer = Customer(id = UUID.randomUUID(), name = "Test", document = Document("52998224725"))
-        val vehicle = Vehicle(id = UUID.randomUUID(), brand = "T", model = "C", plate = Plate("ABC1234"), customerId = customer.id)
-        return ServiceOrder(customerId = customer.id, vehicleId = vehicle.id, status = status, enterTime = LocalDateTime.now())
+    private fun buildOrder(status: ServiceOrderStatus = ServiceOrderStatus.IN_DIAGNOSIS): ServiceOrder {
+        return ServiceOrder(customerId = UUID.randomUUID(), vehicleId = UUID.randomUUID(), status = status, enterTime = LocalDateTime.now())
     }
 
-    private fun buildInsume() = Insume(id = UUID.randomUUID(), name = "Oil Filter", price = BigDecimal("25.00"), unityPrice = BigDecimal("25.00"), quantity = 10)
+    private fun buildInsume() = Insume(id = UUID.randomUUID(), name = "Oil Filter", unityPrice = BigDecimal("25.00"), quantity = 10)
 
     @Test
     fun `advanceStatus valid transition records history`() {
@@ -52,7 +45,7 @@ class ServiceOrderDomainTest {
     @Test
     fun `advanceStatus to FINALIZED requires all executions FINALIZED`() {
         val order = buildOrder(ServiceOrderStatus.IN_EXECUTION)
-        order.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, emptyList<Pair<Insume, Int>>())
+        order.addExecution("Troca de Óleo", null, BigDecimal("100"), null, emptyList())
 
         assertThatThrownBy { order.advanceStatus(ServiceOrderStatus.FINALIZED) }
             .isInstanceOf(InvalidStateTransitionException::class.java)
@@ -62,7 +55,7 @@ class ServiceOrderDomainTest {
     @Test
     fun `advanceStatus to FINALIZED sets endTime`() {
         val order = buildOrder(ServiceOrderStatus.IN_EXECUTION)
-        val exec = order.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, emptyList<Pair<Insume, Int>>())
+        val exec = order.addExecution("Troca de Óleo", null, BigDecimal("100"), null, emptyList())
         exec.status = ExecutionStatus.FINALIZED
 
         order.advanceStatus(ServiceOrderStatus.FINALIZED)
@@ -73,7 +66,7 @@ class ServiceOrderDomainTest {
     @Test
     fun `approve transitions from WAITING_APPROVAL to APPROVED`() {
         val order = buildOrder(ServiceOrderStatus.WAITING_APPROVAL)
-        order.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, emptyList<Pair<Insume, Int>>())
+        order.addExecution("Troca de Óleo", null, BigDecimal("100"), null, emptyList())
         order.approve()
         assertThat(order.status).isEqualTo(ServiceOrderStatus.APPROVED)
     }
@@ -88,8 +81,8 @@ class ServiceOrderDomainTest {
     @Test
     fun `addExecution creates execution and recalculates price`() {
         val order = buildOrder()
-        order.addExecution(BasicExecution.OIL_CHANGE, "Full oil change", BigDecimal("150.00"), null, emptyList<Pair<Insume, Int>>())
-        order.addExecution(BasicExecution.BRAKE_INSPECTION, null, BigDecimal("200.00"), null, emptyList<Pair<Insume, Int>>())
+        order.addExecution("Troca de Óleo", "Full oil change", BigDecimal("150.00"), null, emptyList())
+        order.addExecution("Inspeção de Freios", null, BigDecimal("200.00"), null, emptyList())
 
         assertThat(order.executions).hasSize(2)
         assertThat(order.totalPrice).isEqualByComparingTo(BigDecimal("350.00"))
@@ -99,24 +92,11 @@ class ServiceOrderDomainTest {
     fun `addExecution with insumes links them correctly`() {
         val order = buildOrder()
         val insume = buildInsume()
-        order.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, listOf(insume to 2))
+        order.addExecution("Troca de Óleo", null, BigDecimal("100"), null, listOf(insume to 2))
 
         val exec = order.executions.first()
         assertThat(exec.insumes).hasSize(1)
         assertThat(exec.insumes.first().quantity).isEqualTo(2)
-    }
-
-    @Test
-    fun `collectInsumeRequirements returns all insume pairs`() {
-        val order = buildOrder()
-        val insume1 = buildInsume()
-        val insume2 = Insume(id = UUID.randomUUID(), name = "Brake Pad", price = BigDecimal("50"), unityPrice = BigDecimal("50"), quantity = 5)
-
-        order.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, listOf(insume1 to 2))
-        order.addExecution(BasicExecution.BRAKE_INSPECTION, null, BigDecimal("200"), null, listOf(insume2 to 1))
-
-        val requirements = order.collectInsumeRequirements()
-        assertThat(requirements).hasSize(2)
     }
 
     @Test
@@ -136,9 +116,9 @@ class ServiceOrderDomainTest {
         val insume = buildInsume() // 25.00
         
         // Exec1: 100 base + (25 * 2) = 150
-        order.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, listOf(insume to 2))
+        order.addExecution("Troca de Óleo", null, BigDecimal("100"), null, listOf(insume to 2))
         // Exec2: 250 base = 250
-        order.addExecution(BasicExecution.BRAKE_INSPECTION, null, BigDecimal("250"), null, emptyList<Pair<Insume, Int>>())
+        order.addExecution("Inspeção de Freios", null, BigDecimal("250"), null, emptyList())
 
         order.recalculateTotalPrice()
         assertThat(order.totalPrice).isEqualByComparingTo(BigDecimal("400"))
@@ -147,7 +127,7 @@ class ServiceOrderDomainTest {
     @Test
     fun `checkCompletion advances to FINALIZED if all executions are finished`() {
         val order = buildOrder(ServiceOrderStatus.IN_EXECUTION)
-        val exec = order.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, emptyList<Pair<Insume, Int>>())
+        val exec = order.addExecution("Troca de Óleo", null, BigDecimal("100"), null, emptyList())
         exec.status = ExecutionStatus.FINALIZED
         
         val result = order.checkCompletion()
@@ -158,7 +138,7 @@ class ServiceOrderDomainTest {
     @Test
     fun `checkCompletion does nothing if not all executions are finished`() {
         val order = buildOrder(ServiceOrderStatus.IN_EXECUTION)
-        order.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, emptyList<Pair<Insume, Int>>())
+        order.addExecution("Troca de Óleo", null, BigDecimal("100"), null, emptyList())
         
         val result = order.checkCompletion()
         assertThat(result).isFalse()
@@ -172,17 +152,17 @@ class ServiceOrderDomainTest {
         val canceledOrder = buildOrder(ServiceOrderStatus.CANCELED)
 
         assertThatThrownBy {
-            finalizedOrder.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, emptyList())
+            finalizedOrder.addExecution("Troca de Óleo", null, BigDecimal("100"), null, emptyList())
         }.isInstanceOf(InvalidStateTransitionException::class.java)
             .hasMessageContaining("Cannot add execution: Service Order is in terminal state")
 
         assertThatThrownBy {
-            paidOrder.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, emptyList())
+            paidOrder.addExecution("Troca de Óleo", null, BigDecimal("100"), null, emptyList())
         }.isInstanceOf(InvalidStateTransitionException::class.java)
             .hasMessageContaining("Cannot add execution: Service Order is in terminal state")
 
         assertThatThrownBy {
-            canceledOrder.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, emptyList())
+            canceledOrder.addExecution("Troca de Óleo", null, BigDecimal("100"), null, emptyList())
         }.isInstanceOf(InvalidStateTransitionException::class.java)
             .hasMessageContaining("Cannot add execution: Service Order is in terminal state")
     }
@@ -195,4 +175,3 @@ class ServiceOrderDomainTest {
             .hasMessageContaining("Cannot do something: Service Order is in terminal state")
     }
 }
-

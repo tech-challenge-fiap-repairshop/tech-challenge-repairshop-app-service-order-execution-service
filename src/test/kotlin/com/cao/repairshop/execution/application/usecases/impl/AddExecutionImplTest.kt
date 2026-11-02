@@ -1,10 +1,7 @@
 package com.cao.repairshop.execution.application.usecases.impl
 
 import com.cao.repairshop.core.exception.EntityNotFoundException
-import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.infra.controller.dtos.CreateExecutionRequest
-import com.cao.repairshop.inventory.application.gateways.InsumeGateway
-import com.cao.repairshop.inventory.domain.entities.Insume
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
 import com.cao.repairshop.serviceorder.infra.controller.dtos.InsumeItemRequest
@@ -22,14 +19,14 @@ import java.util.UUID
 class AddExecutionImplTest {
 
     private lateinit var serviceOrderGateway: ServiceOrderGateway
-    private lateinit var insumeGateway: InsumeGateway
+    private lateinit var addExecutionBatch: AddExecutionBatchImpl
     private lateinit var addExecutionImpl: AddExecutionImpl
 
     @BeforeEach
     fun setup() {
         serviceOrderGateway = mockk()
-        insumeGateway = mockk()
-        addExecutionImpl = AddExecutionImpl(serviceOrderGateway, insumeGateway)
+        addExecutionBatch = AddExecutionBatchImpl(serviceOrderGateway)
+        addExecutionImpl = AddExecutionImpl(addExecutionBatch)
     }
 
     @Test
@@ -43,7 +40,7 @@ class AddExecutionImplTest {
             fullDescription = "Oil change",
             price = BigDecimal("100.00"),
             insumes = listOf(
-                InsumeItemRequest(insumeId = insumeId, quantity = 2)
+                InsumeItemRequest(insumeId = insumeId, name = "Oil", quantity = 2, unityPrice = BigDecimal.TEN)
             )
         )
 
@@ -54,15 +51,12 @@ class AddExecutionImplTest {
             enterTime = LocalDateTime.now()
         )
 
-        val insume = Insume(id = insumeId, name = "Oil", price = BigDecimal.TEN, unityPrice = BigDecimal.TEN)
-
         every { serviceOrderGateway.findDetailedById(serviceOrderId) } returns serviceOrder
-        every { insumeGateway.findById(insumeId) } returns insume
         every { serviceOrderGateway.save(any()) } answers { firstArg() }
 
         val response = addExecutionImpl.execute(serviceOrderId, request)
 
-        assertEquals(BasicExecution.OIL_CHANGE, response.basicDescription)
+        assertEquals("OIL_CHANGE", response.basicDescription)
         assertEquals(BigDecimal("120.00"), response.totalPrice)
         
         verify { serviceOrderGateway.save(serviceOrder) }
@@ -74,32 +68,6 @@ class AddExecutionImplTest {
 
         assertThrows(EntityNotFoundException::class.java) {
             addExecutionImpl.execute(UUID.randomUUID(), mockk(relaxed = true))
-        }
-    }
-
-    @Test
-    fun `should throw error when insume not found`() {
-        val serviceOrderId = UUID.randomUUID()
-        val request = CreateExecutionRequest(
-            serviceOrderId = serviceOrderId,
-            basicDescription = "OIL_CHANGE",
-            price = BigDecimal("100.00"),
-            insumes = listOf(
-                InsumeItemRequest(insumeId = UUID.randomUUID(), quantity = 2)
-            )
-        )
-
-        val serviceOrder = ServiceOrder(
-            id = serviceOrderId,
-            customerId = UUID.randomUUID(),
-            vehicleId = UUID.randomUUID()
-        )
-
-        every { serviceOrderGateway.findDetailedById(serviceOrderId) } returns serviceOrder
-        every { insumeGateway.findById(any()) } returns null
-
-        assertThrows(EntityNotFoundException::class.java) {
-            addExecutionImpl.execute(serviceOrderId, request)
         }
     }
 
@@ -127,4 +95,3 @@ class AddExecutionImplTest {
         }
     }
 }
-

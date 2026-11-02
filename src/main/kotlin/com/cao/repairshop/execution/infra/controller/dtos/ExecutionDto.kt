@@ -1,8 +1,6 @@
 package com.cao.repairshop.execution.infra.controller.dtos
 
 import com.cao.repairshop.core.validator.annotation.SafeString
-import com.cao.repairshop.core.validator.annotation.ValidBasicExecution
-import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.domain.ExecutionStatus
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ExecutionDefinitionRequest
 import com.cao.repairshop.serviceorder.infra.controller.dtos.InsumeItemRequest
@@ -19,8 +17,8 @@ data class CreateExecutionRequest(
     @Schema(description = "Service order ID this execution belongs to")
     @field:NotNull val serviceOrderId: UUID,
 
-    @Schema(description = "Basic service execution category", example = "OIL_CHANGE", allowableValues = ["OIL_CHANGE", "SUSPENSION_REPLACEMENT", "WHEEL_ALIGNMENT", "BRAKE_INSPECTION", "ENGINE_DIAGNOSIS", "OTHER"])
-    @field:NotBlank @field:ValidBasicExecution val basicDescription: String,
+    @Schema(description = "Service execution description/category", example = "Troca de Óleo")
+    @field:NotBlank val basicDescription: String,
 
     @Schema(description = "Detailed execution description", example = "Transmission fluid replacement using 5W30")
     @field:SafeString val fullDescription: String? = null,
@@ -46,8 +44,8 @@ data class CreateExecutionBatchRequest(
 )
 
 data class UpdateExecutionRequest(
-    @Schema(description = "Basic service execution category", example = "OIL_CHANGE", allowableValues = ["OIL_CHANGE", "SUSPENSION_REPLACEMENT", "WHEEL_ALIGNMENT", "BRAKE_INSPECTION", "ENGINE_DIAGNOSIS", "OTHER"])
-    @field:NotBlank @field:ValidBasicExecution val basicDescription: String,
+    @Schema(description = "Service execution description/category", example = "Troca de Óleo")
+    @field:NotBlank val basicDescription: String,
 
     @Schema(description = "Detailed execution description", example = "Transmission fluid replacement using 5W30")
     @field:SafeString val fullDescription: String? = null,
@@ -69,8 +67,8 @@ data class ExecutionResponse(
     val id: UUID,
     @Schema(description = "Parent service order ID")
     val serviceOrderId: UUID,
-    @Schema(description = "Basic service category", example = "OIL_CHANGE")
-    val basicDescription: BasicExecution,
+    @Schema(description = "Service description", example = "Troca de Óleo")
+    val basicDescription: String,
     @Schema(description = "Detailed execution description", example = "Transmission fluid replacement using 5W30")
     val fullDescription: String?,
     @Schema(description = "Labor price only", example = "450.00")

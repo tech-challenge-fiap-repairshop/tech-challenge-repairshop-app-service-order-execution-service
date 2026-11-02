@@ -2,11 +2,9 @@ package com.cao.repairshop.serviceorder.application.usecases.impl
 
 import com.cao.repairshop.core.exception.EntityNotFoundException
 import com.cao.repairshop.core.exception.InvalidStateTransitionException
-import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.domain.ExecutionStatus
-import com.cao.repairshop.inventory.domain.entities.Insume
+import com.cao.repairshop.execution.domain.entities.Insume
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
-import com.cao.repairshop.serviceorder.application.usecases.NotifyCustomer
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
 import io.mockk.every
@@ -22,25 +20,20 @@ import java.util.UUID
 class AdvanceServiceOrderStatusImplTest {
 
     private lateinit var serviceOrderGateway: ServiceOrderGateway
-    private lateinit var notifyCustomer: NotifyCustomer
     private lateinit var advanceServiceOrderStatusImpl: AdvanceServiceOrderStatusImpl
 
     @BeforeEach
     fun setup() {
         serviceOrderGateway = mockk()
-        notifyCustomer = mockk(relaxed = true)
-        advanceServiceOrderStatusImpl = AdvanceServiceOrderStatusImpl(
-            serviceOrderGateway,
-            notifyCustomer
-        )
+        advanceServiceOrderStatusImpl = AdvanceServiceOrderStatusImpl(serviceOrderGateway)
     }
 
     @Test
-    fun `should advance status and notify customer when WAITING_APPROVAL`() {
+    fun `should advance status when WAITING_APPROVAL with executions`() {
         val orderId = UUID.randomUUID()
         val customerId = UUID.randomUUID()
         val vehicleId = UUID.randomUUID()
-        
+
         val order = ServiceOrder(
             id = orderId,
             customerId = customerId,
@@ -48,9 +41,8 @@ class AdvanceServiceOrderStatusImplTest {
             status = ServiceOrderStatus.IN_DIAGNOSIS,
             enterTime = LocalDateTime.now()
         )
-        // Add an execution so WAITING_APPROVAL validation passes
-        val insume = Insume(name = "Test", price = BigDecimal.TEN, unityPrice = BigDecimal.TEN, quantity = 10)
-        order.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, listOf(insume to 1))
+        val insume = Insume(name = "Test", quantity = 1, unityPrice = BigDecimal.TEN)
+        order.addExecution("Troca de Óleo", null, BigDecimal("100"), null, listOf(insume to 1))
 
         every { serviceOrderGateway.findDetailedById(orderId) } returns order
         every { serviceOrderGateway.save(any()) } answers { firstArg() }
@@ -59,7 +51,6 @@ class AdvanceServiceOrderStatusImplTest {
 
         assertEquals(ServiceOrderStatus.WAITING_APPROVAL, response.status)
         verify { serviceOrderGateway.save(order) }
-        verify { notifyCustomer.execute(any(), ServiceOrderStatus.WAITING_APPROVAL) }
     }
 
     @Test
@@ -80,7 +71,6 @@ class AdvanceServiceOrderStatusImplTest {
 
         assertEquals(ServiceOrderStatus.IN_DIAGNOSIS, response.status)
         verify { serviceOrderGateway.save(order) }
-        verify { notifyCustomer.execute(any(), ServiceOrderStatus.IN_DIAGNOSIS) }
     }
 
     @Test
@@ -129,7 +119,7 @@ class AdvanceServiceOrderStatusImplTest {
             status = ServiceOrderStatus.IN_EXECUTION,
             enterTime = LocalDateTime.now()
         )
-        val execution = order.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, emptyList())
+        val execution = order.addExecution("Troca de Óleo", null, BigDecimal("100"), null, emptyList())
         execution.status = ExecutionStatus.PENDING
 
         every { serviceOrderGateway.findDetailedById(orderId) } returns order
@@ -149,7 +139,7 @@ class AdvanceServiceOrderStatusImplTest {
             status = ServiceOrderStatus.IN_EXECUTION,
             enterTime = LocalDateTime.now()
         )
-        val execution = order.addExecution(BasicExecution.OIL_CHANGE, null, BigDecimal("100"), null, emptyList())
+        val execution = order.addExecution("Troca de Óleo", null, BigDecimal("100"), null, emptyList())
         execution.status = ExecutionStatus.FINALIZED
 
         every { serviceOrderGateway.findDetailedById(orderId) } returns order

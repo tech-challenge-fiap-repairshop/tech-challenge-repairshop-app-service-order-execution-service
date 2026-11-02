@@ -29,19 +29,19 @@ class GlobalExceptionHandler {
     @ExceptionHandler(InvalidStateTransitionException::class)
     fun handleInvalidStateTransition(ex: InvalidStateTransitionException, request: HttpServletRequest): ResponseEntity<DefaultError> {
         logger.warn { "InvalidStateTransition: ${ex.message} [${request.requestURI}]" }
-        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid state transition", ex.message, request)
+        return buildResponse(HttpStatus.valueOf(422), "Invalid state transition", ex.message, request)
     }
 
     @ExceptionHandler(InsufficientStockException::class)
     fun handleInsufficientStock(ex: InsufficientStockException, request: HttpServletRequest): ResponseEntity<DefaultError> {
         logger.error { "InsufficientStock: ${ex.message} [${request.requestURI}]" }
-        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, "Insufficient stock", ex.message, request)
+        return buildResponse(HttpStatus.valueOf(422), "Insufficient stock", ex.message, request)
     }
 
     @ExceptionHandler(BusinessRuleViolationException::class)
     fun handleBusinessRuleViolation(ex: BusinessRuleViolationException, request: HttpServletRequest): ResponseEntity<DefaultError> {
         logger.warn { "BusinessRuleViolation: ${ex.message} [${request.requestURI}]" }
-        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, "Business rule violation", ex.message, request)
+        return buildResponse(HttpStatus.valueOf(422), "Business rule violation", ex.message, request)
     }
 
     @ExceptionHandler(InvalidDocumentException::class)
@@ -79,6 +79,12 @@ class GlobalExceptionHandler {
     fun handleHttpMessageNotReadable(ex: org.springframework.http.converter.HttpMessageNotReadableException, request: HttpServletRequest): ResponseEntity<DefaultError> {
         logger.warn { "HttpMessageNotReadable: ${ex.message} [${request.requestURI}]" }
         return buildResponse(HttpStatus.BAD_REQUEST, "Bad request", "Malformed or incomplete request body", request)
+    }
+
+    @ExceptionHandler(software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException::class)
+    fun handleTransactionCanceled(ex: software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException, request: HttpServletRequest): ResponseEntity<DefaultError> {
+        logger.error(ex) { "DynamoDB Transaction Canceled: ${ex.cancellationReasons()} [${request.requestURI}]" }
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Database transaction failed", "A operação atômica no banco de dados falhou: ${ex.message}", request)
     }
 
     @ExceptionHandler(Exception::class)

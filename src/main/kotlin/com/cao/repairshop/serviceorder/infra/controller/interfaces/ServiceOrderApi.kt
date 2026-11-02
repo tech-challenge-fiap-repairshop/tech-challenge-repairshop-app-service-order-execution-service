@@ -16,7 +16,7 @@ import java.util.UUID
 @Tag(name = "Service Orders", description = "Service order lifecycle management")
 interface ServiceOrderApi {
 
-    @Operation(summary = "Open a new service order")
+    @Operation(summary = "Open a new service order (initial state: IN_DIAGNOSIS)")
     @ApiResponses(
         ApiResponse(responseCode = "201", description = "Service order created",
             content = [Content(schema = Schema(implementation = ServiceOrderResponse::class))]),
@@ -42,6 +42,15 @@ interface ServiceOrderApi {
     )
     fun findById(id: UUID): ServiceOrderResponse
 
+    @Operation(summary = "Finish diagnosis and send order to WAITING_APPROVAL")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Diagnosis finished, order moved to WAITING_APPROVAL",
+            content = [Content(schema = Schema(implementation = ServiceOrderResponse::class))]),
+        ApiResponse(responseCode = "400", description = "No executions registered", content = [Content()]),
+        ApiResponse(responseCode = "404", description = "Service order not found", content = [Content()])
+    )
+    fun finishDiagnosis(id: UUID): ServiceOrderResponse
+
     @Operation(summary = "Advance service order status")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Status updated",
@@ -59,6 +68,24 @@ interface ServiceOrderApi {
         ApiResponse(responseCode = "404", description = "Service order not found", content = [Content()])
     )
     fun approve(id: UUID, request: ApprovalRequest): ServiceOrderResponse
+
+    @Operation(summary = "Add extra executions discovered during APPROVED or IN_EXECUTION status")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Extra executions added, order moved to WAITING_APPROVAL_EXTRA_TASKS",
+            content = [Content(schema = Schema(implementation = ServiceOrderResponse::class))]),
+        ApiResponse(responseCode = "400", description = "Invalid status for extra tasks", content = [Content()]),
+        ApiResponse(responseCode = "404", description = "Service order not found", content = [Content()])
+    )
+    fun addExtraExecutions(id: UUID, request: AddExtraExecutionsRequest): ServiceOrderResponse
+
+    @Operation(summary = "Approve or reject extra executions")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Extra executions approval processed",
+            content = [Content(schema = Schema(implementation = ServiceOrderResponse::class))]),
+        ApiResponse(responseCode = "400", description = "Invalid approval state", content = [Content()]),
+        ApiResponse(responseCode = "404", description = "Service order not found", content = [Content()])
+    )
+    fun approveExtraExecutions(id: UUID, request: ApprovalRequest): ServiceOrderResponse
 
     @Operation(summary = "Get execution time metrics")
     @ApiResponses(

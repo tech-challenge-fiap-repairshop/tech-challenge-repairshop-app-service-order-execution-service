@@ -7,7 +7,6 @@ import com.cao.repairshop.execution.domain.entities.mapper.toResponse
 import com.cao.repairshop.execution.infra.controller.dtos.ExecutionResponse
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Service
@@ -15,7 +14,6 @@ class FindExecutionImpl(
     private val serviceOrderGateway: ServiceOrderGateway
 ) : FindExecution {
 
-    @Transactional(readOnly = true)
     override fun findById(serviceOrderId: UUID, executionId: UUID): ExecutionResponse {
         val order = serviceOrderGateway.findDetailedById(serviceOrderId)
             ?: throw EntityNotFoundException(ErrorMessages.ServiceOrder.NOT_FOUND)

@@ -41,6 +41,7 @@ replay_pid*
 HELP.md
 # Profiles locais — nunca commitar configuracoes com senhas ou secrets
 application-local.properties
+!src/main/resources/application-local.properties
 application-local.yml
 application-dev.properties
 application-dev.yml

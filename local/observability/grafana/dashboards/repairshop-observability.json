@@ -20,52 +20,100 @@
   "id": null,
   "links": [
     {
-      "asDropdown": false,
-      "icon": "chart-line",
-      "includeVars": true,
-      "keepTime": true,
-      "tags": [],
       "targetBlank": false,
-      "title": "📈 Executive & Business Dashboard",
-      "tooltip": "Abrir dashboard executivo e gerencial de métricas do negócio",
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-overview",
+      "includeVars": false,
+      "tooltip": "Visão consolidada de todos os microsserviços",
+      "title": "🌐 Overview (Todos os Serviços)",
       "type": "link",
-      "url": "/d/repairshop-business-metrics"
+      "icon": "apps"
     },
     {
-      "asDropdown": false,
-      "icon": "bolt",
-      "includeVars": true,
-      "keepTime": true,
-      "tags": [],
       "targetBlank": false,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-os-execution",
+      "includeVars": false,
+      "tooltip": "Dashboard dedicado do Service Order & Execution Service",
+      "title": "🛠️ Service Order & Execution",
+      "type": "link",
+      "icon": "cog"
+    },
+    {
+      "targetBlank": false,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-payment",
+      "includeVars": false,
+      "tooltip": "Dashboard dedicado do Payment Service",
+      "title": "💳 Payment Service",
+      "type": "link",
+      "icon": "credit-card"
+    },
+    {
+      "targetBlank": false,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-register",
+      "includeVars": false,
+      "tooltip": "Dashboard dedicado do Register Service",
+      "title": "📋 Register Service",
+      "type": "link",
+      "icon": "users-alt"
+    },
+    {
+      "targetBlank": false,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-notification",
+      "includeVars": false,
+      "tooltip": "Dashboard dedicado do Notification Service",
+      "title": "🔔 Notification Service",
+      "type": "link",
+      "icon": "bell"
+    },
+    {
+      "targetBlank": false,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-business-metrics",
+      "includeVars": false,
+      "tooltip": "Dashboard executivo e gerencial de métricas do negócio",
+      "title": "📈 Executive & Business KPIs",
+      "type": "link",
+      "icon": "chart-line"
+    },
+    {
+      "targetBlank": false,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-lambda-auth",
+      "includeVars": false,
+      "tooltip": "Dashboard dedicado da AWS Lambda Auth",
       "title": "⚡ Lambda Auth Dashboard",
-      "tooltip": "Abrir dashboard dedicado da AWS Lambda Auth",
       "type": "link",
-      "url": "/d/repairshop-lambda-auth"
+      "icon": "bolt"
     },
     {
-      "asDropdown": false,
-      "icon": "external link",
-      "includeVars": true,
-      "keepTime": true,
-      "tags": [],
       "targetBlank": true,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "http://localhost:16686",
+      "includeVars": false,
+      "tooltip": "Interface do Jaeger para rastreamento de traces distribuídos",
       "title": "🔍 Jaeger Tracing UI",
-      "tooltip": "Abrir interface do Jaeger para rastreamento de traces distribuídos",
       "type": "link",
-      "url": "http://localhost:16686"
-    },
-    {
-      "asDropdown": false,
-      "icon": "external link",
-      "includeVars": true,
-      "keepTime": true,
-      "tags": [],
-      "targetBlank": true,
-      "title": "📊 Prometheus UI",
-      "tooltip": "Abrir interface do Prometheus",
-      "type": "link",
-      "url": "http://localhost:9090"
+      "icon": "external link"
     }
   ],
   "liveNow": false,
@@ -149,9 +197,9 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "up{job=~\"repairshop-actuator|otel-collector\"}",
+          "expr": "max by (application) (up{job=~\"repairshop-actuator|otel-collector\", application=~\"$application\"})",
           "instant": true,
-          "legendFormat": "repairshop-app",
+          "legendFormat": "{{application}}",
           "range": false,
           "refId": "A"
         }
@@ -206,9 +254,9 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "process_uptime_seconds{job=\"repairshop-actuator\"}",
+          "expr": "process_uptime_seconds{job=\"repairshop-actuator\", application=~\"$application\"}",
           "instant": true,
-          "legendFormat": "repairshop-app",
+          "legendFormat": "{{application}}",
           "range": false,
           "refId": "A"
         }
@@ -263,9 +311,9 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(http_server_requests_seconds_count{job=\"repairshop-actuator\"}) or sum(http_server_requests_total{job=\"repairshop-actuator\"}) or vector(0)",
+          "expr": "sum(http_server_requests_seconds_count{job=\"repairshop-actuator\", application=~\"$application\"}) or sum(http_server_requests_total{job=\"repairshop-actuator\", application=~\"$application\"}) or vector(0)",
           "instant": true,
-          "legendFormat": "repairshop-app",
+          "legendFormat": "{{application}}",
           "range": false,
           "refId": "A"
         }
@@ -328,9 +376,9 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "hikaricp_connections_active{job=\"repairshop-actuator\"} or vector(0)",
+          "expr": "hikaricp_connections_active{job=\"repairshop-actuator\", application=~\"$application\"} or vector(0)",
           "instant": true,
-          "legendFormat": "repairshop-app",
+          "legendFormat": "{{application}}",
           "range": false,
           "refId": "A"
         }
@@ -402,9 +450,9 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "(process_cpu_usage{job=\"repairshop-actuator\"} or vector(0)) * 100",
+          "expr": "(process_cpu_usage{job=\"repairshop-actuator\", application=~\"$application\"} or vector(0)) * 100",
           "instant": true,
-          "legendFormat": "repairshop-app",
+          "legendFormat": "{{application}}",
           "range": false,
           "refId": "A"
         }
@@ -472,9 +520,9 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "(rate(process_cpu_seconds_total{job=\"repairshop-actuator\"}[1m]) or (process_cpu_usage{job=\"repairshop-actuator\"} * 2) or vector(0))",
+          "expr": "(rate(process_cpu_seconds_total{job=\"repairshop-actuator\", application=~\"$application\"}[1m]) or (process_cpu_usage{job=\"repairshop-actuator\", application=~\"$application\"} * 2) or vector(0))",
           "instant": true,
-          "legendFormat": "repairshop-app",
+          "legendFormat": "{{application}}",
           "range": false,
           "refId": "A"
         }
@@ -541,9 +589,9 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_memory_used_bytes{job=\"repairshop-actuator\", area=\"heap\"} or vector(0)",
+          "expr": "jvm_memory_used_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"} or vector(0)",
           "instant": true,
-          "legendFormat": "repairshop-app",
+          "legendFormat": "{{application}}",
           "range": false,
           "refId": "A"
         }
@@ -615,9 +663,9 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "((jvm_memory_used_bytes{job=\"repairshop-actuator\", area=\"heap\"} or vector(0)) / (jvm_memory_max_bytes{job=\"repairshop-actuator\", area=\"heap\"} or vector(1))) * 100",
+          "expr": "((jvm_memory_used_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"} or vector(0)) / (jvm_memory_max_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"} or vector(1))) * 100",
           "instant": true,
-          "legendFormat": "repairshop-app",
+          "legendFormat": "{{application}}",
           "range": false,
           "refId": "A"
         }
@@ -672,7 +720,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (uri, status) (rate(http_server_requests_seconds_count{job=\"repairshop-actuator\"}[1m]))",
+          "expr": "sum by (uri, status) (rate(http_server_requests_seconds_count{job=\"repairshop-actuator\", application=~\"$application\"}[1m]))",
           "legendFormat": "{{status}} {{uri}}",
           "refId": "A"
         }
@@ -715,7 +763,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "max by (uri) (http_server_requests_seconds_max{job=\"repairshop-actuator\"})",
+          "expr": "max by (uri) (http_server_requests_seconds_max{job=\"repairshop-actuator\", application=~\"$application\"})",
           "legendFormat": "Max - {{uri}}",
           "refId": "A"
         },
@@ -725,7 +773,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(http_server_requests_seconds_sum{job=\"repairshop-actuator\"}[1m])) / sum(rate(http_server_requests_seconds_count{job=\"repairshop-actuator\"}[1m]))",
+          "expr": "sum(rate(http_server_requests_seconds_sum{job=\"repairshop-actuator\", application=~\"$application\"}[1m])) / sum(rate(http_server_requests_seconds_count{job=\"repairshop-actuator\", application=~\"$application\"}[1m]))",
           "legendFormat": "Avg Latency",
           "refId": "B"
         },
@@ -735,7 +783,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"repairshop-actuator\"}[1m])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"repairshop-actuator\", application=~\"$application\"}[1m])))",
           "legendFormat": "p95",
           "refId": "C"
         }
@@ -785,7 +833,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_memory_used_bytes{job=\"repairshop-actuator\", area=\"heap\"}",
+          "expr": "jvm_memory_used_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"}",
           "legendFormat": "Heap Used ({{id}})",
           "refId": "A"
         },
@@ -795,7 +843,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "jvm_memory_max_bytes{job=\"repairshop-actuator\", area=\"heap\"}",
+          "expr": "jvm_memory_max_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"}",
           "legendFormat": "Heap Max ({{id}})",
           "refId": "B"
         }
@@ -833,7 +881,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "process_cpu_usage{job=\"repairshop-actuator\"}",
+          "expr": "process_cpu_usage{job=\"repairshop-actuator\", application=~\"$application\"}",
           "legendFormat": "Process CPU Usage",
           "refId": "A"
         },
@@ -843,7 +891,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "system_cpu_usage{job=\"repairshop-actuator\"}",
+          "expr": "system_cpu_usage{job=\"repairshop-actuator\", application=~\"$application\"}",
           "legendFormat": "System CPU Usage",
           "refId": "B"
         }
@@ -942,7 +990,7 @@
           "limit": 30,
           "queryType": "search",
           "refId": "A",
-          "service": "repairshop-app"
+          "service": "repairshop-service-order-execution-service"
         }
       ]
     },
@@ -1006,7 +1054,39 @@
     ]
   },
   "timezone": "browser",
-  "title": "RepairShop - Observability Overview",
+  "title": "RepairShop - Observability Overview (All Microservices)",
   "uid": "repairshop-overview",
-  "version": 1
+  "version": 1,
+  "templating": {
+    "list": [
+      {
+        "options": [],
+        "sort": 1,
+        "name": "application",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "multi": true,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "Prometheus"
+        },
+        "regex": "",
+        "skipUrlSync": false,
+        "label": "Microservice",
+        "refresh": 1,
+        "definition": "label_values(up{job=\"repairshop-actuator\"}, application)",
+        "query": {
+          "query": "label_values(up{job=\"repairshop-actuator\"}, application)",
+          "refId": "StandardVariableQuery"
+        },
+        "includeAll": true,
+        "type": "query",
+        "allValue": ".*",
+        "hide": 0
+      }
+    ]
+  }
 }

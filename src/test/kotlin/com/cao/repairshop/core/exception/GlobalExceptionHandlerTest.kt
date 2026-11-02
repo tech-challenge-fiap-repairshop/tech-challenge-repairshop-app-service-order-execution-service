@@ -52,7 +52,7 @@ class GlobalExceptionHandlerTest {
         val ex = InvalidStateTransitionException("Invalid transition")
         val response = globalExceptionHandler.handleInvalidStateTransition(ex, request)
 
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.statusCode)
+        assertEquals(HttpStatus.valueOf(422), response.statusCode)
         assertEquals("Invalid state transition", response.body?.error)
         assertEquals("Invalid transition", response.body?.message)
     }
@@ -62,7 +62,7 @@ class GlobalExceptionHandlerTest {
         val ex = InsufficientStockException("Insufficient stock")
         val response = globalExceptionHandler.handleInsufficientStock(ex, request)
 
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.statusCode)
+        assertEquals(HttpStatus.valueOf(422), response.statusCode)
         assertEquals("Insufficient stock", response.body?.error)
         assertEquals("Insufficient stock", response.body?.message)
     }
@@ -72,7 +72,7 @@ class GlobalExceptionHandlerTest {
         val ex = BusinessRuleViolationException("Business rule violated")
         val response = globalExceptionHandler.handleBusinessRuleViolation(ex, request)
 
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.statusCode)
+        assertEquals(HttpStatus.valueOf(422), response.statusCode)
         assertEquals("Business rule violation", response.body?.error)
         assertEquals("Business rule violated", response.body?.message)
     }

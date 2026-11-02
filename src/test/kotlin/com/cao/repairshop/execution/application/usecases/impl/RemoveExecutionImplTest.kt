@@ -1,7 +1,6 @@
 package com.cao.repairshop.execution.application.usecases.impl
 
 import com.cao.repairshop.core.exception.EntityNotFoundException
-import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.domain.entities.Execution
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
@@ -41,7 +40,7 @@ class RemoveExecutionImplTest {
         val execution = Execution(
             id = executionId,
             serviceOrderId = serviceOrderId,
-            basicDescription = BasicExecution.OIL_CHANGE,
+            basicDescription = "OIL_CHANGE",
             fullDescription = "Oil change",
             price = BigDecimal("100.00")
         )
