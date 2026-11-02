@@ -29,19 +29,19 @@ class GlobalExceptionHandler {
     @ExceptionHandler(InvalidStateTransitionException::class)
     fun handleInvalidStateTransition(ex: InvalidStateTransitionException, request: HttpServletRequest): ResponseEntity<DefaultError> {
         logger.warn { "InvalidStateTransition: ${ex.message} [${request.requestURI}]" }
-        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid state transition", ex.message, request)
+        return buildResponse(HttpStatus.valueOf(422), "Invalid state transition", ex.message, request)
     }
 
     @ExceptionHandler(InsufficientStockException::class)
     fun handleInsufficientStock(ex: InsufficientStockException, request: HttpServletRequest): ResponseEntity<DefaultError> {
         logger.error { "InsufficientStock: ${ex.message} [${request.requestURI}]" }
-        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, "Insufficient stock", ex.message, request)
+        return buildResponse(HttpStatus.valueOf(422), "Insufficient stock", ex.message, request)
     }
 
     @ExceptionHandler(BusinessRuleViolationException::class)
     fun handleBusinessRuleViolation(ex: BusinessRuleViolationException, request: HttpServletRequest): ResponseEntity<DefaultError> {
         logger.warn { "BusinessRuleViolation: ${ex.message} [${request.requestURI}]" }
-        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, "Business rule violation", ex.message, request)
+        return buildResponse(HttpStatus.valueOf(422), "Business rule violation", ex.message, request)
     }
 
     @ExceptionHandler(InvalidDocumentException::class)

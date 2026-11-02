@@ -7,14 +7,27 @@ scrape_configs:
     static_configs:
       - targets: ['otel-collector:8889']
         labels:
-          application: 'repairshop-app'
+          application: 'repairshop-platform'
           source: 'otel-collector'
 
   - job_name: 'repairshop-actuator'
     metrics_path: '/actuator/prometheus'
     scrape_interval: 5s
+    honor_labels: true
     static_configs:
-      - targets: ['app:8080']
+      - targets: ['register-service:8080', 'host.docker.internal:8081']
         labels:
-          application: 'repairshop-app'
+          application: 'register-service'
+          source: 'spring-actuator'
+      - targets: ['service-order-execution-service:8080', 'host.docker.internal:8080', 'host.docker.internal:8082', 'host.docker.internal:8084']
+        labels:
+          application: 'service-order-execution-service'
+          source: 'spring-actuator'
+      - targets: ['payment-service:8080', 'host.docker.internal:8083', 'host.docker.internal:8085']
+        labels:
+          application: 'payment-service'
+          source: 'spring-actuator'
+      - targets: ['notification-service:8080']
+        labels:
+          application: 'notification-service'
           source: 'spring-actuator'
