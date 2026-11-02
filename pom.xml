@@ -352,6 +352,13 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
+					<includes>
+						<include>**/*Test.java</include>
+						<include>**/*Tests.java</include>
+						<include>**/*Test.kt</include>
+						<include>**/*Tests.kt</include>
+						<include>**/*Runner.kt</include>
+					</includes>
 					<systemPropertyVariables>
 						<api.version>1.44</api.version>
 						<DOCKER_API_VERSION>1.44</DOCKER_API_VERSION>

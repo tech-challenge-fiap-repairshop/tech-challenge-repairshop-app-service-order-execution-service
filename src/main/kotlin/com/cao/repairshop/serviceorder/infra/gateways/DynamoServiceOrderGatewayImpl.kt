@@ -1,4 +1,4 @@
-﻿package com.cao.repairshop.serviceorder.infra.gateways
+package com.cao.repairshop.serviceorder.infra.gateways
 
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
