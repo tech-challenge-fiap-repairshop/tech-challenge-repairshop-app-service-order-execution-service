@@ -4,9 +4,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.sqs.SqsClient
@@ -14,55 +13,42 @@ import java.net.URI
 
 @Configuration
 class AwsConfig(
-    @Value("\${aws.region:us-east-1}")
+    @Value("\${aws.region:\${AWS_REGION:us-east-1}}")
     private val region: String,
-    @Value("\${aws.endpoint-url:#{null}}")
-    private val endpointUrl: String?,
-    @Value("\${aws.access-key-id:#{null}}")
-    private val accessKeyId: String?,
-    @Value("\${aws.secret-access-key:#{null}}")
-    private val secretAccessKey: String?
+    @Value("\${aws.endpoint-url:\${AWS_ENDPOINT_URL:#{null}}}")
+    private val endpointUrl: String?
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    private fun credentialsProvider() = if (!accessKeyId.isNullOrBlank() && !secretAccessKey.isNullOrBlank()) {
-        StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey))
-    } else {
-        DefaultCredentialsProvider.create()
-    }
-
     @Bean
-    fun dynamoDbClient(): DynamoDbClient {
-        val builder = DynamoDbClient.builder()
+    fun dynamoDbClient(): DynamoDbClient =
+        DynamoDbClient.builder()
             .region(Region.of(region))
-            .credentialsProvider(credentialsProvider())
-
-        if (!endpointUrl.isNullOrBlank()) {
-            logger.info("Configurando DynamoDbClient com endpoint local/custom: {}", endpointUrl)
-            builder.endpointOverride(URI.create(endpointUrl))
-        }
-
-        return builder.build()
-    }
+            .credentialsProvider(DefaultCredentialsProvider.builder().build())
+            .apply {
+                if (!endpointUrl.isNullOrBlank()) {
+                    logger.info("Execution Service - Conectando DynamoDB em endpoint customizado: {}", endpointUrl)
+                    endpointOverride(URI.create(endpointUrl))
+                }
+            }
+            .build()
 
     @Bean
-    fun dynamoDbEnhancedClient(dynamoDbClient: DynamoDbClient): software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient {
-        return software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient.builder()
+    fun dynamoDbEnhancedClient(dynamoDbClient: DynamoDbClient): DynamoDbEnhancedClient =
+        DynamoDbEnhancedClient.builder()
             .dynamoDbClient(dynamoDbClient)
             .build()
-    }
 
     @Bean
-    fun sqsClient(): SqsClient {
-        val builder = SqsClient.builder()
+    fun sqsClient(): SqsClient =
+        SqsClient.builder()
             .region(Region.of(region))
-            .credentialsProvider(credentialsProvider())
-
-        if (!endpointUrl.isNullOrBlank()) {
-            logger.info("Configurando SqsClient com endpoint local/custom: {}", endpointUrl)
-            builder.endpointOverride(URI.create(endpointUrl))
-        }
-
-        return builder.build()
-    }
+            .credentialsProvider(DefaultCredentialsProvider.builder().build())
+            .apply {
+                if (!endpointUrl.isNullOrBlank()) {
+                    logger.info("Execution Service - Conectando SQS em endpoint customizado: {}", endpointUrl)
+                    endpointOverride(URI.create(endpointUrl))
+                }
+            }
+            .build()
 }

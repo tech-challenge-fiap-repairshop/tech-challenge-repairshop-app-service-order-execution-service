@@ -1,4 +1,4 @@
-package com.cao.repairshop.serviceorder.infra.gateways.mapper
+﻿package com.cao.repairshop.serviceorder.infra.gateways.mapper
 
 import com.cao.repairshop.execution.domain.ExecutionStatus
 import com.cao.repairshop.execution.domain.entities.Execution
@@ -175,6 +175,8 @@ class ServiceOrderDynamoMapper {
             vehicleId = UUID.fromString(metadata.vehicleId),
             status = runCatching { ServiceOrderStatus.valueOf(metadata.status) }.getOrDefault(ServiceOrderStatus.IN_DIAGNOSIS),
             totalPrice = BigDecimal.valueOf(metadata.totalServiceOrderPrice),
+            enterTime = metadata.enterTime.takeIf { it.isNotBlank() }?.let { runCatching { LocalDateTime.ofInstant(Instant.parse(it), ZoneOffset.UTC) }.getOrNull() },
+            endTime = metadata.endTime?.takeIf { it.isNotBlank() }?.let { runCatching { LocalDateTime.ofInstant(Instant.parse(it), ZoneOffset.UTC) }.getOrNull() },
             hasExtraServices = metadata.hasExtraServices,
             extraServicesAccepted = metadata.extraServicesAccepted
         )

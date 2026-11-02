@@ -1,4 +1,4 @@
-package com.cao.repairshop.serviceorder.infra.gateways
+﻿package com.cao.repairshop.serviceorder.infra.gateways
 
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
@@ -33,11 +33,11 @@ class DynamoServiceOrderGatewayImpl(
         val executions = mapper.buildExecutionItems(order, pk)
 
         // Detecta execuções que existiam previamente e foram removidas do aggregate
-        val existingFull = dynamoRepository.getFullOrder(order.id)
-        val currentExecIds = order.executions.map { it.id.toString() }.toSet()
+                val existingFull = dynamoRepository.getFullOrder(order.id)
+        val currentExecSks = executions.map { it.sk }.toSet()
         val executionsToDelete = existingFull.executions
-            .filter { it.executionId !in currentExecIds }
             .map { it.sk }
+            .filter { it !in currentExecSks }
 
         if (executionsToDelete.isNotEmpty()) {
             logger.info("Identificadas {} execuções para deleção atômica na OS [{}]", executionsToDelete.size, order.id)
