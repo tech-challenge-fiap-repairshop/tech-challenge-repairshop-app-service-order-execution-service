@@ -1,5 +1,6 @@
 package com.cao.repairshop.serviceorder.infra.gateways.mapper
 
+import com.cao.repairshop.execution.domain.ExecutionStatus
 import com.cao.repairshop.execution.domain.entities.Execution
 import com.cao.repairshop.execution.domain.entities.Insume
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
@@ -10,11 +11,14 @@ import com.cao.repairshop.serviceorder.infra.controller.dtos.InsumeItemRequest
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.FullServiceOrder
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ExecutionDynamoItem
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.InsumeDynamoItem
+import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ServiceOrderHistoryDynamoItem
 import com.cao.repairshop.serviceorder.infra.persistence.dynamo.models.ServiceOrderMetadataDynamoItem
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.UUID
 
 class ServiceOrderDynamoMapperTest {
@@ -145,5 +149,92 @@ class ServiceOrderDynamoMapperTest {
         assertEquals(180.0, extraItem.totalExtraPrice)
         assertEquals("Revisão complementar", extraItem.notes)
         assertEquals(1, extraItem.executions.size)
+    }
+
+    @Test
+    fun `toDomainExecution should preserve created timestamp and reuse exact SK on rebuild`() {
+        val orderId = UUID.randomUUID()
+        val execId = UUID.randomUUID()
+        val originalTs = 1794696743145L
+        val originalSk = "EXEC#$originalTs#$execId"
+
+        val dynamoItem = ExecutionDynamoItem(
+            pk = "ORDER#$orderId",
+            sk = originalSk,
+            executionId = execId.toString(),
+            taskName = "Revisao",
+            basicDescription = "Revisao",
+            executionPrice = 350.0,
+            status = "PENDING",
+            createDate = Instant.ofEpochMilli(originalTs).toString(),
+            updateDate = Instant.ofEpochMilli(originalTs + 5000).toString(),
+            insumes = emptyList()
+        )
+
+        val domainExec = mapper.toDomainExecution(dynamoItem, orderId)
+        assertEquals(LocalDateTime.ofInstant(Instant.ofEpochMilli(originalTs), ZoneOffset.UTC), domainExec.created)
+        assertEquals(ExecutionStatus.PENDING, domainExec.status)
+
+        domainExec.advanceStatus(ExecutionStatus.FINALIZED)
+        val rebuiltItem = mapper.buildExecutionItem(domainExec, "ORDER#$orderId")
+        assertEquals(originalSk, rebuiltItem.sk)
+        assertEquals("FINALIZED", rebuiltItem.status)
+    }
+
+    @Test
+    fun `toDomainOrder should keep latest duplicate execution status and preserve history registerTime`() {
+        val orderId = UUID.randomUUID()
+        val execId = UUID.randomUUID()
+        val histId = UUID.randomUUID()
+        val histTs = 1794696743142L
+
+        val metadata = ServiceOrderMetadataDynamoItem(
+            pk = "ORDER#$orderId",
+            sk = "METADATA",
+            serviceOrderId = orderId.toString(),
+            customerId = UUID.randomUUID().toString(),
+            vehicleId = UUID.randomUUID().toString(),
+            totalServiceOrderPrice = 350.0,
+            status = "IN_EXECUTION"
+        )
+
+        val olderExec = ExecutionDynamoItem(
+            pk = "ORDER#$orderId",
+            sk = "EXEC#1794696743145#$execId",
+            executionId = execId.toString(),
+            taskName = "Revisao",
+            basicDescription = "Revisao",
+            executionPrice = 350.0,
+            status = "INITIATED",
+            insumes = emptyList()
+        )
+        val newerExec = olderExec.copy(
+            sk = "EXEC#1794696756124#$execId",
+            status = "PENDING"
+        )
+
+        val histItem = ServiceOrderHistoryDynamoItem(
+            pk = "ORDER#$orderId",
+            sk = "HIST#$histTs#$histId",
+            historyId = histId.toString(),
+            status = "IN_DIAGNOSIS",
+            registerTime = Instant.ofEpochMilli(histTs).toString()
+        )
+
+        val fullOrder = FullServiceOrder(
+            metadata = metadata,
+            histories = listOf(histItem),
+            executions = listOf(olderExec, newerExec),
+            extraExecutions = emptyList()
+        )
+
+        val domainOrder = mapper.toDomainOrder(fullOrder)
+        assertNotNull(domainOrder)
+        assertEquals(1, domainOrder?.executions?.size)
+        assertEquals(ExecutionStatus.PENDING, domainOrder?.executions?.first()?.status)
+        assertEquals(
+            LocalDateTime.ofInstant(Instant.ofEpochMilli(histTs), ZoneOffset.UTC),
+            domainOrder?.histories?.first()?.registerTime
+        )
     }
 }
