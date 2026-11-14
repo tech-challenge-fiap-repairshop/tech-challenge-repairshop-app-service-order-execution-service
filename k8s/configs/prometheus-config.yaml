@@ -23,7 +23,11 @@ data:
         metrics_path: '/actuator/prometheus'
         scrape_interval: 5s
         static_configs:
-          - targets: ['repairshop-service:8080']
+          - targets:
+              - 'service-order-execution-service:8080'
+              - 'register-service:8080'
+              - 'payment-service:8080'
+              - 'notification-service:8080'
             labels:
-              application: 'repairshop-app'
+              application: 'repairshop-microservices'
               source: 'spring-actuator'

@@ -1,46 +1,37 @@
 package com.cao.repairshop.execution.application.usecases.impl
 
-import com.cao.repairshop.core.exception.EntityNotFoundException
-import com.cao.repairshop.core.exception.ErrorMessages
 import com.cao.repairshop.execution.application.usecases.AddExecution
-import com.cao.repairshop.execution.domain.BasicExecution
-import com.cao.repairshop.execution.domain.entities.mapper.toResponse
+import com.cao.repairshop.execution.application.usecases.AddExecutionBatch
+import com.cao.repairshop.execution.domain.entities.mapper.toDefinition
+import com.cao.repairshop.execution.infra.controller.dtos.CreateExecutionBatchRequest
 import com.cao.repairshop.execution.infra.controller.dtos.CreateExecutionRequest
 import com.cao.repairshop.execution.infra.controller.dtos.ExecutionResponse
-import com.cao.repairshop.inventory.application.gateways.InsumeGateway
-import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
+/**
+ * Caso de uso para adicionar execução individual na Ordem de Serviço.
+ * Refatorado para unificar o fluxo através de lote (batch de 1 item),
+ * eliminando duplicação de código de validação, mapeamento de insumos e persistência.
+ */
 @Service
 class AddExecutionImpl(
-    private val serviceOrderGateway: ServiceOrderGateway,
-    private val insumeGateway: InsumeGateway
+    private val addExecutionBatch: AddExecutionBatch
 ) : AddExecution {
 
-    @Transactional
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     override fun execute(serviceOrderId: UUID, request: CreateExecutionRequest): ExecutionResponse {
-        val order = serviceOrderGateway.findDetailedById(serviceOrderId)
-            ?: throw EntityNotFoundException(ErrorMessages.ServiceOrder.NOT_FOUND)
-
-        order.ensureNotTerminalState("add execution")
-
-        val resolvedInsumes = request.insumes.map {
-            val insume = insumeGateway.findById(it.insumeId)
-                ?: throw EntityNotFoundException(ErrorMessages.Insume.notFoundById(it.insumeId))
-            insume to it.quantity
-        }
-
-        val execution = order.addExecution(
-            basicDescription = BasicExecution.valueOf(request.basicDescription.uppercase()),
-            fullDescription = request.fullDescription,
-            price = request.price,
-            estimatedTime = request.estimatedTime,
-            insumes = resolvedInsumes
+        logger.info(
+            "Adicionando execução na OS [ORDER#{}]: tarefa='{}', delegando para processamento unificado em lote",
+            serviceOrderId, request.basicDescription
         )
-
-        serviceOrderGateway.save(order)
-        return execution.toResponse()
+        val batchRequest = CreateExecutionBatchRequest(
+            serviceOrderId = serviceOrderId,
+            executions = listOf(request.toDefinition())
+        )
+        val results = addExecutionBatch.execute(serviceOrderId, batchRequest)
+        return results.first()
     }
 }

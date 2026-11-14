@@ -1,6 +1,5 @@
 package com.cao.repairshop.execution.domain.entities
 
-import com.cao.repairshop.inventory.domain.entities.Insume
 import java.util.UUID
 
 class ExecutionInsume(

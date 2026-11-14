@@ -1,11 +1,11 @@
-name: 🚀 Application CI/CD Pipeline
+name: 🚀 Service Order Execution CI/CD Pipeline
 
 # =================================================================================================================================
-# PIPELINE — Ciclo de Vida da Aplicação e Deploy no EKS via GitOps / Kustomize
-#   ┌────────────────┐     ┌──────────┐     ┌──────────────┐     ┌──────────────┐     ┌───────────┐     ┌──────────┐
-#   │ Build & Smoke  │────▶│  Test    │────▶│   Quality    │────▶│  Container,  │────▶│  Approve  │────▶│  Deploy  │
-#   │   (Compile)    │     │ Unit+IT  │     │ Gate (Sonar) │     │ Sec & Smoke  │     │ (Manual)  │     │ (K8s/Env)│
-#   └────────────────┘     └──────────┘     └──────────────┘     └──────────────┘     └───────────┘     └──────────┘
+# PIPELINE — Ciclo de Vida da Aplicação (NoSQL DynamoDB + SQS) e Deploy no EKS Compartilhado
+#   ┌────────────────┐     ┌──────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────┐
+#   │ Build & Smoke  │────▶│  Test    │────▶│   Quality    │────▶│  Container,  │────▶│  Deploy  │
+#   │   (Compile)    │     │ Unit+BDD │     │ Gate (Sonar) │     │ Sec & Smoke  │     │  (EKS)   │
+#   └────────────────┘     └──────────┘     └──────────────┘     └──────────────┘     └──────────┘
 # =================================================================================================================================
 
 on:
@@ -68,10 +68,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # v4.2.2
+        uses: actions/checkout@v4
 
       - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v4 # v4.0.0
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -83,16 +83,8 @@ jobs:
       - name: Package application (skip tests)
         run: mvn package -B -ntp -DskipTests
 
-      - name: Start dependencies (Postgres)
-        run: |
-          docker run -d --name smoke-postgres -e POSTGRES_USER=repairshop -e POSTGRES_PASSWORD=repairshop -e POSTGRES_DB=repairshop -p 5432:5432 postgres:16-alpine
-          sleep 5
-
       - name: Run Application JAR
         env:
-          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL || 'jdbc:postgresql://localhost:5432/repairshop' }}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME || 'repairshop' }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD || 'repairshop' }}
           SERVER_PORT: "8080"
           SQS_HEALTH_CHECK_ENABLED: "false"
           AWS_REGION: "us-east-1"
@@ -101,9 +93,6 @@ jobs:
           docker run -d --name smoke-jar --network host \
             -v ${{ github.workspace }}:/app \
             -w /app \
-            -e SPRING_DATASOURCE_URL="$SPRING_DATASOURCE_URL" \
-            -e SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
-            -e SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
             -e SERVER_PORT="$SERVER_PORT" \
             -e SQS_HEALTH_CHECK_ENABLED="$SQS_HEALTH_CHECK_ENABLED" \
             -e AWS_REGION="$AWS_REGION" \
@@ -116,8 +105,8 @@ jobs:
           for i in {1..30}; do
             if curl -s http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
               echo "Post-Build Smoke Test Passed! Application is UP."
-              docker stop smoke-jar smoke-postgres
-              docker rm smoke-jar smoke-postgres
+              docker stop smoke-jar
+              docker rm smoke-jar
               exit 0
             fi
             echo "Waiting..."
@@ -125,12 +114,12 @@ jobs:
           done
           echo "Post-Build Smoke Test Failed! Application log output:"
           docker logs smoke-jar
-          docker stop smoke-jar smoke-postgres
-          docker rm smoke-jar smoke-postgres
+          docker stop smoke-jar
+          docker rm smoke-jar
           exit 1
 
   # ==========================================================================
-  # STAGE 2 — TEST: Testes unitários + integração (Testcontainers) + JaCoCo
+  # STAGE 2 — TEST: Testes unitários + integração BDD (Testcontainers) + JaCoCo
   # ==========================================================================
   test:
     name: "🧪 Test"
@@ -141,10 +130,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # v4.2.2
+        uses: actions/checkout@v4
 
       - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v4 # v4.0.0
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -157,7 +146,7 @@ jobs:
 
       - name: Upload JaCoCo coverage report
         if: always()
-        uses: actions/upload-artifact@v4 # v4.4.3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: target/site/jacoco/jacoco.xml
@@ -179,12 +168,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # v4.2.2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v4 # v4.0.0
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -198,13 +187,24 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: Download coverage report
-        uses: actions/download-artifact@v4 # v4.1.8
+        uses: actions/download-artifact@v4
         with:
           name: coverage-report
           path: target/site/jacoco/
 
       - name: Recompile for Sonar binaries
         run: mvn compile -B -ntp -DskipTests
+
+      - name: Trivy SCA Dependency Vulnerability Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'pom.xml'
+          scanners: 'vuln'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
 
       - name: SonarCloud Scan
         env:
@@ -233,17 +233,17 @@ jobs:
     if: |
       needs.quality.result == 'success' &&
       github.event_name != 'pull_request' &&
-      (github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target_env == 'prd'))
+      (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       contents: read
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # v4.2.2
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4 # v4
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -252,9 +252,9 @@ jobs:
 
       - name: Log in to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2 # v2.0.1
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Determine Target Environment & ECR Repository
+      - name: Determine Target Environment & Ensure ECR Repository
         id: ecr-target
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -267,13 +267,12 @@ jobs:
             TARGET="dev"
           fi
           
-          REPO_NAME=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'service-order') && contains(repositoryName, '${TARGET}')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
-          if [ -z "$REPO_NAME" ] || [ "$REPO_NAME" = "None" ]; then
-            REPO_NAME=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'service-order')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
+          REPO_NAME="service-order-execution-service-${TARGET}"
+          if ! aws ecr describe-repositories --repository-names "$REPO_NAME" --region ${{ env.AWS_REGION }} >/dev/null 2>&1; then
+            echo "Criando repositório ECR '$REPO_NAME'..."
+            aws ecr create-repository --repository-name "$REPO_NAME" --image-scanning-configuration scanOnPush=true --region ${{ env.AWS_REGION }}
           fi
-          if [ -z "$REPO_NAME" ] || [ "$REPO_NAME" = "None" ]; then
-            REPO_NAME="service-order-execution-service-${TARGET}"
-          fi
+
           echo "target_env=${TARGET}" >> $GITHUB_OUTPUT
           echo "repository_name=${REPO_NAME}" >> $GITHUB_OUTPUT
           echo "Target Environment: ${TARGET}"
@@ -307,24 +306,23 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
-      - name: Start dependencies (Postgres & Mailpit)
-        run: docker compose -p repairshop up -d postgres mailpit
-
       - name: Run Smoke Test (Start application container)
         env:
-          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL || 'jdbc:postgresql://localhost:5432/repairshop' }}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME || 'repairshop' }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD || 'repairshop' }}
-          SPRING_MAIL_HOST: ${{ secrets.SPRING_MAIL_HOST || 'localhost' }}
-          SPRING_MAIL_PORT: ${{ secrets.SPRING_MAIL_PORT || '1025' }}
+          SERVER_PORT: "8080"
+          SQS_HEALTH_CHECK_ENABLED: "false"
+          AWS_REGION: "us-east-1"
+          OTEL_TRACES_EXPORTER: "none"
+          OTEL_METRICS_EXPORTER: "none"
+          OTEL_LOGS_EXPORTER: "none"
           JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv4Stack=true"
         run: |
-          docker run -d --name smoke-app --network host --add-host mailpit:127.0.0.1 \
-            -e SPRING_DATASOURCE_URL="$SPRING_DATASOURCE_URL" \
-            -e SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
-            -e SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
-            -e SPRING_MAIL_HOST="$SPRING_MAIL_HOST" \
-            -e SPRING_MAIL_PORT="$SPRING_MAIL_PORT" \
+          docker run -d --name smoke-app --network host \
+            -e SERVER_PORT="$SERVER_PORT" \
+            -e SQS_HEALTH_CHECK_ENABLED="$SQS_HEALTH_CHECK_ENABLED" \
+            -e AWS_REGION="$AWS_REGION" \
+            -e OTEL_TRACES_EXPORTER="$OTEL_TRACES_EXPORTER" \
+            -e OTEL_METRICS_EXPORTER="$OTEL_METRICS_EXPORTER" \
+            -e OTEL_LOGS_EXPORTER="$OTEL_LOGS_EXPORTER" \
             -e JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS" \
             ${{ steps.login-ecr.outputs.registry }}/${{ steps.ecr-target.outputs.repository_name }}:latest
 
@@ -336,7 +334,6 @@ jobs:
               echo "Smoke Test Passed! Application is UP."
               docker stop smoke-app
               docker rm smoke-app
-              docker compose down
               exit 0
             fi
             echo "Waiting..."
@@ -346,7 +343,6 @@ jobs:
           docker logs smoke-app
           docker stop smoke-app
           docker rm smoke-app
-          docker compose down
           exit 1
 
       - name: Push Docker image to Amazon ECR
@@ -355,21 +351,21 @@ jobs:
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ steps.ecr-target.outputs.repository_name }}:${{ github.sha }}
 
   # ==========================================================================
-  # STAGE 5 — DEPLOY: Deploy no Kubernetes EKS (Direto pós-merge na Main)
+  # STAGE 5 — DEPLOY: Deploy no Cluster EKS Compartilhado (Namespace: repairshop)
   # ==========================================================================
   deploy:
-    name: "🚀 Deploy to EKS"
+    name: "🚀 Deploy to Shared EKS"
     needs: [docker-build-push]
     if: |
       needs.docker-build-push.result == 'success' &&
       github.event_name != 'pull_request' &&
-      (github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target_env == 'prd'))
+      (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # v4.2.2
+        uses: actions/checkout@v4
 
       - name: Determine Target Environment
         id: env-target
@@ -395,60 +391,24 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set up Kubeconfig from EKS
+      - name: Set up Kubeconfig from Shared EKS Cluster
         run: |
           CLUSTER="${{ steps.env-target.outputs.cluster_name }}"
-          echo "Configuring Kubeconfig for cluster: $CLUSTER..."
+          echo "Configuring Kubeconfig for shared cluster: $CLUSTER..."
           aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name "$CLUSTER"
 
       - name: Prepare Deployment & Secrets
         env:
-          DB_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
-          DB_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_REGISTRY="${ACCOUNT_ID}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com"
-          echo "Using ECR Registry: $ECR_REGISTRY"
-          
-          # Busca dinamicamente o repositório ECR correspondente
           ENV_NAME="${{ steps.env-target.outputs.environment }}"
-          ECR_REPO=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'service-order') && contains(repositoryName, '${ENV_NAME}')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
-          if [ -z "$ECR_REPO" ] || [ "$ECR_REPO" = "None" ]; then
-            ECR_REPO=$(aws ecr describe-repositories --region ${{ env.AWS_REGION }} --query "repositories[?contains(repositoryName, 'service-order')].repositoryName" --output text 2>/dev/null | tr '\t' '\n' | head -n 1)
-          fi
-          if [ -z "$ECR_REPO" ] || [ "$ECR_REPO" = "None" ]; then
-            ECR_REPO="service-order-execution-service-${ENV_NAME}"
-          fi
-          echo "Using ECR Repository: $ECR_REPO"
+          ECR_REPO="service-order-execution-service-${ENV_NAME}"
           
-          # Injeta ECR Registry e nome da imagem no deployment
+          echo "Using Image: ${ECR_REGISTRY}/${ECR_REPO}:latest"
           sed -i "s|image: .*|image: ${ECR_REGISTRY}/${ECR_REPO}:latest|g" k8s/deployment.yaml
 
-          # Busca dinamicamente o endpoint do RDS PostgreSQL
-          ENV_NAME="${{ steps.env-target.outputs.environment }}"
-          CLUSTER_NAME="${{ steps.env-target.outputs.cluster_name }}"
-          RDS_IDENTIFIER="${CLUSTER_NAME}-postgres"
-          
-          echo "Buscando endpoint do RDS para ${RDS_IDENTIFIER}..."
-          RDS_HOST=$(aws rds describe-db-instances --db-instance-identifier "${RDS_IDENTIFIER}" --region "${{ env.AWS_REGION }}" --query "DBInstances[0].Endpoint.Address" --output text 2>/dev/null || echo "")
-          
-          if [ -n "$RDS_HOST" ] && [ "$RDS_HOST" != "None" ]; then
-            echo "✅ RDS Host encontrado: $RDS_HOST"
-            sed -i "s|localhost:5432|${RDS_HOST}:5432|g" "k8s/configmap/configmap-${ENV_NAME}.yaml"
-          else
-            echo "⚠️ RDS Host não encontrado dinamicamente para '${RDS_IDENTIFIER}'. Mantendo configuração padrão."
-          fi
-          
-          # Injeta credenciais seguras no secret se fornecidas nas Secrets do repositório
-          if [ -n "$DB_USERNAME" ]; then
-            sed -i "s|SPRING_DATASOURCE_USERNAME: .*|SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}|g" k8s/secret.yaml
-            sed -i "s|POSTGRES_USER: .*|POSTGRES_USER: ${DB_USERNAME}|g" k8s/secret.yaml
-          fi
-          if [ -n "$DB_PASSWORD" ]; then
-            sed -i "s|SPRING_DATASOURCE_PASSWORD: .*|SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}|g" k8s/secret.yaml
-            sed -i "s|POSTGRES_PASSWORD: .*|POSTGRES_PASSWORD: ${DB_PASSWORD}|g" k8s/secret.yaml
-          fi
           if [ -n "$JWT_SECRET" ]; then
             sed -i "s|JWT_SECRET: .*|JWT_SECRET: ${JWT_SECRET}|g" k8s/secret.yaml
           fi
@@ -457,17 +417,17 @@ jobs:
         run: |
           ENV_NAME="${{ steps.env-target.outputs.environment }}"
           
-          echo "Garantindo criação do namespace 'repairshop'..."
+          echo "Garantindo criação do namespace compartilhado 'repairshop'..."
           kubectl apply -f k8s/namespace.yaml
           
-          echo "Aplicando configurações específicas de observabilidade (k8s/configs/)..."
+          echo "Aplicando configurações compartilhadas de observabilidade (k8s/configs/)..."
           kubectl apply -f k8s/configs/
-          
-          echo "Aplicando manifestos principais da aplicação e serviços (k8s/)..."
-          kubectl apply -f k8s/
           
           echo "Aplicando ConfigMap do ambiente: ${ENV_NAME}..."
           kubectl apply -f "k8s/configmap/configmap-${ENV_NAME}.yaml"
+          
+          echo "Aplicando manifestos da aplicação e serviços (k8s/)..."
+          kubectl apply -f k8s/
 
       - name: Wait for Deployment Rollout
         run: |

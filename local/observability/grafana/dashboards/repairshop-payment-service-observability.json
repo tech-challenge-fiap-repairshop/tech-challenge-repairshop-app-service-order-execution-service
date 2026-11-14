@@ -1,0 +1,1060 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "targetBlank": false,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-overview",
+      "includeVars": false,
+      "tooltip": "Visão consolidada de todos os microsserviços",
+      "title": "🌐 Overview (Todos os Serviços)",
+      "type": "link",
+      "icon": "apps"
+    },
+    {
+      "targetBlank": false,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-os-execution",
+      "includeVars": false,
+      "tooltip": "Dashboard dedicado do Service Order & Execution Service",
+      "title": "🛠️ Service Order & Execution",
+      "type": "link",
+      "icon": "cog"
+    },
+    {
+      "targetBlank": false,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-payment",
+      "includeVars": false,
+      "tooltip": "Dashboard dedicado do Payment Service",
+      "title": "💳 Payment Service",
+      "type": "link",
+      "icon": "credit-card"
+    },
+    {
+      "targetBlank": false,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-register",
+      "includeVars": false,
+      "tooltip": "Dashboard dedicado do Register Service",
+      "title": "📋 Register Service",
+      "type": "link",
+      "icon": "users-alt"
+    },
+    {
+      "targetBlank": false,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-notification",
+      "includeVars": false,
+      "tooltip": "Dashboard dedicado do Notification Service",
+      "title": "🔔 Notification Service",
+      "type": "link",
+      "icon": "bell"
+    },
+    {
+      "targetBlank": false,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-business-metrics",
+      "includeVars": false,
+      "tooltip": "Dashboard executivo e gerencial de métricas do negócio",
+      "title": "📈 Executive & Business KPIs",
+      "type": "link",
+      "icon": "chart-line"
+    },
+    {
+      "targetBlank": false,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "/d/repairshop-lambda-auth",
+      "includeVars": false,
+      "tooltip": "Dashboard dedicado da AWS Lambda Auth",
+      "title": "⚡ Lambda Auth Dashboard",
+      "type": "link",
+      "icon": "bolt"
+    },
+    {
+      "targetBlank": true,
+      "tags": [],
+      "keepTime": true,
+      "asDropdown": false,
+      "url": "http://localhost:16686",
+      "includeVars": false,
+      "tooltip": "Interface do Jaeger para rastreamento de traces distribuídos",
+      "title": "🔍 Jaeger Tracing UI",
+      "type": "link",
+      "icon": "external link"
+    }
+  ],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "title": "Application Health & Status",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "id": 1,
+      "title": "Application Status",
+      "type": "stat",
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "max(up{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\", application=~\"payment-service|repairshop-payment-service\"}) or vector(0)",
+          "instant": true,
+          "legendFormat": "payment-service",
+          "range": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "id": 2,
+      "title": "JVM Uptime",
+      "type": "stat",
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "process_uptime_seconds{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"}",
+          "instant": true,
+          "legendFormat": "payment-service",
+          "range": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "id": 3,
+      "title": "Total HTTP Requests",
+      "type": "stat",
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(http_server_requests_seconds_count{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"}) or sum(http_server_requests_total{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"}) or vector(0)",
+          "instant": true,
+          "legendFormat": "payment-service",
+          "range": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 4,
+      "title": "Active DB Connections",
+      "type": "stat",
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 8
+              },
+              {
+                "color": "red",
+                "value": 15
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "hikaricp_connections_active{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"} or vector(0)",
+          "instant": true,
+          "legendFormat": "payment-service",
+          "range": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 4
+      },
+      "id": 11,
+      "title": "⚡ CPU Usage (%)",
+      "type": "gauge",
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#56A64B",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 60
+              },
+              {
+                "color": "#EF843C",
+                "value": 75
+              },
+              {
+                "color": "#E24D42",
+                "value": 85
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "(process_cpu_usage{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"} or vector(0)) * 100",
+          "instant": true,
+          "legendFormat": "payment-service",
+          "range": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 4
+      },
+      "id": 12,
+      "title": "⚡ CPU Cores (Quantity)",
+      "type": "gauge",
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 2,
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#56A64B",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 1.0
+              },
+              {
+                "color": "#E24D42",
+                "value": 1.6
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "(rate(process_cpu_seconds_total{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"}[1m]) or (process_cpu_usage{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"} * 2) or vector(0))",
+          "instant": true,
+          "legendFormat": "payment-service",
+          "range": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 4
+      },
+      "id": 13,
+      "title": "🧠 JVM Heap Memory (Quantity)",
+      "type": "gauge",
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "unit": "bytes",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#56A64B",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 350000000
+              },
+              {
+                "color": "#E24D42",
+                "value": 480000000
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "jvm_memory_used_bytes{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\", area=\"heap\"} or vector(0)",
+          "instant": true,
+          "legendFormat": "payment-service",
+          "range": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 4
+      },
+      "id": 14,
+      "title": "🧠 JVM Heap Memory (%)",
+      "type": "gauge",
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#56A64B",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 70
+              },
+              {
+                "color": "#EF843C",
+                "value": 80
+              },
+              {
+                "color": "#E24D42",
+                "value": 90
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "((jvm_memory_used_bytes{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\", area=\"heap\"} or vector(0)) / (jvm_memory_max_bytes{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\", area=\"heap\"} or vector(1))) * 100",
+          "instant": true,
+          "legendFormat": "payment-service",
+          "range": false,
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "id": 101,
+      "title": "HTTP Traffic & Latencies (RED Method)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "id": 5,
+      "title": "HTTP Request Rate (req/s)",
+      "type": "timeseries",
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 15
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (uri, status) (rate(http_server_requests_seconds_count{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"}[1m]))",
+          "legendFormat": "{{status}} {{uri}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
+      "id": 6,
+      "title": "HTTP Latency (Avg, Max, p95)",
+      "type": "timeseries",
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "max by (uri) (http_server_requests_seconds_max{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"})",
+          "legendFormat": "Max - {{uri}}",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(http_server_requests_seconds_sum{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"}[1m])) / sum(rate(http_server_requests_seconds_count{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"}[1m]))",
+          "legendFormat": "Avg Latency",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"}[1m])))",
+          "legendFormat": "p95",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 102,
+      "title": "JVM & Resources",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 19
+      },
+      "id": 7,
+      "title": "JVM Heap Memory Usage",
+      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 20
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "jvm_memory_used_bytes{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\", area=\"heap\"}",
+          "legendFormat": "Heap Used ({{id}})",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "jvm_memory_max_bytes{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\", area=\"heap\"}",
+          "legendFormat": "Heap Max ({{id}})",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 19
+      },
+      "id": 8,
+      "title": "Process vs System CPU Usage",
+      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 15
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "process_cpu_usage{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"}",
+          "legendFormat": "Process CPU Usage",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "system_cpu_usage{job=\"repairshop-actuator\", application=~\"payment-service|repairshop-payment-service\"}",
+          "legendFormat": "System CPU Usage",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 103,
+      "title": "Application Logs & Traces Correlation",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "jaeger",
+        "uid": "Jaeger"
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 15,
+      "title": "🔍 Distributed Traces Explorer (Jaeger + OpenTelemetry)",
+      "type": "table",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "traceID"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "🔍 Open Trace Waterfall in Jaeger",
+                    "url": "http://localhost:16686/trace/${__data.fields.traceID}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "µs"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "footer": {
+          "countRows": true,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "count"
+          ],
+          "show": true
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "startTime"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "jaeger",
+            "uid": "Jaeger"
+          },
+          "limit": 30,
+          "queryType": "search",
+          "refId": "A",
+          "service": "payment-service"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "Loki"
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 43
+      },
+      "id": 9,
+      "title": "📜 Application Real-Time Logs Stream (Loki + OpenTelemetry)",
+      "type": "logs",
+      "options": {
+        "enableLogDetails": true,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true,
+        "showCommonLabels": false,
+        "prettifyLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "Loki"
+          },
+          "editorMode": "code",
+          "expr": "{job=~\".*payment.*|repairshop.*\"} | json",
+          "maxLines": 500,
+          "queryType": "range",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [
+    "repairshop",
+    "opentelemetry",
+    "observability"
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m"
+    ]
+  },
+  "timezone": "browser",
+  "title": "RepairShop - Payment Service Observability",
+  "uid": "repairshop-payment",
+  "version": 1
+}

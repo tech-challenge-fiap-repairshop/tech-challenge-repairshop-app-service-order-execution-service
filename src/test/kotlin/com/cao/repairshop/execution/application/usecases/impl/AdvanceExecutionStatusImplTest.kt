@@ -1,11 +1,9 @@
 package com.cao.repairshop.execution.application.usecases.impl
 
 import com.cao.repairshop.core.exception.EntityNotFoundException
-import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.domain.ExecutionStatus
 import com.cao.repairshop.execution.domain.entities.Execution
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
-import com.cao.repairshop.serviceorder.application.usecases.NotifyCustomer
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 import com.cao.repairshop.serviceorder.domain.entities.ServiceOrder
 import io.mockk.every
@@ -22,14 +20,12 @@ import java.util.UUID
 class AdvanceExecutionStatusImplTest {
 
     private lateinit var serviceOrderGateway: ServiceOrderGateway
-    private lateinit var notifyCustomer: NotifyCustomer
     private lateinit var advanceExecutionStatusImpl: AdvanceExecutionStatusImpl
 
     @BeforeEach
     fun setup() {
         serviceOrderGateway = mockk()
-        notifyCustomer = mockk(relaxed = true)
-        advanceExecutionStatusImpl = AdvanceExecutionStatusImpl(serviceOrderGateway, notifyCustomer)
+        advanceExecutionStatusImpl = AdvanceExecutionStatusImpl(serviceOrderGateway)
     }
 
     @Test
@@ -47,7 +43,7 @@ class AdvanceExecutionStatusImplTest {
         val execution = Execution(
             id = executionId,
             serviceOrderId = serviceOrderId,
-            basicDescription = BasicExecution.OIL_CHANGE,
+            basicDescription = "OIL_CHANGE",
             fullDescription = "Oil change",
             price = BigDecimal("100.00"),
             status = ExecutionStatus.INITIATED
@@ -61,11 +57,10 @@ class AdvanceExecutionStatusImplTest {
 
         assertEquals(ExecutionStatus.PENDING, response.status)
         verify { serviceOrderGateway.save(serviceOrder) }
-        verify(exactly = 0) { notifyCustomer.execute(any(), any()) }
     }
 
     @Test
-    fun `should advance execution status and notify customer if order transitions to FINALIZED`() {
+    fun `should advance execution status and finalize order when all executions are finalized`() {
         val serviceOrderId = UUID.randomUUID()
         val executionId = UUID.randomUUID()
 
@@ -80,7 +75,7 @@ class AdvanceExecutionStatusImplTest {
         val execution = Execution(
             id = executionId,
             serviceOrderId = serviceOrderId,
-            basicDescription = BasicExecution.OIL_CHANGE,
+            basicDescription = "OIL_CHANGE",
             fullDescription = "Oil change",
             price = BigDecimal("100.00"),
             status = ExecutionStatus.PENDING
@@ -93,8 +88,8 @@ class AdvanceExecutionStatusImplTest {
         val response = advanceExecutionStatusImpl.execute(serviceOrderId, executionId, ExecutionStatus.FINALIZED)
 
         assertEquals(ExecutionStatus.FINALIZED, response.status)
+        assertEquals(ServiceOrderStatus.FINALIZED, serviceOrder.status)
         verify { serviceOrderGateway.save(serviceOrder) }
-        verify { notifyCustomer.execute(serviceOrder, ServiceOrderStatus.FINALIZED) }
     }
 
     @Test

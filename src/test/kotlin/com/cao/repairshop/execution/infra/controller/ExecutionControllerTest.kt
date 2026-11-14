@@ -1,7 +1,6 @@
 package com.cao.repairshop.execution.infra.controller
 
 import com.cao.repairshop.core.exception.GlobalExceptionHandler
-import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.domain.ExecutionStatus
 import com.cao.repairshop.execution.infra.controller.dtos.*
 import com.cao.repairshop.execution.infra.controller.ExecutionController
@@ -46,7 +45,7 @@ class ExecutionControllerTest {
     private val sampleResponse = ExecutionResponse(
         id = executionId,
         serviceOrderId = serviceOrderId,
-        basicDescription = BasicExecution.OIL_CHANGE,
+        basicDescription = "OIL_CHANGE",
         fullDescription = "Oil change",
         laborPrice = BigDecimal("150.00"),
         totalPrice = BigDecimal("150.00"),
@@ -116,7 +115,7 @@ class ExecutionControllerTest {
             price = BigDecimal("300.00")
         )
         every { updateExecution.execute(serviceOrderId, executionId, any()) } returns sampleResponse.copy(
-            basicDescription = BasicExecution.SUSPENSION_REPLACEMENT,
+            basicDescription = "SUSPENSION_REPLACEMENT",
             fullDescription = "Full service"
         )
 
@@ -169,7 +168,7 @@ class ExecutionControllerTest {
         )
         val batchResponse = listOf(
             sampleResponse,
-            sampleResponse.copy(id = UUID.randomUUID(), basicDescription = BasicExecution.BRAKE_INSPECTION)
+            sampleResponse.copy(id = UUID.randomUUID(), basicDescription = "BRAKE_INSPECTION")
         )
         every { addExecutionBatch.execute(serviceOrderId, any()) } returns batchResponse
 

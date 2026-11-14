@@ -2,42 +2,38 @@ package com.cao.repairshop.serviceorder.application.usecases.impl
 
 import com.cao.repairshop.core.exception.EntityNotFoundException
 import com.cao.repairshop.core.exception.ErrorMessages
-import com.cao.repairshop.inventory.application.usecases.DeductInsumeStock
 import com.cao.repairshop.serviceorder.application.gateways.ServiceOrderGateway
 import com.cao.repairshop.serviceorder.application.usecases.ApproveServiceOrder
-import com.cao.repairshop.serviceorder.application.usecases.NotifyCustomer
 import com.cao.repairshop.serviceorder.domain.ApprovalDomainService
 import com.cao.repairshop.serviceorder.domain.entities.mapper.toResponse
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ApprovalRequest
 import com.cao.repairshop.serviceorder.infra.controller.dtos.ServiceOrderResponse
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Service
 class ApproveServiceOrderImpl(
     private val serviceOrderGateway: ServiceOrderGateway,
-    private val deductInsumeStock: DeductInsumeStock,
-    private val approvalDomainService: ApprovalDomainService,
-    private val notifyCustomer: NotifyCustomer
+    private val approvalDomainService: ApprovalDomainService
 ) : ApproveServiceOrder {
 
-    @Transactional
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     override fun execute(id: UUID, request: ApprovalRequest): ServiceOrderResponse {
+        logger.info("Processando decisão de orçamento para OS [ORDER#{}]: aprovado={}", id, request.approved)
         val order = serviceOrderGateway.findDetailedById(id)
             ?: throw EntityNotFoundException(ErrorMessages.ServiceOrder.NOT_FOUND)
 
         if (request.approved) {
-            val stockRequirements = approvalDomainService.approve(order)
-            stockRequirements.forEach { req ->
-                deductInsumeStock.execute(req.insumeId, req.quantity)
-            }
+            approvalDomainService.approve(order)
         } else {
             approvalDomainService.refuse(order)
         }
 
         val saved = serviceOrderGateway.save(order)
-        notifyCustomer.execute(saved, saved.status)
+        logger.info("Decisão de orçamento da OS [ORDER#{}] processada com SUCESSO: novo status={}", id, saved.status)
+
         return saved.toResponse()
     }
 }

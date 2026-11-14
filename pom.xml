@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.6</version>
+		<version>4.0.7</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -25,11 +25,14 @@
 		<sonar.projectKey>alexandre-agamin_tech-challenge-repairshop-app-service-order-execution-service</sonar.projectKey>
 		<sonar.projectName>tech-challenge-repairshop-app-service-order-execution-service</sonar.projectName>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-		<tomcat.version>11.0.22</tomcat.version>
-		<postgresql.version>42.7.12</postgresql.version>
-		<spring-framework.version>7.0.8</spring-framework.version>
+		<tomcat.version>11.0.25</tomcat.version>
+		<spring-framework.version>7.0.9</spring-framework.version>
+		<spring-security.version>7.0.6</spring-security.version>
+		<netty.version>4.2.17.Final</netty.version>
+		<log4j2.version>2.25.5</log4j2.version>
 		<micrometer.version>1.16.6</micrometer.version>
 		<sonar.exclusions>
+			**/.github/**,
 			**/config/**,
 			**/dto/**,
 			**/dtos/**,
@@ -37,9 +40,12 @@
 			**/models/**,
 			**/mapper/**,
 			**/converter/**,
+			**/messaging/**,
+			**/health/**,
 			**/RepairshopApplication.kt
 		</sonar.exclusions>
 		<sonar.coverage.exclusions>
+			**/.github/**,
 			**/config/**,
 			**/dto/**,
 			**/dtos/**,
@@ -47,42 +53,47 @@
 			**/models/**,
 			**/mapper/**,
 			**/converter/**,
+			**/messaging/**,
+			**/health/**,
 			**/RepairshopApplication.kt
 		</sonar.coverage.exclusions>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- Jackson Core & Databind fixes (GHSA-r7wm-3cxj-wff9) -->
+			<!-- Netty BOM security fix (CVE-2026-75595, CVE-2026-59901, CVE-2026-59903) -->
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-bom</artifactId>
+				<version>${netty.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<!-- Jackson Core & Databind fixes (CVE-2026-89407, CVE-2026-89425, CVE-2026-91776, CVE-2026-91777) -->
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.21.4</version>
+				<version>2.21.7</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.21.4</version>
+				<version>2.21.7</version>
 			</dependency>
 			<dependency>
 				<groupId>tools.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>3.1.4</version>
+				<version>3.1.7</version>
 			</dependency>
 			<dependency>
 				<groupId>tools.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>3.1.4</version>
+				<version>3.1.7</version>
 			</dependency>
 			<!-- Spring Data Commons fix (CVE-2026-41695, CVE-2026-41716) -->
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-commons</artifactId>
-				<version>4.0.6</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.data</groupId>
-				<artifactId>spring-data-jpa</artifactId>
 				<version>4.0.6</version>
 			</dependency>
 		</dependencies>
@@ -95,32 +106,15 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-flyway</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-database-postgresql</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-commons</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -173,7 +167,7 @@
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-api</artifactId>
-			<version>1.47.0</version>
+			<version>1.67.0</version>
 		</dependency>
 
 		<dependency>
@@ -231,9 +225,32 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-java</artifactId>
+			<version>7.20.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-spring</artifactId>
+			<version>7.20.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.testcontainers</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>1.21.4</version>
+			<artifactId>localstack</artifactId>
+			<version>1.20.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-junit-platform-engine</artifactId>
+			<version>7.20.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-suite</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -256,7 +273,6 @@
 					</args>
 					<compilerPlugins>
 						<plugin>spring</plugin>
-						<plugin>jpa</plugin>
 					</compilerPlugins>
 				</configuration>
 				<dependencies>
@@ -285,7 +301,7 @@
 					</execution>
 					<execution>
 						<id>report</id>
-						<phase>verify</phase> <!-- Gera o relatório após os testes -->
+						<phase>verify</phase>
 						<goals>
 							<goal>report</goal>
 						</goals>
@@ -326,8 +342,27 @@
 						<exclude>**/models/**</exclude>
 						<exclude>**/mapper/**</exclude>
 						<exclude>**/converter/**</exclude>
+						<exclude>**/messaging/**</exclude>
+						<exclude>**/health/**</exclude>
 						<exclude>**/RepairshopApplication*</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/*Test.java</include>
+						<include>**/*Tests.java</include>
+						<include>**/*Test.kt</include>
+						<include>**/*Tests.kt</include>
+						<include>**/*Runner.kt</include>
+					</includes>
+					<systemPropertyVariables>
+						<api.version>1.44</api.version>
+						<DOCKER_API_VERSION>1.44</DOCKER_API_VERSION>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 		</plugins>

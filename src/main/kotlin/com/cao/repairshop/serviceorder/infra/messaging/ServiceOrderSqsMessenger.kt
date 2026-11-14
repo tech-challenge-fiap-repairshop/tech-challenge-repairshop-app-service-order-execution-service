@@ -23,7 +23,7 @@ data class OrderApprovalEvent(
     val description: String? = null
 )
 
-data class PaymentOrderEvent(
+data class OsReadyForPaymentEvent(
     val orderId: UUID,
     val customerId: UUID,
     val amount: Double
@@ -35,10 +35,11 @@ data class CallbackApprovalMessage(
     val reason: String? = null
 )
 
-data class CallbackPaymentMessage(
+data class PaymentSuccessMessage(
     val orderId: UUID,
     val paymentId: String,
-    val status: String
+    val status: String,
+    val amount: Double? = null
 )
 
 @Component
@@ -50,17 +51,17 @@ class ServiceOrderSqsMessenger(
     private val approveNotificationQueue: String,
     @Value("\${sqs.queue.callback-approve:callback-approve-notification-queue-dev}")
     private val callbackApproveQueue: String,
-    @Value("\${sqs.queue.create-payment:create-payment-order-queue-dev}")
-    private val createPaymentQueue: String,
-    @Value("\${sqs.queue.callback-payment:callback-payment-order-queue-dev}")
-    private val callbackPaymentQueue: String
+    @Value("\${sqs.queue.os-ready-for-payment:os-ready-for-payment-queue-dev}")
+    private val osReadyForPaymentQueue: String,
+    @Value("\${sqs.queue.payment-success:payment-success-queue-dev}")
+    private val paymentSuccessQueue: String
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     init {
-        // Registra as filas de callback no indicador de saúde para monitorar Pods Zumbis (PF-11)
+        // Registra as filas de escuta no health indicator para monitoramento de pods zumbis
         SqsListenerHealthIndicator.registerMonitoredQueue(callbackApproveQueue, 120)
-        SqsListenerHealthIndicator.registerMonitoredQueue(callbackPaymentQueue, 120)
+        SqsListenerHealthIndicator.registerMonitoredQueue(paymentSuccessQueue, 120)
     }
 
     private fun getQueueUrl(queueName: String): String {
@@ -70,7 +71,8 @@ class ServiceOrderSqsMessenger(
     }
 
     /**
-     * Publica evento para o Notification Service com injeção do W3C Trace Context (PF-10)
+     * Publica evento para o Notification Service na fila approve-notification-queue
+     * quando a OS atinge o status WAITING_APPROVAL
      */
     fun sendOrderForApproval(orderId: UUID, customerId: UUID, vehicleId: UUID, totalPrice: Double, description: String?) {
         val queueUrl = getQueueUrl(approveNotificationQueue)
@@ -93,11 +95,11 @@ class ServiceOrderSqsMessenger(
     }
 
     /**
-     * Publica evento de ordem de pagamento para o Payment Service (PF-10)
+     * Publica evento na fila os-ready-for-payment-queue informando o payment-service que a OS está pronta para pagamento
      */
-    fun sendOrderForPayment(orderId: UUID, customerId: UUID, amount: Double) {
-        val queueUrl = getQueueUrl(createPaymentQueue)
-        val event = PaymentOrderEvent(orderId, customerId, amount)
+    fun sendOrderReadyForPayment(orderId: UUID, customerId: UUID, amount: Double) {
+        val queueUrl = getQueueUrl(osReadyForPaymentQueue)
+        val event = OsReadyForPaymentEvent(orderId, customerId, amount)
         val body = objectMapper.writeValueAsString(event)
 
         val currentSpan = Span.current()
@@ -112,11 +114,30 @@ class ServiceOrderSqsMessenger(
             .build()
 
         sqsClient.sendMessage(request)
-        logger.info("Publicado evento de cobrança da OS {} na fila {} (amount: {})", orderId, createPaymentQueue, amount)
+        logger.info("Publicado evento de OS pronta para pagamento {} na fila {} (valor: {})", orderId, osReadyForPaymentQueue, amount)
     }
 
     /**
-     * Polling contínuo da fila de Callback de Aprovação
+     * Scheduler oficial do desenho: scheduler_os_ready_for_payment (a cada 30 min por padrão, ou configurável)
+     * Varre ordens pendentes no DynamoDB (GSI pending-dispatch-index) e as publica em os-ready-for-payment-queue
+     */
+    @Scheduled(fixedDelayString = "\${scheduler.os-ready-for-payment.delay:1800000}", initialDelay = 15000)
+    fun schedulerOsReadyForPayment() {
+        logger.info("Executando scheduler_os_ready_for_payment...")
+        val pendingOrders = dynamoRepository.findPendingNotification()
+        for (order in pendingOrders) {
+            runCatching {
+                sendOrderReadyForPayment(order.id, order.customerId, order.totalPrice)
+                dynamoRepository.updateStatus(order.id, order.status, "DISPATCHED")
+                logger.info("OS {} despachada com sucesso para os-ready-for-payment-queue", order.id)
+            }.onFailure { ex ->
+                logger.error("Falha ao despachar OS {} para pagamento: {}", order.id, ex.message)
+            }
+        }
+    }
+
+    /**
+     * Polling contínuo da fila de Callback de Aprovação: callback-approve-notification-queue
      */
     @Scheduled(fixedDelay = 5000)
     fun pollCallbackApproval() {
@@ -131,12 +152,11 @@ class ServiceOrderSqsMessenger(
                     .build()
             )
 
-            // Registra heartbeat indicando que o loop de mensageria está vivo (PF-11)
             SqsListenerHealthIndicator.recordHeartbeat(callbackApproveQueue)
 
             for (msg in response.messages()) {
                 val callback = objectMapper.readValue(msg.body(), CallbackApprovalMessage::class.java)
-                val newStatus = if (callback.approved) "IN_PROGRESS" else "CANCELED"
+                val newStatus = if (callback.approved) "APPROVED" else "CANCELED"
                 dynamoRepository.updateStatus(callback.orderId, newStatus)
                 logger.info("Callback de aprovação processado: OS {} -> {}", callback.orderId, newStatus)
 
@@ -153,11 +173,12 @@ class ServiceOrderSqsMessenger(
     }
 
     /**
-     * Polling contínuo da fila de Callback de Pagamento
+     * Polling contínuo da fila de Pagamento com Sucesso: payment-success-queue
+     * Despachado pelo scheduler do payment-service quando o pagamento for concluído
      */
     @Scheduled(fixedDelay = 5000)
-    fun pollCallbackPayment() {
-        val queueUrl = getQueueUrl(callbackPaymentQueue)
+    fun pollPaymentSuccess() {
+        val queueUrl = getQueueUrl(paymentSuccessQueue)
         runCatching {
             val response = sqsClient.receiveMessage(
                 ReceiveMessageRequest.builder()
@@ -168,13 +189,13 @@ class ServiceOrderSqsMessenger(
                     .build()
             )
 
-            SqsListenerHealthIndicator.recordHeartbeat(callbackPaymentQueue)
+            SqsListenerHealthIndicator.recordHeartbeat(paymentSuccessQueue)
 
             for (msg in response.messages()) {
-                val callback = objectMapper.readValue(msg.body(), CallbackPaymentMessage::class.java)
-                if (callback.status == "APPROVED" || callback.status == "COMPLETED") {
-                    dynamoRepository.updateStatus(callback.orderId, "COMPLETED", "DISPATCHED")
-                    logger.info("Pagamento confirmado via fila: OS {} finalizada e liberada para retirada", callback.orderId)
+                val paymentMsg = objectMapper.readValue(msg.body(), PaymentSuccessMessage::class.java)
+                if (paymentMsg.status == "APPROVED" || paymentMsg.status == "COMPLETED") {
+                    dynamoRepository.updateStatus(paymentMsg.orderId, "PAID", "DISPATCHED", "PAID")
+                    logger.info("Pagamento confirmado via payment-success-queue: OS {} atualizada para PAID", paymentMsg.orderId)
                 }
 
                 sqsClient.deleteMessage(
@@ -185,7 +206,7 @@ class ServiceOrderSqsMessenger(
                 )
             }
         }.onFailure { ex ->
-            logger.warn("Erro ao ler fila {}: {}", callbackPaymentQueue, ex.message)
+            logger.warn("Erro ao ler fila {}: {}", paymentSuccessQueue, ex.message)
         }
     }
 }

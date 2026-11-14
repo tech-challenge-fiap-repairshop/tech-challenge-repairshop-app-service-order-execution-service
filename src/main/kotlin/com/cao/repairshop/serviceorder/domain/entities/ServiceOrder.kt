@@ -2,10 +2,9 @@ package com.cao.repairshop.serviceorder.domain.entities
 
 import com.cao.repairshop.core.exception.ErrorMessages
 import com.cao.repairshop.core.exception.InvalidStateTransitionException
-import com.cao.repairshop.execution.domain.BasicExecution
 import com.cao.repairshop.execution.domain.ExecutionStatus
 import com.cao.repairshop.execution.domain.entities.Execution
-import com.cao.repairshop.inventory.domain.entities.Insume
+import com.cao.repairshop.execution.domain.entities.Insume
 import com.cao.repairshop.serviceorder.domain.ServiceOrderStatus
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -17,11 +16,13 @@ class ServiceOrder(
     val id: UUID = UUID.randomUUID(),
     var customerId: UUID,
     var vehicleId: UUID,
-    var status: ServiceOrderStatus = ServiceOrderStatus.RECEIVED,
+    var status: ServiceOrderStatus = ServiceOrderStatus.IN_DIAGNOSIS,
     var totalPrice: BigDecimal = BigDecimal.ZERO,
     var enterTime: LocalDateTime? = null,
     var endTime: LocalDateTime? = null,
     var validDate: LocalDate? = null,
+    var hasExtraServices: Boolean = false,
+    var extraServicesAccepted: Boolean? = null,
     var histories: MutableSet<ServiceOrderHistory> = mutableSetOf(),
     var executions: MutableSet<Execution> = mutableSetOf(),
     var invoiceId: UUID? = null,
@@ -37,6 +38,9 @@ class ServiceOrder(
             throw InvalidStateTransitionException("Cannot send to approval: no services were registered during diagnosis.")
 
         if (newStatus == ServiceOrderStatus.FINALIZED) {
+            if (status == ServiceOrderStatus.WAITING_APPROVAL_EXTRA_TASKS) {
+                throw InvalidStateTransitionException("Cannot finalize service order while waiting for extra executions approval.")
+            }
             val allFinalized = executions.all { it.status == ExecutionStatus.FINALIZED }
             if (!allFinalized)
                 throw InvalidStateTransitionException(ErrorMessages.ServiceOrder.NOT_ALL_FINALIZED)
@@ -62,7 +66,7 @@ class ServiceOrder(
     }
 
     fun addExecution(
-        basicDescription: BasicExecution,
+        basicDescription: String,
         fullDescription: String?,
         price: BigDecimal,
         estimatedTime: BigDecimal?,
@@ -83,17 +87,14 @@ class ServiceOrder(
         return execution
     }
 
-    fun collectInsumeRequirements(): List<Pair<UUID, Int>> =
-        executions.flatMap { exec ->
-            exec.insumes.map { it.insume.id to it.quantity }
-        }
-
     fun recalculateTotalPrice() {
         totalPrice = executions.fold(BigDecimal.ZERO) { acc, exec -> acc.add(exec.getTotalPrice()) }
     }
 
     fun checkCompletion(): Boolean {
-        val shouldFinalize = status == ServiceOrderStatus.IN_EXECUTION && executions.all { it.status == ExecutionStatus.FINALIZED }
+        val shouldFinalize = status == ServiceOrderStatus.IN_EXECUTION &&
+                executions.isNotEmpty() &&
+                executions.all { it.status == ExecutionStatus.FINALIZED }
         if (shouldFinalize) {
             advanceStatus(ServiceOrderStatus.FINALIZED)
             return true
