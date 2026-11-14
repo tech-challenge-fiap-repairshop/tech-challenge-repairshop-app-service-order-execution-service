@@ -72,7 +72,8 @@ class ServiceOrderDynamoMapper {
     }
 
     fun buildExecutionItem(exec: Execution, pk: String): ExecutionDynamoItem {
-        val timestamp = (exec.created ?: LocalDateTime.now()).toInstant(ZoneOffset.UTC).toEpochMilli()
+        val createdDateTime = exec.created ?: LocalDateTime.now().also { exec.created = it }
+        val timestamp = createdDateTime.toInstant(ZoneOffset.UTC).toEpochMilli()
         val insumesItems = exec.insumes.map { ei ->
             InsumeDynamoItem(
                 idInsume = ei.insume.id.toString(),
@@ -93,7 +94,7 @@ class ServiceOrderDynamoMapper {
             taskName = exec.basicDescription,
             executionPrice = exec.price.toDouble(),
             status = exec.status.name,
-            createDate = (exec.created ?: LocalDateTime.now()).toInstant(ZoneOffset.UTC).toString(),
+            createDate = Instant.ofEpochMilli(timestamp).toString(),
             updateDate = Instant.now().toString(),
             basicDescription = exec.basicDescription,
             fullDescription = exec.fullDescription,
@@ -178,33 +179,49 @@ class ServiceOrderDynamoMapper {
             enterTime = metadata.enterTime.takeIf { it.isNotBlank() }?.let { runCatching { LocalDateTime.ofInstant(Instant.parse(it), ZoneOffset.UTC) }.getOrNull() },
             endTime = metadata.endTime?.takeIf { it.isNotBlank() }?.let { runCatching { LocalDateTime.ofInstant(Instant.parse(it), ZoneOffset.UTC) }.getOrNull() },
             hasExtraServices = metadata.hasExtraServices,
-            extraServicesAccepted = metadata.extraServicesAccepted
+            extraServicesAccepted = metadata.extraServicesAccepted,
+            created = metadata.createDate.takeIf { it.isNotBlank() }?.let { runCatching { LocalDateTime.ofInstant(Instant.parse(it), ZoneOffset.UTC) }.getOrNull() },
+            updated = metadata.updateDate.takeIf { it.isNotBlank() }?.let { runCatching { LocalDateTime.ofInstant(Instant.parse(it), ZoneOffset.UTC) }.getOrNull() }
         )
 
-        // Reconstrói execuções técnicas e seus insumos embutidos
+        // Reconstrói execuções técnicas e seus insumos embutidos, mantendo sempre o item de SK mais recente
         fullOrder.executions.forEach { ei ->
-            order.executions.add(toDomainExecution(ei, order.id))
+            val domainExec = toDomainExecution(ei, order.id)
+            order.executions.remove(domainExec)
+            order.executions.add(domainExec)
         }
 
-        // Reconstrói histórico
+        // Reconstrói histórico preservando o timestamp original da SK / register_time
         fullOrder.histories.forEach { h ->
             val status = runCatching { ServiceOrderStatus.valueOf(h.status) }.getOrDefault(ServiceOrderStatus.IN_DIAGNOSIS)
-            order.histories.add(
-                ServiceOrderHistory(
-                    id = UUID.fromString(h.historyId),
-                    serviceOrderId = order.id,
-                    status = status,
-                    description = h.description,
-                    registerTime = LocalDateTime.now(),
-                    intervalTime = h.intervalTime
-                )
+            val parsedRegisterTime = h.sk.split("#").takeIf { it.size >= 3 }?.getOrNull(1)?.toLongOrNull()
+                ?.let { LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneOffset.UTC) }
+                ?: h.registerTime.takeIf { it.isNotBlank() }
+                    ?.let { runCatching { LocalDateTime.ofInstant(Instant.parse(it), ZoneOffset.UTC) }.getOrNull() }
+                ?: LocalDateTime.now()
+            val historyEntry = ServiceOrderHistory(
+                id = UUID.fromString(h.historyId),
+                serviceOrderId = order.id,
+                status = status,
+                description = h.description,
+                registerTime = parsedRegisterTime,
+                intervalTime = h.intervalTime
             )
+            order.histories.remove(historyEntry)
+            order.histories.add(historyEntry)
         }
 
         return order
     }
 
     fun toDomainExecution(ei: ExecutionDynamoItem, orderId: UUID): Execution {
+        val createdDateTime = ei.sk.split("#").takeIf { it.size >= 3 }?.getOrNull(1)?.toLongOrNull()
+            ?.let { LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneOffset.UTC) }
+            ?: ei.createDate.takeIf { it.isNotBlank() }
+                ?.let { runCatching { LocalDateTime.ofInstant(Instant.parse(it), ZoneOffset.UTC) }.getOrNull() }
+        val updatedDateTime = ei.updateDate.takeIf { it.isNotBlank() }
+            ?.let { runCatching { LocalDateTime.ofInstant(Instant.parse(it), ZoneOffset.UTC) }.getOrNull() }
+
         val exec = Execution(
             id = UUID.fromString(ei.executionId),
             serviceOrderId = orderId,
@@ -212,7 +229,9 @@ class ServiceOrderDynamoMapper {
             fullDescription = ei.fullDescription,
             price = BigDecimal.valueOf(ei.executionPrice),
             estimatedTime = ei.estimatedTime?.let { BigDecimal.valueOf(it) },
-            status = runCatching { ExecutionStatus.valueOf(ei.status) }.getOrDefault(ExecutionStatus.INITIATED)
+            status = runCatching { ExecutionStatus.valueOf(ei.status) }.getOrDefault(ExecutionStatus.INITIATED),
+            created = createdDateTime,
+            updated = updatedDateTime
         )
 
         ei.insumes.forEach { ins ->
