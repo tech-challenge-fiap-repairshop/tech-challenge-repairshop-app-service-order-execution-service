@@ -1,1598 +1,1714 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": {
-          "type": "grafana",
-          "uid": "-- Grafana --"
-        },
-        "enable": true,
-        "hide": true,
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
-      }
-    ]
-  },
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
-  "id": 3,
-  "links": [
-    {
-      "includeVars": false,
-      "keepTime": true,
-      "title": "🌐 Overview (Todos os Serviços)",
-      "tooltip": "Visão consolidada de todos os microsserviços",
-      "icon": "apps",
-      "asDropdown": false,
-      "targetBlank": false,
-      "type": "link",
-      "tags": [],
-      "url": "/d/repairshop-overview"
-    },
-    {
-      "includeVars": false,
-      "keepTime": true,
-      "title": "🛠️ Service Order & Execution",
-      "tooltip": "Dashboard dedicado do Service Order & Execution Service",
-      "icon": "cog",
-      "asDropdown": false,
-      "targetBlank": false,
-      "type": "link",
-      "tags": [],
-      "url": "/d/repairshop-os-execution"
-    },
-    {
-      "includeVars": false,
-      "keepTime": true,
-      "title": "💳 Payment Service",
-      "tooltip": "Dashboard dedicado do Payment Service",
-      "icon": "credit-card",
-      "asDropdown": false,
-      "targetBlank": false,
-      "type": "link",
-      "tags": [],
-      "url": "/d/repairshop-payment"
-    },
-    {
-      "includeVars": false,
-      "keepTime": true,
-      "title": "📋 Register Service",
-      "tooltip": "Dashboard dedicado do Register Service",
-      "icon": "users-alt",
-      "asDropdown": false,
-      "targetBlank": false,
-      "type": "link",
-      "tags": [],
-      "url": "/d/repairshop-register"
-    },
-    {
-      "includeVars": false,
-      "keepTime": true,
-      "title": "🔔 Notification Service",
-      "tooltip": "Dashboard dedicado do Notification Service",
-      "icon": "bell",
-      "asDropdown": false,
-      "targetBlank": false,
-      "type": "link",
-      "tags": [],
-      "url": "/d/repairshop-notification"
-    },
-    {
-      "includeVars": false,
-      "keepTime": true,
-      "title": "📈 Executive & Business KPIs",
-      "tooltip": "Dashboard executivo e gerencial de métricas do negócio",
-      "icon": "chart-line",
-      "asDropdown": false,
-      "targetBlank": false,
-      "type": "link",
-      "tags": [],
-      "url": "/d/repairshop-business-metrics"
-    },
-    {
-      "includeVars": false,
-      "keepTime": true,
-      "title": "⚡ Lambda Auth Dashboard",
-      "tooltip": "Dashboard dedicado da AWS Lambda Auth",
-      "icon": "bolt",
-      "asDropdown": false,
-      "targetBlank": false,
-      "type": "link",
-      "tags": [],
-      "url": "/d/repairshop-lambda-auth"
-    },
-    {
-      "includeVars": false,
-      "keepTime": true,
-      "title": "🔍 Jaeger Tracing UI",
-      "tooltip": "Interface do Jaeger para rastreamento de traces distribuídos",
-      "icon": "external link",
-      "asDropdown": false,
-      "targetBlank": true,
-      "type": "link",
-      "tags": [],
-      "url": "http://localhost:16686"
-    }
-  ],
-  "liveNow": false,
-  "panels": [
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 100,
-      "title": "🏢 Visão Geral Executiva (Executive KPIs)",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Total de clientes cadastrados no sistema",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "semi-dark-blue",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 0,
-        "y": 1
-      },
-      "id": 1,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_customers",
-          "instant": false,
-          "legendFormat": "Clientes",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "👥 Clientes Cadastrados",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Total de veículos cadastrados na base",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "semi-dark-purple",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "purple",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 1
-      },
-      "id": 2,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_vehicles",
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "🚗 Veículos Cadastrados",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Total acumulado de Ordens de Serviço abertas",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "semi-dark-orange",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "orange",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 8,
-        "y": 1
-      },
-      "id": 3,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_service_orders",
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "📋 Ordens de Serviço Totais",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Faturamento acumulado em Reais (R$)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "semi-dark-green",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyBRL"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 12,
-        "y": 1
-      },
-      "id": 4,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_revenue_total_brl",
-          "instant": false,
-          "legendFormat": "Faturamento",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "💰 Faturamento Total",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Ticket médio por fatura emitida em Reais (R$)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "semi-dark-green",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyBRL"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 16,
-        "y": 1
-      },
-      "id": 5,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_average_ticket_brl",
-          "instant": false,
-          "legendFormat": "Ticket Médio",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "🏷️ Ticket Médio por OS",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Lead time médio total de atendimento da OS (RECEIVED -> PAID)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "semi-dark-yellow",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 120
-              },
-              {
-                "color": "red",
-                "value": 360
-              }
-            ]
-          },
-          "unit": "m"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 1
-      },
-      "id": 6,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_lead_time_minutes",
-          "instant": false,
-          "legendFormat": "Lead Time",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "⏳ Lead Time Médio Total",
-      "type": "stat"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 5
-      },
-      "id": 200,
-      "title": "📊 Funil e Distribuição de Clientes por Etapa da Ordem de Serviço",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Proporção percentual de Ordens de Serviço em cada etapa do ciclo de vida",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": [],
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 6
-      },
-      "id": 7,
-      "options": {
-        "displayLabels": [
-          "percent",
-          "value"
-        ],
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "values": [
-            "value",
-            "percent"
-          ]
-        },
-        "pieType": "donut",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "tooltip": {
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "10.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_service_orders_by_status",
-          "instant": true,
-          "legendFormat": "{{status}}",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Distribuição Percentual por Etapa da OS",
-      "type": "piechart"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Distribuição em volume de Ordens de Serviço por status do fluxo de atendimento",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Ordens de Serviço",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 10,
-        "x": 8,
-        "y": 6
-      },
-      "id": 8,
-      "options": {
-        "barRadius": 0.1,
-        "barWidth": 0.7,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "orientation": "vertical",
-        "showValue": "always",
-        "stacking": "none",
-        "tooltip": {
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "10.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_service_orders_by_status",
-          "instant": true,
-          "legendFormat": "{{status}}",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Funil Operacional de Atendimento por Etapa",
-      "type": "barchart"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Visão resumida em barras de progresso do volume por status",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "mappings": [],
-          "max": 20,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 5
-              },
-              {
-                "color": "red",
-                "value": 15
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 18,
-        "y": 6
-      },
-      "id": 9,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "valueMode": "color"
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_service_orders_by_status",
-          "instant": true,
-          "legendFormat": "{{status}}",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Carga Operacional por Etapa",
-      "type": "bargauge"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 14
-      },
-      "id": 300,
-      "title": "⏱️ Tempo Médio Entre Etapas da Ordem de Serviço (Cycle Time & SLA)",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Tempo médio em minutos calculado pelo histórico de transições de status da OS",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Minutos",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "orange",
-                "value": null
-              }
-            ]
-          },
-          "unit": "m"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 15
-      },
-      "id": 10,
-      "options": {
-        "barRadius": 0.1,
-        "barWidth": 0.7,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "orientation": "horizontal",
-        "showValue": "always",
-        "stacking": "none",
-        "tooltip": {
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "10.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_stage_duration_minutes",
-          "instant": true,
-          "legendFormat": "{{from_status}} ➔ {{to_status}}",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Tempo Médio por Transição de Etapa (Minutos)",
-      "type": "barchart"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Tempo médio entre recebimento do veículo e início do diagnóstico",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 30
-              },
-              {
-                "color": "red",
-                "value": 60
-              }
-            ]
-          },
-          "unit": "m"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 15
-      },
-      "id": 11,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_stage_duration_minutes{from_status=\"RECEIVED\",to_status=\"IN_DIAGNOSIS\"} or vector(0)",
-          "instant": false,
-          "legendFormat": "Triagem ➔ Diagnóstico",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "🔍 SLA: Triagem & Diagnóstico",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Tempo em que a OS permanece aguardando aprovação ou recusa do cliente",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 60
-              },
-              {
-                "color": "red",
-                "value": 180
-              }
-            ]
-          },
-          "unit": "m"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 18,
-        "y": 15
-      },
-      "id": 12,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_stage_duration_minutes{from_status=\"IN_DIAGNOSIS\",to_status=\"WAITING_APPROVAL\"} or vector(0)",
-          "instant": false,
-          "legendFormat": "Aguardando Aprovação",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "⏱️ Resposta do Cliente (Orçamento)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Tempo médio decorrido desde a aprovação até a entrada em execução",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 45
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          },
-          "unit": "m"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 19
-      },
-      "id": 13,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_stage_duration_minutes{from_status=\"APPROVED\",to_status=\"IN_EXECUTION\"} or vector(0)",
-          "instant": false,
-          "legendFormat": "Início da Execução",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "🔧 Fila: Aprovado ➔ Execução",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Tempo entre a finalização do serviço e o pagamento/retirada pelo cliente",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 60
-              },
-              {
-                "color": "red",
-                "value": 240
-              }
-            ]
-          },
-          "unit": "m"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 18,
-        "y": 19
-      },
-      "id": 14,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_stage_duration_minutes{from_status=\"FINALIZED\",to_status=\"PAID\"} or vector(0)",
-          "instant": false,
-          "legendFormat": "Finalizado ➔ Pago",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "💳 Pagamento & Liberação da OS",
-      "type": "stat"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 23
-      },
-      "id": 400,
-      "title": "📈 Eficiência Operacional, Conversão e Gestão de Estoque",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Percentual de orçamentos aprovados pelo cliente em relação ao total avaliado",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 50
-              },
-              {
-                "color": "green",
-                "value": 70
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 0,
-        "y": 24
-      },
-      "id": 15,
-      "options": {
-        "minVizHeight": 100,
-        "minVizWidth": 100,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_quote_approval_rate_percent",
-          "instant": true,
-          "legendFormat": "Taxa de Conversão",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "🎯 Taxa de Conversão de Orçamentos",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Percentual de Ordens de Serviço finalizadas ou pagas em relação ao total",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 60
-              },
-              {
-                "color": "green",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 24
-      },
-      "id": 16,
-      "options": {
-        "minVizHeight": 100,
-        "minVizWidth": 100,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_completion_rate_percent",
-          "instant": true,
-          "legendFormat": "Taxa de Conclusão",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "🚀 Eficiência de Conclusão de OS",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Quantidade total de itens e insumos cadastrados em estoque",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "semi-dark-purple",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "purple",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 4,
-        "x": 12,
-        "y": 24
-      },
-      "id": 17,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_inventory_items",
-          "instant": false,
-          "legendFormat": "Itens em Estoque",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "📦 Peças e Insumos em Estoque",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Valor patrimonial total de peças e insumos estocados em Reais (R$)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "semi-dark-blue",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyBRL"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 4,
-        "x": 16,
-        "y": 24
-      },
-      "id": 18,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_inventory_value_total_brl",
-          "instant": false,
-          "legendFormat": "Valor em Estoque",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "💎 Patrimônio em Estoque",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "description": "Total de faturas e notas de serviço emitidas",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "semi-dark-green",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 4,
-        "x": 20,
-        "y": 24
-      },
-      "id": 19,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "repairshop_business_invoices",
-          "instant": false,
-          "legendFormat": "Faturas",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "🧾 Total de Faturas Emitidas",
-      "type": "stat"
-    }
-  ],
-  "refresh": "5s",
-  "schemaVersion": 39,
-  "tags": [
-    "repairshop",
-    "business",
-    "executive",
-    "kpi",
-    "management"
-  ],
-  "templating": {
-    "list": []
-  },
-  "time": {
-    "from": "now-5m",
-    "to": "now"
-  },
-  "timeRangeUpdatedDuringEditOrView": false,
-  "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m"
-    ]
-  },
-  "timezone": "browser",
-  "title": "RepairShop - Executive & Business Management Dashboard",
-  "uid": "repairshop-business-metrics",
-  "version": 1,
-  "weekStart": ""
+    "annotations":  {
+                        "list":  [
+                                     {
+                                         "hide":  true,
+                                         "builtIn":  1,
+                                         "datasource":  {
+                                                            "type":  "grafana",
+                                                            "uid":  "-- Grafana --"
+                                                        },
+                                         "type":  "dashboard",
+                                         "name":  "Annotations \u0026 Alerts",
+                                         "enable":  true
+                                     }
+                                 ]
+                    },
+    "editable":  true,
+    "fiscalYearStartMonth":  0,
+    "graphTooltip":  1,
+    "id":  null,
+    "links":  [
+                  {
+                      "type":  "link",
+                      "icon":  "apps",
+                      "title":  "🌐 Overview",
+                      "tooltip":  "Visão consolidada de todos os microsserviços",
+                      "url":  "/d/repairshop-overview",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "chart-line",
+                      "title":  "📈 Executive KPIs",
+                      "tooltip":  "Dashboard executivo e KPIs de negócio (Fase 4)",
+                      "url":  "/d/repairshop-business-metrics",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "bolt",
+                      "title":  "⚡ Lambda Auth",
+                      "tooltip":  "Observabilidade de Autenticação e Lambda Auth",
+                      "url":  "/d/repairshop-lambda-auth",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "cog",
+                      "title":  "🛠️ OS \u0026 Exec (Métricas)",
+                      "tooltip":  "service-order-execution-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-os-execution",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 OS \u0026 Exec (Logs/Traces)",
+                      "tooltip":  "service-order-execution-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-os-execution-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "credit-card",
+                      "title":  "💳 Payment (Métricas)",
+                      "tooltip":  "payment-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-payment",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 Payment (Logs/Traces)",
+                      "tooltip":  "payment-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-payment-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "users-alt",
+                      "title":  "📋 Register (Métricas)",
+                      "tooltip":  "register-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-register",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 Register (Logs/Traces)",
+                      "tooltip":  "register-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-register-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "bell",
+                      "title":  "🔔 Notification (Métricas)",
+                      "tooltip":  "notification-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-notification",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 Notification (Logs/Traces)",
+                      "tooltip":  "notification-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-notification-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "external link",
+                      "title":  "🔍 Jaeger UI",
+                      "tooltip":  "Interface direta do Jaeger Distributed Tracing",
+                      "url":  "http://localhost:16686",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  true,
+                      "tags":  [
+
+                               ]
+                  }
+              ],
+    "liveNow":  false,
+    "panels":  [
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  0,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  100,
+                       "title":  "🏢 Visão Geral Executiva — Arquitetura de Microsserviços \u0026 Saga (Fase 4)",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  4,
+                                       "x":  0,
+                                       "h":  4
+                                   },
+                       "id":  1,
+                       "title":  "👥 Clientes Cadastrados (register-service)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "blue"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "none"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "(max(repairshop_business_customers) \u003e 0) or sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"register-service(:.*)?\", uri=\"/customers\", method=\"POST\", status=\"201\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"register-service\", uri=\"/customers\", method=\"POST\", status=\"201\"})) or sum(max by (instance, repository, method, state) (spring_data_repository_invocations_seconds_count{job=\"repairshop-actuator\", instance=~\"register-service(:.*)?\", repository=\"CustomerRepository\", method=\"save\", state=\"SUCCESS\"} or spring_data_repository_invocations_seconds_count{job=\"repairshop-actuator\", application=\"register-service\", repository=\"CustomerRepository\", method=\"save\", state=\"SUCCESS\"})) or vector(0)",
+                                           "instant":  false,
+                                           "legendFormat":  "Clientes",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "description":  "Total de clientes cadastrados via POST /customers / CustomerRepository"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  4,
+                                       "x":  4,
+                                       "h":  4
+                                   },
+                       "id":  2,
+                       "title":  "🚗 Veículos Cadastrados (register-service)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "purple"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "none"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "(max(repairshop_business_vehicles) \u003e 0) or sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"register-service(:.*)?\", uri=\"/vehicles\", method=\"POST\", status=\"201\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"register-service\", uri=\"/vehicles\", method=\"POST\", status=\"201\"})) or sum(max by (instance, repository, method, state) (spring_data_repository_invocations_seconds_count{job=\"repairshop-actuator\", instance=~\"register-service(:.*)?\", repository=\"VehicleRepository\", method=\"save\", state=\"SUCCESS\"} or spring_data_repository_invocations_seconds_count{job=\"repairshop-actuator\", application=\"register-service\", repository=\"VehicleRepository\", method=\"save\", state=\"SUCCESS\"})) or vector(0)",
+                                           "instant":  false,
+                                           "legendFormat":  "Veículos",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "description":  "Total de veículos cadastrados via POST /vehicles / VehicleRepository"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  4,
+                                       "x":  8,
+                                       "h":  4
+                                   },
+                       "id":  3,
+                       "title":  "🔐 Logins Autenticados (Lambda Auth)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "yellow"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "none"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"register-service(:.*)?\", uri=\"/auth/login\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"register-service\", uri=\"/auth/login\", method=\"POST\", status=\"200\"})) or vector(0)",
+                                           "instant":  false,
+                                           "legendFormat":  "Logins 200 OK",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "description":  "Autenticações JWT emitidas via Lambda Auth -\u003e register-service"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  4,
+                                       "x":  12,
+                                       "h":  4
+                                   },
+                       "id":  4,
+                       "title":  "📋 Ordens de Serviço Abertas (OS Execution)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "orange"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "none"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "(max(repairshop_business_service_orders) \u003e 0) or sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/service-orders\", method=\"POST\", status=\"201\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/service-orders\", method=\"POST\", status=\"201\"})) or vector(0)",
+                                           "instant":  false,
+                                           "legendFormat":  "Ordens de Serviço",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "description":  "Ordens de Serviço abertas no DynamoDB (IN_DIAGNOSIS)"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  4,
+                                       "x":  16,
+                                       "h":  4
+                                   },
+                       "id":  5,
+                       "title":  "💳 Cobranças PIX Geradas (Payment)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "green"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "none"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "(max(repairshop_business_invoices) \u003e 0) or sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"payment-service(:.*)?\", uri=\"/payment/{serviceOrderId}\", method=\"POST\", status=\"201\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"payment-service\", uri=\"/payment/{serviceOrderId}\", method=\"POST\", status=\"201\"})) or vector(0)",
+                                           "instant":  false,
+                                           "legendFormat":  "Cobranças PIX",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "description":  "Cobranças PIX geradas via Mercado Pago / Payment Service"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  4,
+                                       "x":  20,
+                                       "h":  4
+                                   },
+                       "id":  6,
+                       "title":  "✅ Pagamentos Confirmados / PAID (SQS)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "green"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "none"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "(max(repairshop_business_payments_by_status{status=\"APPROVED\"}) \u003e 0) or sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"payment-service(:.*)?\", uri=\"/payment/{id}/confirm\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"payment-service\", uri=\"/payment/{id}/confirm\", method=\"POST\", status=\"200\"})) or vector(0)",
+                                           "instant":  false,
+                                           "legendFormat":  "OS Liquidadas",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "description":  "Pagamentos confirmados que liquidam a Saga em PAID via SQS"
+                   },
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  5,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  200,
+                       "title":  "📊 Funil Operacional da Saga e Máquina de Estados (Inclusão de Execuções Extras)",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "description":  "Proporção de eventos em cada transição da máquina de estados da OS na Fase 4",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "color":  {
+                                                                          "mode":  "palette-classic"
+                                                                      },
+                                                            "unit":  "short",
+                                                            "mappings":  [
+
+                                                                         ]
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "y":  6,
+                                       "w":  8,
+                                       "x":  0,
+                                       "h":  8
+                                   },
+                       "id":  7,
+                       "options":  {
+                                       "tooltip":  {
+                                                       "mode":  "single",
+                                                       "sort":  "desc",
+                                                       "maxHeight":  600
+                                                   },
+                                       "pieType":  "donut",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "displayLabels":  [
+                                                             "percent",
+                                                             "value"
+                                                         ],
+                                       "legend":  {
+                                                      "values":  [
+                                                                     "value",
+                                                                     "percent"
+                                                                 ],
+                                                      "placement":  "right",
+                                                      "showLegend":  true,
+                                                      "displayMode":  "table"
+                                                  }
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/service-orders\", method=\"POST\", status=\"201\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/service-orders\", method=\"POST\", status=\"201\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "1. IN_DIAGNOSIS (Abertura OS)",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/service-orders/{id}/finish-diagnosis\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/service-orders/{id}/finish-diagnosis\", method=\"POST\", status=\"200\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "2. WAITING_APPROVAL (Diagnóstico)",
+                                           "range":  false,
+                                           "refId":  "B"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"notification-service(:.*)?\", uri=\"/notifications/approval/{orderId}\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"notification-service\", uri=\"/notifications/approval/{orderId}\", method=\"POST\", status=\"200\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "3. APPROVED (Callback SQS)",
+                                           "range":  false,
+                                           "refId":  "C"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/service-orders/{id}/status\", method=\"PATCH\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/service-orders/{id}/status\", method=\"PATCH\", status=\"200\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "4. IN_EXECUTION (Início Execução)",
+                                           "range":  false,
+                                           "refId":  "D"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/service-orders/{id}/extra-executions\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/service-orders/{id}/extra-executions\", method=\"POST\", status=\"200\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "5. WAITING_APPROVAL_EXTRA_TASKS",
+                                           "range":  false,
+                                           "refId":  "E"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/service-orders/{id}/extra-executions/approve\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/service-orders/{id}/extra-executions/approve\", method=\"POST\", status=\"200\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "6. APPROVAL/REFUSED_EXTRA_TASKS",
+                                           "range":  false,
+                                           "refId":  "F"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/execute_task/{executionId}\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/execute_task/{executionId}\", method=\"POST\", status=\"200\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "7. FINALIZED (Tarefas Concluídas)",
+                                           "range":  false,
+                                           "refId":  "G"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"payment-service(:.*)?\", uri=\"/payment/{id}/confirm\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"payment-service\", uri=\"/payment/{id}/confirm\", method=\"POST\", status=\"200\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "8. PAID (Liquidação PIX SQS)",
+                                           "range":  false,
+                                           "refId":  "H"
+                                       }
+                                   ],
+                       "title":  "Distribuição de Eventos por Etapa da Saga Fase 4",
+                       "type":  "piechart"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "description":  "Total de requisições de negócio por microsserviço (excl. /actuator)",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "custom":  {
+                                                                           "lineWidth":  1,
+                                                                           "axisLabel":  "Requisições",
+                                                                           "fillOpacity":  80
+                                                                       },
+                                                            "color":  {
+                                                                          "mode":  "palette-classic"
+                                                                      },
+                                                            "unit":  "short"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "y":  6,
+                                       "w":  8,
+                                       "x":  8,
+                                       "h":  8
+                                   },
+                       "id":  8,
+                       "options":  {
+                                       "tooltip":  {
+                                                       "sort":  "none",
+                                                       "mode":  "single"
+                                                   },
+                                       "orientation":  "vertical",
+                                       "barRadius":  0.1,
+                                       "legend":  {
+                                                      "showLegend":  false
+                                                  },
+                                       "groupWidth":  0.7,
+                                       "barWidth":  0.7,
+                                       "showValue":  "always",
+                                       "stacking":  "none"
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum by (service) (label_replace(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", uri!~\"/actuator.*|/\\\\*\\\\*|UNKNOWN\"}), \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\"))",
+                                           "instant":  true,
+                                           "legendFormat":  "{{service}}",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Volume de Operações de Negócio por Microsserviço",
+                       "type":  "barchart"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "description":  "Operações persistidas em PostgreSQL (Register) e DynamoDB/SQS (OS, Payment, Notification)",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "color":  {
+                                                                          "mode":  "palette-classic"
+                                                                      },
+                                                            "unit":  "short",
+                                                            "min":  0,
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "green"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  10,
+                                                                                                 "color":  "yellow"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "y":  6,
+                                       "w":  8,
+                                       "x":  16,
+                                       "h":  8
+                                   },
+                       "id":  9,
+                       "options":  {
+                                       "valueMode":  "color",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "orientation":  "horizontal",
+                                       "showUnfilled":  true,
+                                       "displayMode":  "gradient"
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, repository, method, state) (spring_data_repository_invocations_seconds_count{job=\"repairshop-actuator\", instance=~\"register-service(:.*)?\", repository=\"UserRepository\", method=\"save\", state=\"SUCCESS\"} or spring_data_repository_invocations_seconds_count{job=\"repairshop-actuator\", application=\"register-service\", repository=\"UserRepository\", method=\"save\", state=\"SUCCESS\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "UserRepository.save (Auth)",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, repository, method, state) (spring_data_repository_invocations_seconds_count{job=\"repairshop-actuator\", instance=~\"register-service(:.*)?\", repository=\"CustomerRepository\", method=\"save\", state=\"SUCCESS\"} or spring_data_repository_invocations_seconds_count{job=\"repairshop-actuator\", application=\"register-service\", repository=\"CustomerRepository\", method=\"save\", state=\"SUCCESS\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "CustomerRepository.save (RDS)",
+                                           "range":  false,
+                                           "refId":  "B"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, repository, method, state) (spring_data_repository_invocations_seconds_count{job=\"repairshop-actuator\", instance=~\"register-service(:.*)?\", repository=\"VehicleRepository\", method=\"save\", state=\"SUCCESS\"} or spring_data_repository_invocations_seconds_count{job=\"repairshop-actuator\", application=\"register-service\", repository=\"VehicleRepository\", method=\"save\", state=\"SUCCESS\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "VehicleRepository.save (RDS)",
+                                           "range":  false,
+                                           "refId":  "C"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/service-orders\", method=\"POST\", status=\"201\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/service-orders\", method=\"POST\", status=\"201\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "DynamoDB OS Criadas",
+                                           "range":  false,
+                                           "refId":  "D"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/service-orders/{id}/extra-executions\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/service-orders/{id}/extra-executions\", method=\"POST\", status=\"200\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "DynamoDB Lotes Extras",
+                                           "range":  false,
+                                           "refId":  "E"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/execute_task/{executionId}\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/execute_task/{executionId}\", method=\"POST\", status=\"200\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "DynamoDB Transições Tarefas",
+                                           "range":  false,
+                                           "refId":  "F"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"notification-service(:.*)?\", uri=\"/notifications/approval/{orderId}\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"notification-service\", uri=\"/notifications/approval/{orderId}\", method=\"POST\", status=\"200\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "SQS Aprovações Enviadas",
+                                           "range":  false,
+                                           "refId":  "G"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"payment-service(:.*)?\", uri=\"/payment/{serviceOrderId}\", method=\"POST\", status=\"201\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"payment-service\", uri=\"/payment/{serviceOrderId}\", method=\"POST\", status=\"201\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "DynamoDB Cobranças PIX",
+                                           "range":  false,
+                                           "refId":  "H"
+                                       }
+                                   ],
+                       "title":  "Operações Persistidas por Repositório / Domínio",
+                       "type":  "bargauge"
+                   },
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  14,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  300,
+                       "title":  "⏱️ Tempo Médio e Latência por Etapa da Saga (Cycle Time \u0026 SLA em ms)",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "description":  "Latência média por operação de negócio via HTTP Actuator (ms)",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "custom":  {
+                                                                           "lineWidth":  1,
+                                                                           "axisLabel":  "Milissegundos (ms)",
+                                                                           "fillOpacity":  80
+                                                                       },
+                                                            "color":  {
+                                                                          "mode":  "palette-classic"
+                                                                      },
+                                                            "unit":  "ms"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "gridPos":  {
+                                       "y":  15,
+                                       "w":  12,
+                                       "x":  0,
+                                       "h":  8
+                                   },
+                       "id":  10,
+                       "options":  {
+                                       "tooltip":  {
+                                                       "sort":  "desc",
+                                                       "mode":  "single"
+                                                   },
+                                       "orientation":  "horizontal",
+                                       "barRadius":  0.1,
+                                       "legend":  {
+                                                      "showLegend":  false
+                                                  },
+                                       "groupWidth":  0.7,
+                                       "barWidth":  0.7,
+                                       "showValue":  "always",
+                                       "stacking":  "none"
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "1000 * (sum by (uri, method) (max by (instance, uri, method, status) (http_server_requests_seconds_sum{job=\"repairshop-actuator\", uri!~\"/actuator.*|/\\\\*\\\\*|UNKNOWN\"})) / sum by (uri, method) (max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", uri!~\"/actuator.*|/\\\\*\\\\*|UNKNOWN\"})))",
+                                           "instant":  true,
+                                           "legendFormat":  "{{method}} {{uri}}",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "title":  "Tempo Médio de Resposta por Endpoint de Negócio (ms)",
+                       "type":  "barchart"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  15,
+                                       "w":  6,
+                                       "x":  12,
+                                       "h":  4
+                                   },
+                       "id":  11,
+                       "title":  "🔍 SLA: Abertura \u0026 Diagnóstico da OS",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "green"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  1000,
+                                                                                                 "color":  "yellow"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  3000,
+                                                                                                 "color":  "red"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "ms"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "1000 * (sum(max by (instance, uri, method, status) (http_server_requests_seconds_sum{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=~\"/service-orders|/service-orders/\\\\{id\\\\}/finish-diagnosis\", method=\"POST\"})) / sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=~\"/service-orders|/service-orders/\\\\{id\\\\}/finish-diagnosis\", method=\"POST\"})))",
+                                           "instant":  false,
+                                           "legendFormat":  "Diagnóstico (ms)",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  15,
+                                       "w":  6,
+                                       "x":  18,
+                                       "h":  4
+                                   },
+                       "id":  12,
+                       "title":  "🔔 SLA: Aprovação Orçamento (SQS)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "green"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  1000,
+                                                                                                 "color":  "yellow"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  3000,
+                                                                                                 "color":  "red"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "ms"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "1000 * (sum(max by (instance, uri, method, status) (http_server_requests_seconds_sum{job=\"repairshop-actuator\", instance=~\"notification-service(:.*)?\", uri=\"/notifications/approval/{orderId}\", method=\"POST\"})) / sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"notification-service(:.*)?\", uri=\"/notifications/approval/{orderId}\", method=\"POST\"})))",
+                                           "instant":  false,
+                                           "legendFormat":  "Notificação (ms)",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  19,
+                                       "w":  6,
+                                       "x":  12,
+                                       "h":  4
+                                   },
+                       "id":  13,
+                       "title":  "🛠️ SLA: Execuções Extras \u0026 Tarefas",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "green"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  1000,
+                                                                                                 "color":  "yellow"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  3000,
+                                                                                                 "color":  "red"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "ms"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "1000 * (sum(max by (instance, uri, method, status) (http_server_requests_seconds_sum{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=~\"/service-orders/\\\\{id\\\\}/extra-executions.*|/execute_task/\\\\{executionId\\\\}\", method=\"POST\"})) / sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=~\"/service-orders/\\\\{id\\\\}/extra-executions.*|/execute_task/\\\\{executionId\\\\}\", method=\"POST\"})))",
+                                           "instant":  false,
+                                           "legendFormat":  "Extras/Tarefas (ms)",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  19,
+                                       "w":  6,
+                                       "x":  18,
+                                       "h":  4
+                                   },
+                       "id":  14,
+                       "title":  "💳 SLA: Checkout PIX \u0026 Confirmação",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "green"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  1000,
+                                                                                                 "color":  "yellow"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  3000,
+                                                                                                 "color":  "red"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "ms"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "1000 * (sum(max by (instance, uri, method, status) (http_server_requests_seconds_sum{job=\"repairshop-actuator\", instance=~\"payment-service(:.*)?\", uri=~\"/payment/.*\", method=\"POST\"})) / sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"payment-service(:.*)?\", uri=~\"/payment/.*\", method=\"POST\"})))",
+                                           "instant":  false,
+                                           "legendFormat":  "Payment (ms)",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  23,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  400,
+                       "title":  "📈 Eficiência Operacional, Máquina de Estados Extra e Governança RBAC (Fase 4)",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  24,
+                                       "w":  6,
+                                       "x":  0,
+                                       "h":  6
+                                   },
+                       "id":  15,
+                       "title":  "🎯 Taxa de Aprovação de Orçamentos (%)",
+                       "type":  "gauge",
+                       "options":  {
+                                       "orientation":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "showThresholdLabels":  false,
+                                       "showThresholdMarkers":  true,
+                                       "text":  {
+
+                                                }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "min":  0,
+                                                            "max":  100,
+                                                            "unit":  "percent",
+                                                            "noValue":  "0",
+                                                            "color":  {
+                                                                          "mode":  "thresholds"
+                                                                      },
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "red"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  50,
+                                                                                                 "color":  "yellow"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  70,
+                                                                                                 "color":  "green"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "(max(repairshop_business_quote_approval_rate_percent) \u003e 0) or (clamp_max(((sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"notification-service(:.*)?\", uri=\"/notifications/approval/{orderId}\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"notification-service\", uri=\"/notifications/approval/{orderId}\", method=\"POST\", status=\"200\"})) or vector(0)) / (sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/service-orders/{id}/finish-diagnosis\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/service-orders/{id}/finish-diagnosis\", method=\"POST\", status=\"200\"})) or vector(1))) * 100, 100))",
+                                           "instant":  true,
+                                           "legendFormat":  "Taxa de Conversão",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  24,
+                                       "w":  6,
+                                       "x":  6,
+                                       "h":  6
+                                   },
+                       "id":  16,
+                       "title":  "🚀 Eficiência de Conclusão da Saga (%)",
+                       "type":  "gauge",
+                       "options":  {
+                                       "orientation":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "showThresholdLabels":  false,
+                                       "showThresholdMarkers":  true,
+                                       "text":  {
+
+                                                }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "min":  0,
+                                                            "max":  100,
+                                                            "unit":  "percent",
+                                                            "noValue":  "0",
+                                                            "color":  {
+                                                                          "mode":  "thresholds"
+                                                                      },
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "red"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  60,
+                                                                                                 "color":  "yellow"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  80,
+                                                                                                 "color":  "green"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "(max(repairshop_business_completion_rate_percent) \u003e 0) or (clamp_max(((sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"payment-service(:.*)?\", uri=\"/payment/{id}/confirm\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"payment-service\", uri=\"/payment/{id}/confirm\", method=\"POST\", status=\"200\"})) or vector(0)) / (sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/service-orders\", method=\"POST\", status=\"201\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/service-orders\", method=\"POST\", status=\"201\"})) or vector(1))) * 100, 100))",
+                                           "instant":  true,
+                                           "legendFormat":  "Taxa de Conclusão",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  24,
+                                       "w":  4,
+                                       "x":  12,
+                                       "h":  6
+                                   },
+                       "id":  17,
+                       "title":  "➕ Lotes de Execuções Extras Submetidos",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "purple"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "none"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/service-orders/{id}/extra-executions\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/service-orders/{id}/extra-executions\", method=\"POST\", status=\"200\"})) or vector(0)",
+                                           "instant":  false,
+                                           "legendFormat":  "Lotes Extras",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "description":  "Total de submissões via POST /service-orders/{id}/extra-executions"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  24,
+                                       "w":  4,
+                                       "x":  16,
+                                       "h":  6
+                                   },
+                       "id":  18,
+                       "title":  "⚖️ Decisões de Extras (Aprov./Recus.)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "blue"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "none"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"service-order-execution-service(:.*)?\", uri=\"/service-orders/{id}/extra-executions/approve\", method=\"POST\", status=\"200\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"service-order-execution-service\", uri=\"/service-orders/{id}/extra-executions/approve\", method=\"POST\", status=\"200\"})) or vector(0)",
+                                           "instant":  false,
+                                           "legendFormat":  "Decisões Extras",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "description":  "Decisões do cliente em WAITING_APPROVAL_EXTRA_TASKS (approved=true/false)"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  24,
+                                       "w":  4,
+                                       "x":  20,
+                                       "h":  6
+                                   },
+                       "id":  19,
+                       "title":  "🛡️ Bloqueios Domínio (422) \u0026 RBAC (403)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "orange"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "none"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", status=~\"403|422\"})) or vector(0)",
+                                           "instant":  false,
+                                           "legendFormat":  "Bloqueios 403/422",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ],
+                       "description":  "Guardas de máquina de estados (HTTP 422) e Spring Security RBAC (HTTP 403)"
+                   }
+               ],
+    "refresh":  "5s",
+    "schemaVersion":  39,
+    "style":  "dark",
+    "tags":  [
+                 "repairshop",
+                 "business",
+                 "executive",
+                 "kpi",
+                 "fase4"
+             ],
+    "templating":  {
+                       "list":  [
+
+                                ]
+                   },
+    "time":  {
+                 "to":  "now",
+                 "from":  "now-1h"
+             },
+    "timepicker":  {
+                       "refresh_intervals":  [
+                                                 "5s",
+                                                 "10s",
+                                                 "30s",
+                                                 "1m",
+                                                 "5m"
+                                             ]
+                   },
+    "timezone":  "browser",
+    "title":  "RepairShop - Executive \u0026 Business Management Dashboard (Fase 4 - Saga \u0026 Microservices)",
+    "uid":  "repairshop-business-metrics",
+    "version":  1
 }

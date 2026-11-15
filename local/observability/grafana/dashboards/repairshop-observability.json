@@ -1,1092 +1,1240 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": {
-          "type": "grafana",
-          "uid": "-- Grafana --"
-        },
-        "enable": true,
-        "hide": true,
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
-      }
-    ]
-  },
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
-  "id": null,
-  "links": [
-    {
-      "targetBlank": false,
-      "tags": [],
-      "keepTime": true,
-      "asDropdown": false,
-      "url": "/d/repairshop-overview",
-      "includeVars": false,
-      "tooltip": "Visão consolidada de todos os microsserviços",
-      "title": "🌐 Overview (Todos os Serviços)",
-      "type": "link",
-      "icon": "apps"
-    },
-    {
-      "targetBlank": false,
-      "tags": [],
-      "keepTime": true,
-      "asDropdown": false,
-      "url": "/d/repairshop-os-execution",
-      "includeVars": false,
-      "tooltip": "Dashboard dedicado do Service Order & Execution Service",
-      "title": "🛠️ Service Order & Execution",
-      "type": "link",
-      "icon": "cog"
-    },
-    {
-      "targetBlank": false,
-      "tags": [],
-      "keepTime": true,
-      "asDropdown": false,
-      "url": "/d/repairshop-payment",
-      "includeVars": false,
-      "tooltip": "Dashboard dedicado do Payment Service",
-      "title": "💳 Payment Service",
-      "type": "link",
-      "icon": "credit-card"
-    },
-    {
-      "targetBlank": false,
-      "tags": [],
-      "keepTime": true,
-      "asDropdown": false,
-      "url": "/d/repairshop-register",
-      "includeVars": false,
-      "tooltip": "Dashboard dedicado do Register Service",
-      "title": "📋 Register Service",
-      "type": "link",
-      "icon": "users-alt"
-    },
-    {
-      "targetBlank": false,
-      "tags": [],
-      "keepTime": true,
-      "asDropdown": false,
-      "url": "/d/repairshop-notification",
-      "includeVars": false,
-      "tooltip": "Dashboard dedicado do Notification Service",
-      "title": "🔔 Notification Service",
-      "type": "link",
-      "icon": "bell"
-    },
-    {
-      "targetBlank": false,
-      "tags": [],
-      "keepTime": true,
-      "asDropdown": false,
-      "url": "/d/repairshop-business-metrics",
-      "includeVars": false,
-      "tooltip": "Dashboard executivo e gerencial de métricas do negócio",
-      "title": "📈 Executive & Business KPIs",
-      "type": "link",
-      "icon": "chart-line"
-    },
-    {
-      "targetBlank": false,
-      "tags": [],
-      "keepTime": true,
-      "asDropdown": false,
-      "url": "/d/repairshop-lambda-auth",
-      "includeVars": false,
-      "tooltip": "Dashboard dedicado da AWS Lambda Auth",
-      "title": "⚡ Lambda Auth Dashboard",
-      "type": "link",
-      "icon": "bolt"
-    },
-    {
-      "targetBlank": true,
-      "tags": [],
-      "keepTime": true,
-      "asDropdown": false,
-      "url": "http://localhost:16686",
-      "includeVars": false,
-      "tooltip": "Interface do Jaeger para rastreamento de traces distribuídos",
-      "title": "🔍 Jaeger Tracing UI",
-      "type": "link",
-      "icon": "external link"
-    }
-  ],
-  "liveNow": false,
-  "panels": [
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 100,
-      "title": "Application Health & Status",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 0,
-        "y": 1
-      },
-      "id": 1,
-      "title": "Application Status",
-      "type": "stat",
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "red",
-                  "text": "DOWN"
-                },
-                "1": {
-                  "color": "green",
-                  "text": "UP"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "max by (application) (up{job=~\"repairshop-actuator|otel-collector\", application=~\"$application\"})",
-          "instant": true,
-          "legendFormat": "{{application}}",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 6,
-        "y": 1
-      },
-      "id": 2,
-      "title": "JVM Uptime",
-      "type": "stat",
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "process_uptime_seconds{job=\"repairshop-actuator\", application=~\"$application\"}",
-          "instant": true,
-          "legendFormat": "{{application}}",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 12,
-        "y": 1
-      },
-      "id": 3,
-      "title": "Total HTTP Requests",
-      "type": "stat",
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "purple",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum(http_server_requests_seconds_count{job=\"repairshop-actuator\", application=~\"$application\"}) or sum(http_server_requests_total{job=\"repairshop-actuator\", application=~\"$application\"}) or vector(0)",
-          "instant": true,
-          "legendFormat": "{{application}}",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 18,
-        "y": 1
-      },
-      "id": 4,
-      "title": "Active DB Connections",
-      "type": "stat",
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 8
-              },
-              {
-                "color": "red",
-                "value": 15
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "hikaricp_connections_active{job=\"repairshop-actuator\", application=~\"$application\"} or vector(0)",
-          "instant": true,
-          "legendFormat": "{{application}}",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 4
-      },
-      "id": 11,
-      "title": "⚡ CPU Usage (%)",
-      "type": "gauge",
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "fieldConfig": {
-        "defaults": {
-          "min": 0,
-          "max": 100,
-          "unit": "percent",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#56A64B",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 60
-              },
-              {
-                "color": "#EF843C",
-                "value": 75
-              },
-              {
-                "color": "#E24D42",
-                "value": 85
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "(process_cpu_usage{job=\"repairshop-actuator\", application=~\"$application\"} or vector(0)) * 100",
-          "instant": true,
-          "legendFormat": "{{application}}",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 4
-      },
-      "id": 12,
-      "title": "⚡ CPU Cores (Quantity)",
-      "type": "gauge",
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "fieldConfig": {
-        "defaults": {
-          "min": 0,
-          "max": 2,
-          "unit": "short",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#56A64B",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 1.0
-              },
-              {
-                "color": "#E24D42",
-                "value": 1.6
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "(rate(process_cpu_seconds_total{job=\"repairshop-actuator\", application=~\"$application\"}[1m]) or (process_cpu_usage{job=\"repairshop-actuator\", application=~\"$application\"} * 2) or vector(0))",
-          "instant": true,
-          "legendFormat": "{{application}}",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 12,
-        "y": 4
-      },
-      "id": 13,
-      "title": "🧠 JVM Heap Memory (Quantity)",
-      "type": "gauge",
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "fieldConfig": {
-        "defaults": {
-          "min": 0,
-          "unit": "bytes",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#56A64B",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 350000000
-              },
-              {
-                "color": "#E24D42",
-                "value": 480000000
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "jvm_memory_used_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"} or vector(0)",
-          "instant": true,
-          "legendFormat": "{{application}}",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 18,
-        "y": 4
-      },
-      "id": 14,
-      "title": "🧠 JVM Heap Memory (%)",
-      "type": "gauge",
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "fieldConfig": {
-        "defaults": {
-          "min": 0,
-          "max": 100,
-          "unit": "percent",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#56A64B",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 70
-              },
-              {
-                "color": "#EF843C",
-                "value": 80
-              },
-              {
-                "color": "#E24D42",
-                "value": 90
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "((jvm_memory_used_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"} or vector(0)) / (jvm_memory_max_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"} or vector(1))) * 100",
-          "instant": true,
-          "legendFormat": "{{application}}",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 9
-      },
-      "id": 101,
-      "title": "HTTP Traffic & Latencies (RED Method)",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 10
-      },
-      "id": 5,
-      "title": "HTTP Request Rate (req/s)",
-      "type": "timeseries",
-      "options": {
-        "tooltip": {
-          "mode": "multi"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "fillOpacity": 15
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum by (uri, status) (rate(http_server_requests_seconds_count{job=\"repairshop-actuator\", application=~\"$application\"}[1m]))",
-          "legendFormat": "{{status}} {{uri}}",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 10
-      },
-      "id": 6,
-      "title": "HTTP Latency (Avg, Max, p95)",
-      "type": "timeseries",
-      "options": {
-        "tooltip": {
-          "mode": "multi"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "fillOpacity": 10
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "max by (uri) (http_server_requests_seconds_max{job=\"repairshop-actuator\", application=~\"$application\"})",
-          "legendFormat": "Max - {{uri}}",
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(http_server_requests_seconds_sum{job=\"repairshop-actuator\", application=~\"$application\"}[1m])) / sum(rate(http_server_requests_seconds_count{job=\"repairshop-actuator\", application=~\"$application\"}[1m]))",
-          "legendFormat": "Avg Latency",
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"repairshop-actuator\", application=~\"$application\"}[1m])))",
-          "legendFormat": "p95",
-          "refId": "C"
-        }
-      ]
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 18
-      },
-      "id": 102,
-      "title": "JVM & Resources",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 19
-      },
-      "id": 7,
-      "title": "JVM Heap Memory Usage",
-      "type": "timeseries",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "fillOpacity": 20
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "jvm_memory_used_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"}",
-          "legendFormat": "Heap Used ({{id}})",
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "jvm_memory_max_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"}",
-          "legendFormat": "Heap Max ({{id}})",
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 19
-      },
-      "id": 8,
-      "title": "Process vs System CPU Usage",
-      "type": "timeseries",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percentunit",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "fillOpacity": 15
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "process_cpu_usage{job=\"repairshop-actuator\", application=~\"$application\"}",
-          "legendFormat": "Process CPU Usage",
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "system_cpu_usage{job=\"repairshop-actuator\", application=~\"$application\"}",
-          "legendFormat": "System CPU Usage",
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 27
-      },
-      "id": 103,
-      "title": "Application Logs & Traces Correlation",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "jaeger",
-        "uid": "Jaeger"
-      },
-      "gridPos": {
-        "h": 14,
-        "w": 24,
-        "x": 0,
-        "y": 28
-      },
-      "id": 15,
-      "title": "🔍 Distributed Traces Explorer (Jaeger + OpenTelemetry)",
-      "type": "table",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "displayMode": "auto"
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "traceID"
-            },
-            "properties": [
-              {
-                "id": "links",
-                "value": [
+    "annotations":  {
+                        "list":  [
+                                     {
+                                         "hide":  true,
+                                         "builtIn":  1,
+                                         "datasource":  {
+                                                            "type":  "grafana",
+                                                            "uid":  "-- Grafana --"
+                                                        },
+                                         "type":  "dashboard",
+                                         "name":  "Annotations \u0026 Alerts",
+                                         "enable":  true
+                                     }
+                                 ]
+                    },
+    "editable":  true,
+    "fiscalYearStartMonth":  0,
+    "graphTooltip":  1,
+    "id":  null,
+    "links":  [
                   {
-                    "targetBlank": true,
-                    "title": "🔍 Open Trace Waterfall in Jaeger",
-                    "url": "http://localhost:16686/trace/${__data.fields.traceID}"
+                      "type":  "link",
+                      "icon":  "apps",
+                      "title":  "🌐 Overview",
+                      "tooltip":  "Visão consolidada de todos os microsserviços",
+                      "url":  "/d/repairshop-overview",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "chart-line",
+                      "title":  "📈 Executive KPIs",
+                      "tooltip":  "Dashboard executivo e KPIs de negócio (Fase 4)",
+                      "url":  "/d/repairshop-business-metrics",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "bolt",
+                      "title":  "⚡ Lambda Auth",
+                      "tooltip":  "Observabilidade de Autenticação e Lambda Auth",
+                      "url":  "/d/repairshop-lambda-auth",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "cog",
+                      "title":  "🛠️ OS \u0026 Exec (Métricas)",
+                      "tooltip":  "service-order-execution-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-os-execution",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 OS \u0026 Exec (Logs/Traces)",
+                      "tooltip":  "service-order-execution-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-os-execution-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "credit-card",
+                      "title":  "💳 Payment (Métricas)",
+                      "tooltip":  "payment-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-payment",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 Payment (Logs/Traces)",
+                      "tooltip":  "payment-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-payment-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "users-alt",
+                      "title":  "📋 Register (Métricas)",
+                      "tooltip":  "register-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-register",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 Register (Logs/Traces)",
+                      "tooltip":  "register-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-register-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "bell",
+                      "title":  "🔔 Notification (Métricas)",
+                      "tooltip":  "notification-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-notification",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 Notification (Logs/Traces)",
+                      "tooltip":  "notification-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-notification-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "external link",
+                      "title":  "🔍 Jaeger UI",
+                      "tooltip":  "Interface direta do Jaeger Distributed Tracing",
+                      "url":  "http://localhost:16686",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  true,
+                      "tags":  [
+
+                               ]
                   }
-                ]
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "duration"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "µs"
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "footer": {
-          "countRows": true,
-          "enablePagination": true,
-          "fields": "",
-          "reducer": [
-            "count"
-          ],
-          "show": true
-        },
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "startTime"
-          }
-        ]
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "jaeger",
-            "uid": "Jaeger"
-          },
-          "limit": 30,
-          "queryType": "search",
-          "refId": "A",
-          "service": "repairshop-service-order-execution-service"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "loki",
-        "uid": "Loki"
-      },
-      "gridPos": {
-        "h": 14,
-        "w": 24,
-        "x": 0,
-        "y": 43
-      },
-      "id": 9,
-      "title": "📜 Application Real-Time Logs Stream (Loki + OpenTelemetry)",
-      "type": "logs",
-      "options": {
-        "enableLogDetails": true,
-        "showLabels": false,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true,
-        "showCommonLabels": false,
-        "prettifyLogMessage": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "loki",
-            "uid": "Loki"
-          },
-          "editorMode": "code",
-          "expr": "{job=~\"repairshop.*\"} | json",
-          "maxLines": 500,
-          "queryType": "range",
-          "refId": "A"
-        }
-      ]
-    }
-  ],
-  "refresh": "5s",
-  "schemaVersion": 38,
-  "style": "dark",
-  "tags": [
-    "repairshop",
-    "opentelemetry",
-    "observability"
-  ],
-  "time": {
-    "from": "now-1h",
-    "to": "now"
-  },
-  "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m"
-    ]
-  },
-  "timezone": "browser",
-  "title": "RepairShop - Observability Overview (All Microservices)",
-  "uid": "repairshop-overview",
-  "version": 1,
-  "templating": {
-    "list": [
-      {
-        "options": [],
-        "sort": 1,
-        "name": "application",
-        "current": {
-          "selected": true,
-          "text": "All",
-          "value": "$__all"
-        },
-        "multi": true,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "Prometheus"
-        },
-        "regex": "",
-        "skipUrlSync": false,
-        "label": "Microservice",
-        "refresh": 1,
-        "definition": "label_values(up{job=\"repairshop-actuator\"}, application)",
-        "query": {
-          "query": "label_values(up{job=\"repairshop-actuator\"}, application)",
-          "refId": "StandardVariableQuery"
-        },
-        "includeAll": true,
-        "type": "query",
-        "allValue": ".*",
-        "hide": 0
-      }
-    ]
-  }
+              ],
+    "liveNow":  false,
+    "panels":  [
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  0,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  100,
+                       "title":  "Application Health \u0026 Status (Todos os Microsserviços)",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  6,
+                                       "x":  0,
+                                       "h":  4
+                                   },
+                       "id":  1,
+                       "title":  "Service Status",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "none",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+                                                                             {
+                                                                                 "options":  {
+                                                                                                 "1":  {
+                                                                                                           "text":  "UP",
+                                                                                                           "color":  "green"
+                                                                                                       },
+                                                                                                 "0":  {
+                                                                                                           "text":  "DOWN",
+                                                                                                           "color":  "red"
+                                                                                                       }
+                                                                                             },
+                                                                                 "type":  "value"
+                                                                             }
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "red"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  1,
+                                                                                                 "color":  "green"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "short"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "max by (service) (label_replace(up{job=\"repairshop-actuator\", instance=~\"($application):.*\"} or up{job=\"repairshop-actuator\", application=~\"$application\"}, \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\"))",
+                                           "instant":  true,
+                                           "legendFormat":  "{{service}}",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  6,
+                                       "x":  6,
+                                       "h":  4
+                                   },
+                       "id":  2,
+                       "title":  "JVM Uptime",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "none",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "blue"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "s"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "max by (service) (label_replace(process_uptime_seconds{job=\"repairshop-actuator\", instance=~\"($application):.*\"} or process_uptime_seconds{job=\"repairshop-actuator\", application=~\"$application\"}, \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\"))",
+                                           "instant":  true,
+                                           "legendFormat":  "{{service}}",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  6,
+                                       "x":  12,
+                                       "h":  4
+                                   },
+                       "id":  3,
+                       "title":  "Total HTTP Requests",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "purple"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "short"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum by (service) (label_replace(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"($application):.*\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=~\"$application\"}), \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\"))",
+                                           "instant":  true,
+                                           "legendFormat":  "{{service}}",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  6,
+                                       "x":  18,
+                                       "h":  4
+                                   },
+                       "id":  4,
+                       "title":  "SQS Tasks / DB Connections",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "green"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "short"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum by (service) (label_replace(max by (instance, code_function) (tasks_scheduled_execution_seconds_count{job=\"repairshop-actuator\", instance=~\"($application):.*\"} or tasks_scheduled_execution_seconds_count{job=\"repairshop-actuator\", application=~\"$application\"}), \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\")) or max by (service) (label_replace(hikaricp_connections_active{job=\"repairshop-actuator\", instance=~\"($application):.*\"}, \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\"))",
+                                           "instant":  true,
+                                           "legendFormat":  "{{service}}",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  5,
+                                       "w":  6,
+                                       "x":  0,
+                                       "h":  5
+                                   },
+                       "id":  11,
+                       "title":  "⚡ CPU Usage (%)",
+                       "type":  "gauge",
+                       "options":  {
+                                       "orientation":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "showThresholdLabels":  false,
+                                       "showThresholdMarkers":  true,
+                                       "text":  {
+
+                                                }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "min":  0,
+                                                            "max":  100,
+                                                            "unit":  "percent",
+                                                            "noValue":  "0",
+                                                            "color":  {
+                                                                          "mode":  "thresholds"
+                                                                      },
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "#56A64B"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  60,
+                                                                                                 "color":  "#EAB839"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  85,
+                                                                                                 "color":  "#E24D42"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "(max by (service) (label_replace(process_cpu_usage{job=\"repairshop-actuator\", instance=~\"($application):.*\"} or process_cpu_usage{job=\"repairshop-actuator\", application=~\"$application\"}, \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\"))) * 100",
+                                           "instant":  true,
+                                           "legendFormat":  "{{service}}",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  5,
+                                       "w":  6,
+                                       "x":  6,
+                                       "h":  5
+                                   },
+                       "id":  12,
+                       "title":  "⚡ CPU Cores Used",
+                       "type":  "gauge",
+                       "options":  {
+                                       "orientation":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "showThresholdLabels":  false,
+                                       "showThresholdMarkers":  true,
+                                       "text":  {
+
+                                                }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "min":  0,
+                                                            "max":  2,
+                                                            "unit":  "short",
+                                                            "noValue":  "0",
+                                                            "color":  {
+                                                                          "mode":  "thresholds"
+                                                                      },
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "#56A64B"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  1,
+                                                                                                 "color":  "#EAB839"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  1.6,
+                                                                                                 "color":  "#E24D42"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "(max by (service) (label_replace(rate(process_cpu_time_ns_total{job=\"repairshop-actuator\", instance=~\"($application):.*\"}[1m]) / 1e9 or (process_cpu_usage{job=\"repairshop-actuator\", instance=~\"($application):.*\"} * system_cpu_count{job=\"repairshop-actuator\", instance=~\"($application):.*\"}), \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\")))",
+                                           "instant":  true,
+                                           "legendFormat":  "{{service}}",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  5,
+                                       "w":  6,
+                                       "x":  12,
+                                       "h":  5
+                                   },
+                       "id":  13,
+                       "title":  "🧠 Total JVM Heap Memory",
+                       "type":  "gauge",
+                       "options":  {
+                                       "orientation":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "showThresholdLabels":  false,
+                                       "showThresholdMarkers":  true,
+                                       "text":  {
+
+                                                }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "min":  0,
+                                                            "max":  536870912,
+                                                            "unit":  "bytes",
+                                                            "noValue":  "0",
+                                                            "color":  {
+                                                                          "mode":  "thresholds"
+                                                                      },
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "#56A64B"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  350000000,
+                                                                                                 "color":  "#EAB839"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  480000000,
+                                                                                                 "color":  "#E24D42"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum by (service) (label_replace(max by (instance, id) (jvm_memory_used_bytes{job=\"repairshop-actuator\", instance=~\"($application):.*\", area=\"heap\"} or jvm_memory_used_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"}), \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\"))",
+                                           "instant":  true,
+                                           "legendFormat":  "{{service}}",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  5,
+                                       "w":  6,
+                                       "x":  18,
+                                       "h":  5
+                                   },
+                       "id":  14,
+                       "title":  "🧠 JVM Heap Memory (%)",
+                       "type":  "gauge",
+                       "options":  {
+                                       "orientation":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "showThresholdLabels":  false,
+                                       "showThresholdMarkers":  true,
+                                       "text":  {
+
+                                                }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "min":  0,
+                                                            "max":  100,
+                                                            "unit":  "percent",
+                                                            "noValue":  "0",
+                                                            "color":  {
+                                                                          "mode":  "thresholds"
+                                                                      },
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "#56A64B"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  70,
+                                                                                                 "color":  "#EAB839"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  90,
+                                                                                                 "color":  "#E24D42"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "((sum by (service) (label_replace(max by (instance, id) (jvm_memory_used_bytes{job=\"repairshop-actuator\", instance=~\"($application):.*\", area=\"heap\"} or jvm_memory_used_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"}), \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\"))) / (sum by (service) (label_replace(max by (instance, id) (jvm_memory_max_bytes{job=\"repairshop-actuator\", instance=~\"($application):.*\", area=\"heap\"} or jvm_memory_max_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"}), \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\")))) * 100",
+                                           "instant":  true,
+                                           "legendFormat":  "{{service}}",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  10,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  101,
+                       "title":  "HTTP Business Traffic \u0026 Latencies (excl. /actuator)",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  11,
+                                       "w":  12,
+                                       "x":  0,
+                                       "h":  8
+                                   },
+                       "id":  5,
+                       "title":  "HTTP Request Rate por Endpoint (req/s)",
+                       "type":  "timeseries",
+                       "options":  {
+                                       "tooltip":  {
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "reqps",
+                                                            "custom":  {
+                                                                           "lineInterpolation":  "smooth",
+                                                                           "drawStyle":  "line",
+                                                                           "fillOpacity":  15
+                                                                       }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum by (instance, uri, status) (max by (instance, uri, method, status) (rate(http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"($application):.*\", uri!~\"/actuator.*\"}[1m]) or rate(http_server_requests_seconds_count{job=\"repairshop-actuator\", application=~\"$application\", uri!~\"/actuator.*\"}[1m])))",
+                                           "instant":  false,
+                                           "legendFormat":  "{{instance}} [{{status}}] {{uri}}",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  11,
+                                       "w":  12,
+                                       "x":  12,
+                                       "h":  8
+                                   },
+                       "id":  6,
+                       "title":  "HTTP Latency (Max, Avg, p95)",
+                       "type":  "timeseries",
+                       "options":  {
+                                       "tooltip":  {
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "s",
+                                                            "custom":  {
+                                                                           "lineInterpolation":  "smooth",
+                                                                           "drawStyle":  "line",
+                                                                           "fillOpacity":  10
+                                                                       }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "max by (instance, uri) (http_server_requests_seconds_max{job=\"repairshop-actuator\", instance=~\"($application):.*\", uri!~\"/actuator.*\"} or http_server_requests_seconds_max{job=\"repairshop-actuator\", application=~\"$application\", uri!~\"/actuator.*\"})",
+                                           "instant":  false,
+                                           "legendFormat":  "Max - {{instance}} {{uri}}",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (rate(http_server_requests_seconds_sum{job=\"repairshop-actuator\", instance=~\"($application):.*\", uri!~\"/actuator.*\"}[1m]))) / sum(max by (instance, uri, method, status) (rate(http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"($application):.*\", uri!~\"/actuator.*\"}[1m])))",
+                                           "instant":  false,
+                                           "legendFormat":  "Avg Latency",
+                                           "range":  true,
+                                           "refId":  "B"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "histogram_quantile(0.95, sum by (le) (max by (le, instance, uri, method, status) (rate(http_server_requests_seconds_bucket{job=\"repairshop-actuator\", instance=~\"($application):.*\", uri!~\"/actuator.*\"}[1m]))))",
+                                           "instant":  false,
+                                           "legendFormat":  "p95",
+                                           "range":  true,
+                                           "refId":  "C"
+                                       }
+                                   ]
+                   },
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  19,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  102,
+                       "title":  "JVM \u0026 System CPU Resources",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  20,
+                                       "w":  12,
+                                       "x":  0,
+                                       "h":  8
+                                   },
+                       "id":  7,
+                       "title":  "JVM Total Heap Used vs Max",
+                       "type":  "timeseries",
+                       "options":  {
+                                       "tooltip":  {
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "bytes",
+                                                            "custom":  {
+                                                                           "lineInterpolation":  "smooth",
+                                                                           "drawStyle":  "line",
+                                                                           "fillOpacity":  20
+                                                                       }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum by (service) (label_replace(max by (instance, id) (jvm_memory_used_bytes{job=\"repairshop-actuator\", instance=~\"($application):.*\", area=\"heap\"} or jvm_memory_used_bytes{job=\"repairshop-actuator\", application=~\"$application\", area=\"heap\"}), \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\"))",
+                                           "instant":  false,
+                                           "legendFormat":  "Used ({{service}})",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum by (service) (label_replace(max by (instance, id) (jvm_memory_max_bytes{job=\"repairshop-actuator\", instance=~\"($application):.*\", area=\"heap\"}), \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\"))",
+                                           "instant":  false,
+                                           "legendFormat":  "Max ({{service}})",
+                                           "range":  true,
+                                           "refId":  "B"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  20,
+                                       "w":  12,
+                                       "x":  12,
+                                       "h":  8
+                                   },
+                       "id":  8,
+                       "title":  "Process vs System CPU Usage",
+                       "type":  "timeseries",
+                       "options":  {
+                                       "tooltip":  {
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "percentunit",
+                                                            "custom":  {
+                                                                           "lineInterpolation":  "smooth",
+                                                                           "drawStyle":  "line",
+                                                                           "fillOpacity":  15
+                                                                       }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "max by (service) (label_replace(process_cpu_usage{job=\"repairshop-actuator\", instance=~\"($application):.*\"}, \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\"))",
+                                           "instant":  false,
+                                           "legendFormat":  "Process CPU ({{service}})",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "max by (service) (label_replace(system_cpu_usage{job=\"repairshop-actuator\", instance=~\"($application):.*\"}, \"service\", \"$1\", \"instance\", \"([^:]+)(:.*)?\"))",
+                                           "instant":  false,
+                                           "legendFormat":  "System CPU ({{service}})",
+                                           "range":  true,
+                                           "refId":  "B"
+                                       }
+                                   ]
+                   },
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  28,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  103,
+                       "title":  "Logs Consolidados \u0026 Traces Distribuídos (Saga Root: service-order-execution-service)",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "jaeger",
+                                          "uid":  "Jaeger"
+                                      },
+                       "gridPos":  {
+                                       "y":  29,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  12
+                                   },
+                       "id":  15,
+                       "title":  "🔍 Distributed Traces Explorer (service-order-execution-service — Root da Saga)",
+                       "type":  "table",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "custom":  {
+                                                                           "displayMode":  "auto",
+                                                                           "align":  "auto"
+                                                                       }
+                                                        },
+                                           "overrides":  [
+                                                             {
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "links",
+                                                                                        "value":  [
+                                                                                                      {
+                                                                                                          "targetBlank":  true,
+                                                                                                          "title":  "🔍 Abrir Waterfall do Trace no Jaeger",
+                                                                                                          "url":  "http://localhost:16686/trace/${__data.fields.traceID}"
+                                                                                                      }
+                                                                                                  ]
+                                                                                    }
+                                                                                ],
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "traceID"
+                                                                             }
+                                                             },
+                                                             {
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "unit",
+                                                                                        "value":  "µs"
+                                                                                    }
+                                                                                ],
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "duration"
+                                                                             }
+                                                             }
+                                                         ]
+                                       },
+                       "options":  {
+                                       "footer":  {
+                                                      "enablePagination":  true,
+                                                      "show":  true,
+                                                      "reducer":  [
+                                                                      "count"
+                                                                  ],
+                                                      "fields":  "",
+                                                      "countRows":  true
+                                                  },
+                                       "showHeader":  true,
+                                       "sortBy":  [
+                                                      {
+                                                          "displayName":  "startTime",
+                                                          "desc":  true
+                                                      }
+                                                  ]
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "jaeger",
+                                                              "uid":  "Jaeger"
+                                                          },
+                                           "limit":  30,
+                                           "queryType":  "search",
+                                           "refId":  "A",
+                                           "service":  "service-order-execution-service"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "Loki"
+                                      },
+                       "gridPos":  {
+                                       "y":  41,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  14
+                                   },
+                       "id":  9,
+                       "title":  "📜 Stream Consolidado de Logs (Loki + OpenTelemetry)",
+                       "type":  "logs",
+                       "options":  {
+                                       "enableLogDetails":  true,
+                                       "showLabels":  false,
+                                       "showTime":  true,
+                                       "sortOrder":  "Descending",
+                                       "wrapLogMessage":  true,
+                                       "showCommonLabels":  false,
+                                       "prettifyLogMessage":  true
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "Loki"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "{job=~\"$application\"} | json | line_format \"[{{.severity}}] [{{.job}}] {{ if .traceid }}[trace={{.traceid}}] {{ end }}{{.body}}\"",
+                                           "maxLines":  500,
+                                           "queryType":  "range",
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   }
+               ],
+    "refresh":  "5s",
+    "schemaVersion":  39,
+    "style":  "dark",
+    "tags":  [
+                 "repairshop",
+                 "opentelemetry",
+                 "observability"
+             ],
+    "templating":  {
+                       "list":  [
+                                    {
+                                        "name":  "application",
+                                        "label":  "Microservice",
+                                        "type":  "custom",
+                                        "query":  "service-order-execution-service,payment-service,register-service,notification-service",
+                                        "options":  [
+                                                        {
+                                                            "selected":  true,
+                                                            "value":  "$__all",
+                                                            "text":  "All"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "value":  "service-order-execution-service",
+                                                            "text":  "service-order-execution-service"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "value":  "payment-service",
+                                                            "text":  "payment-service"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "value":  "register-service",
+                                                            "text":  "register-service"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "value":  "notification-service",
+                                                            "text":  "notification-service"
+                                                        }
+                                                    ],
+                                        "current":  {
+                                                        "selected":  true,
+                                                        "value":  "$__all",
+                                                        "text":  "All"
+                                                    },
+                                        "includeAll":  true,
+                                        "allValue":  "service-order-execution-service|payment-service|register-service|notification-service",
+                                        "multi":  true,
+                                        "skipUrlSync":  false,
+                                        "hide":  0
+                                    }
+                                ]
+                   },
+    "time":  {
+                 "to":  "now",
+                 "from":  "now-1h"
+             },
+    "timepicker":  {
+                       "refresh_intervals":  [
+                                                 "5s",
+                                                 "10s",
+                                                 "30s",
+                                                 "1m",
+                                                 "5m"
+                                             ]
+                   },
+    "timezone":  "browser",
+    "title":  "RepairShop - Observability Overview (All Microservices)",
+    "uid":  "repairshop-overview",
+    "version":  1
 }

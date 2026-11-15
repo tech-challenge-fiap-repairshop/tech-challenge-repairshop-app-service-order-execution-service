@@ -36,6 +36,11 @@ data:
         url: http://loki:3100
         jsonData:
           maxLines: 1000
+          derivedFields:
+            - datasourceUid: Jaeger
+              matcherRegex: '"traceid":"(\w+)"'
+              name: TraceID
+              url: '$${__value.raw}'
         editable: true
 
       - name: Jaeger
