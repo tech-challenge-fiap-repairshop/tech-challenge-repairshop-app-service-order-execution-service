@@ -1,0 +1,855 @@
+{
+    "annotations":  {
+                        "list":  [
+                                     {
+                                         "hide":  true,
+                                         "builtIn":  1,
+                                         "datasource":  {
+                                                            "type":  "grafana",
+                                                            "uid":  "-- Grafana --"
+                                                        },
+                                         "type":  "dashboard",
+                                         "name":  "Annotations \u0026 Alerts",
+                                         "enable":  true
+                                     }
+                                 ]
+                    },
+    "editable":  true,
+    "fiscalYearStartMonth":  0,
+    "graphTooltip":  1,
+    "id":  null,
+    "links":  [
+                  {
+                      "type":  "link",
+                      "icon":  "apps",
+                      "title":  "🌐 Overview",
+                      "tooltip":  "Visão consolidada de todos os microsserviços",
+                      "url":  "/d/repairshop-overview",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "chart-line",
+                      "title":  "📈 Executive KPIs",
+                      "tooltip":  "Dashboard executivo e KPIs de negócio (Fase 4)",
+                      "url":  "/d/repairshop-business-metrics",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "bolt",
+                      "title":  "⚡ Lambda Auth",
+                      "tooltip":  "Observabilidade de Autenticação e Lambda Auth",
+                      "url":  "/d/repairshop-lambda-auth",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "cog",
+                      "title":  "🛠️ OS \u0026 Exec (Métricas)",
+                      "tooltip":  "service-order-execution-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-os-execution",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 OS \u0026 Exec (Logs/Traces)",
+                      "tooltip":  "service-order-execution-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-os-execution-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "credit-card",
+                      "title":  "💳 Payment (Métricas)",
+                      "tooltip":  "payment-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-payment",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 Payment (Logs/Traces)",
+                      "tooltip":  "payment-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-payment-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "users-alt",
+                      "title":  "📋 Register (Métricas)",
+                      "tooltip":  "register-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-register",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 Register (Logs/Traces)",
+                      "tooltip":  "register-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-register-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "bell",
+                      "title":  "🔔 Notification (Métricas)",
+                      "tooltip":  "notification-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-notification",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 Notification (Logs/Traces)",
+                      "tooltip":  "notification-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-notification-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "external link",
+                      "title":  "🔍 Jaeger UI",
+                      "tooltip":  "Interface direta do Jaeger Distributed Tracing",
+                      "url":  "http://localhost:16686",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  true,
+                      "tags":  [
+
+                               ]
+                  }
+              ],
+    "liveNow":  false,
+    "panels":  [
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  0,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  100,
+                       "title":  "📊 Telemetria de Logs (Loki) \u0026 Spans (OpenTelemetry) — payment-service",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "Loki"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  6,
+                                       "x":  0,
+                                       "h":  4
+                                   },
+                       "id":  1,
+                       "title":  "Total de Logs Emitidos (Período)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "none",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "blue"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "short"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "editorMode":  "code",
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "Loki"
+                                                          },
+                                           "expr":  "sum(count_over_time({job=\"payment-service\"}[$__range]))",
+                                           "refId":  "A",
+                                           "queryType":  "instant"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "Loki"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  6,
+                                       "x":  6,
+                                       "h":  4
+                                   },
+                       "id":  2,
+                       "title":  "Logs WARN / ERROR",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "none",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "green"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  1,
+                                                                                                 "color":  "yellow"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  10,
+                                                                                                 "color":  "red"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "short"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "editorMode":  "code",
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "Loki"
+                                                          },
+                                           "expr":  "sum(count_over_time({job=\"payment-service\", level=~\"WARN|ERROR\"}[$__range]))",
+                                           "refId":  "A",
+                                           "queryType":  "instant"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  6,
+                                       "x":  12,
+                                       "h":  4
+                                   },
+                       "id":  3,
+                       "title":  "Spans HTTP Rastreados (OTel)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "purple"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "short"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(repairshop_http_server_request_duration_seconds_count{exported_job=\"payment-service\"}) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "Server Spans",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  6,
+                                       "x":  18,
+                                       "h":  4
+                                   },
+                       "id":  4,
+                       "title":  "Spans Outbound / AWS SDK / DB (OTel)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "orange"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "short"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(repairshop_http_client_request_duration_seconds_count{exported_job=\"payment-service\"}) or sum(repairshop_db_client_connections_use_time_milliseconds_count{exported_job=\"payment-service\"}) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "Client/DB Spans",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "Loki"
+                                      },
+                       "gridPos":  {
+                                       "y":  5,
+                                       "w":  12,
+                                       "x":  0,
+                                       "h":  7
+                                   },
+                       "id":  5,
+                       "title":  "Volume de Logs por Severidade (logs/min)",
+                       "type":  "timeseries",
+                       "options":  {
+                                       "tooltip":  {
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "short",
+                                                            "custom":  {
+                                                                           "lineInterpolation":  "smooth",
+                                                                           "drawStyle":  "line",
+                                                                           "fillOpacity":  20
+                                                                       }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "expr":  "sum by (level) (count_over_time({job=\"payment-service\"}[1m]))",
+                                           "editorMode":  "code",
+                                           "refId":  "A",
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "Loki"
+                                                          },
+                                           "queryType":  "range",
+                                           "legendFormat":  "{{level}}"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  5,
+                                       "w":  12,
+                                       "x":  12,
+                                       "h":  7
+                                   },
+                       "id":  6,
+                       "title":  "Latência de Spans HTTP no OpenTelemetry (Avg \u0026 p95)",
+                       "type":  "timeseries",
+                       "options":  {
+                                       "tooltip":  {
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "s",
+                                                            "custom":  {
+                                                                           "lineInterpolation":  "smooth",
+                                                                           "drawStyle":  "line",
+                                                                           "fillOpacity":  15
+                                                                       }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(rate(repairshop_http_server_request_duration_seconds_sum{exported_job=\"payment-service\"}[1m])) / sum(rate(repairshop_http_server_request_duration_seconds_count{exported_job=\"payment-service\"}[1m]))",
+                                           "instant":  false,
+                                           "legendFormat":  "OTel Span Avg",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "histogram_quantile(0.95, sum by (le) (rate(repairshop_http_server_request_duration_seconds_bucket{exported_job=\"payment-service\"}[1m])))",
+                                           "instant":  false,
+                                           "legendFormat":  "OTel Span p95",
+                                           "range":  true,
+                                           "refId":  "B"
+                                       }
+                                   ]
+                   },
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  12,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  101,
+                       "title":  "🔍 Distributed Traces Explorer (Jaeger + OpenTelemetry W3C) — payment-service",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "jaeger",
+                                          "uid":  "Jaeger"
+                                      },
+                       "gridPos":  {
+                                       "y":  13,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  12
+                                   },
+                       "id":  7,
+                       "title":  "Traces Distribuídos — payment-service (clique no traceID para abrir no Jaeger)",
+                       "type":  "table",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "custom":  {
+                                                                           "displayMode":  "auto",
+                                                                           "align":  "auto"
+                                                                       }
+                                                        },
+                                           "overrides":  [
+                                                             {
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "links",
+                                                                                        "value":  [
+                                                                                                      {
+                                                                                                          "targetBlank":  true,
+                                                                                                          "title":  "🔍 Abrir Waterfall do Trace no Jaeger",
+                                                                                                          "url":  "http://localhost:16686/trace/${__data.fields.traceID}"
+                                                                                                      }
+                                                                                                  ]
+                                                                                    }
+                                                                                ],
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "traceID"
+                                                                             }
+                                                             },
+                                                             {
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "unit",
+                                                                                        "value":  "µs"
+                                                                                    }
+                                                                                ],
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "duration"
+                                                                             }
+                                                             }
+                                                         ]
+                                       },
+                       "options":  {
+                                       "footer":  {
+                                                      "enablePagination":  true,
+                                                      "show":  true,
+                                                      "reducer":  [
+                                                                      "count"
+                                                                  ],
+                                                      "fields":  "",
+                                                      "countRows":  true
+                                                  },
+                                       "showHeader":  true,
+                                       "sortBy":  [
+                                                      {
+                                                          "displayName":  "startTime",
+                                                          "desc":  true
+                                                      }
+                                                  ]
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "jaeger",
+                                                              "uid":  "Jaeger"
+                                                          },
+                                           "limit":  50,
+                                           "queryType":  "search",
+                                           "refId":  "A",
+                                           "service":  "payment-service"
+                                       }
+                                   ]
+                   },
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  25,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  102,
+                       "title":  "⚠️ Stream de Alertas, Erros e Exceções (WARN / ERROR) — payment-service",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "Loki"
+                                      },
+                       "gridPos":  {
+                                       "y":  26,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  8
+                                   },
+                       "id":  8,
+                       "title":  "Alertas \u0026 Erros (payment-service)",
+                       "type":  "logs",
+                       "options":  {
+                                       "enableLogDetails":  true,
+                                       "showLabels":  false,
+                                       "showTime":  true,
+                                       "sortOrder":  "Descending",
+                                       "wrapLogMessage":  true,
+                                       "showCommonLabels":  false,
+                                       "prettifyLogMessage":  true
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "Loki"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "{job=\"payment-service\", level=~\"WARN|ERROR\"} |= \"$search\" | json | line_format \"[{{.severity}}] {{ if .traceid }}[trace={{.traceid}} | span={{.spanid}}] {{ end }}{{ if .instrumentation_scope_name }}({{.instrumentation_scope_name}}) {{ end }}{{.body}}\"",
+                                           "maxLines":  300,
+                                           "queryType":  "range",
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  34,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  103,
+                       "title":  "📜 Stream Completo de Logs Estruturados em Tempo Real (Loki + Trace Correlation) — payment-service",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "Loki"
+                                      },
+                       "gridPos":  {
+                                       "y":  35,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  14
+                                   },
+                       "id":  9,
+                       "title":  "Logs Estruturados Completos (payment-service)",
+                       "type":  "logs",
+                       "options":  {
+                                       "enableLogDetails":  true,
+                                       "showLabels":  false,
+                                       "showTime":  true,
+                                       "sortOrder":  "Descending",
+                                       "wrapLogMessage":  true,
+                                       "showCommonLabels":  false,
+                                       "prettifyLogMessage":  true
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "Loki"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "{job=\"payment-service\", level=~\"$level\"} |= \"$search\" | json | line_format \"[{{.severity}}] {{ if .traceid }}[trace={{.traceid}} | span={{.spanid}}] {{ end }}{{ if .instrumentation_scope_name }}({{.instrumentation_scope_name}}) {{ end }}{{.body}}\"",
+                                           "maxLines":  500,
+                                           "queryType":  "range",
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   }
+               ],
+    "refresh":  "5s",
+    "schemaVersion":  39,
+    "style":  "dark",
+    "tags":  [
+                 "repairshop",
+                 "logs",
+                 "traces",
+                 "loki",
+                 "jaeger",
+                 "payment-service"
+             ],
+    "templating":  {
+                       "list":  [
+                                    {
+                                        "name":  "level",
+                                        "label":  "Nível Log",
+                                        "type":  "custom",
+                                        "query":  "INFO,WARN,ERROR,DEBUG",
+                                        "options":  [
+                                                        {
+                                                            "selected":  true,
+                                                            "value":  "$__all",
+                                                            "text":  "All"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "value":  "INFO",
+                                                            "text":  "INFO"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "value":  "WARN",
+                                                            "text":  "WARN"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "value":  "ERROR",
+                                                            "text":  "ERROR"
+                                                        },
+                                                        {
+                                                            "selected":  false,
+                                                            "value":  "DEBUG",
+                                                            "text":  "DEBUG"
+                                                        }
+                                                    ],
+                                        "current":  {
+                                                        "selected":  true,
+                                                        "value":  "$__all",
+                                                        "text":  "All"
+                                                    },
+                                        "includeAll":  true,
+                                        "allValue":  ".*",
+                                        "multi":  true,
+                                        "hide":  0
+                                    },
+                                    {
+                                        "name":  "search",
+                                        "label":  "Filtro Texto / orderId / traceId",
+                                        "type":  "textbox",
+                                        "query":  "",
+                                        "current":  {
+                                                        "selected":  false,
+                                                        "value":  "",
+                                                        "text":  ""
+                                                    },
+                                        "options":  [
+                                                        {
+                                                            "selected":  true,
+                                                            "value":  "",
+                                                            "text":  ""
+                                                        }
+                                                    ],
+                                        "hide":  0
+                                    }
+                                ]
+                   },
+    "time":  {
+                 "to":  "now",
+                 "from":  "now-1h"
+             },
+    "timepicker":  {
+                       "refresh_intervals":  [
+                                                 "5s",
+                                                 "10s",
+                                                 "30s",
+                                                 "1m",
+                                                 "5m"
+                                             ]
+                   },
+    "timezone":  "browser",
+    "title":  "RepairShop - payment-service (Logs \u0026 Traces)",
+    "uid":  "repairshop-payment-logs-traces",
+    "version":  1
+}
