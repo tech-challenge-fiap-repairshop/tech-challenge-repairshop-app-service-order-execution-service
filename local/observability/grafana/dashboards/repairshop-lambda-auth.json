@@ -1,932 +1,998 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": {
-          "type": "grafana",
-          "uid": "-- Grafana --"
-        },
-        "enable": true,
-        "hide": true,
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
-      }
-    ]
-  },
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
-  "id": null,
-  "links": [
-    {
-      "asDropdown": false,
-      "icon": "dashboard",
-      "includeVars": true,
-      "keepTime": true,
-      "tags": [],
-      "targetBlank": false,
-      "title": "📦 Main App Dashboard",
-      "tooltip": "Ir para o dashboard principal da aplicação",
-      "type": "link",
-      "url": "/d/repairshop-overview"
-    },
-    {
-      "asDropdown": false,
-      "icon": "chart-line",
-      "includeVars": true,
-      "keepTime": true,
-      "tags": [],
-      "targetBlank": false,
-      "title": "📈 Executive & Business Dashboard",
-      "tooltip": "Abrir dashboard executivo e gerencial de métricas do negócio",
-      "type": "link",
-      "url": "/d/repairshop-business-metrics"
-    },
-    {
-      "asDropdown": false,
-      "icon": "external link",
-      "includeVars": true,
-      "keepTime": true,
-      "tags": [],
-      "targetBlank": true,
-      "title": "🔍 Jaeger Tracing UI",
-      "tooltip": "Abrir interface do Jaeger para rastreamento de traces distribuídos",
-      "type": "link",
-      "url": "http://localhost:16686"
-    },
-    {
-      "asDropdown": false,
-      "icon": "external link",
-      "includeVars": true,
-      "keepTime": true,
-      "tags": [],
-      "targetBlank": true,
-      "title": "📊 Prometheus UI",
-      "tooltip": "Abrir interface do Prometheus",
-      "type": "link",
-      "url": "http://localhost:9090"
-    }
-  ],
-  "liveNow": false,
-  "panels": [
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 100,
-      "title": "⚡ Serverless Golden Signals — Lambda Auth",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 0,
-        "y": 1
-      },
-      "id": 1,
-      "title": "Total Invocations",
-      "type": "stat",
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum(aws_lambda_invocations_sum{function_name=~\"repairshop-lambda-auth.*\"}) or sum(http_server_requests_seconds_count{uri=~\"/auth/login.*\"}) or vector(0)",
-          "instant": true,
-          "legendFormat": "repairshop-lambda-auth",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 6,
-        "y": 1
-      },
-      "id": 2,
-      "title": "Error Rate (%)",
-      "type": "stat",
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              },
-              {
-                "color": "red",
-                "value": 5
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "(sum(rate(aws_lambda_errors_sum[5m])) / (sum(rate(aws_lambda_invocations_sum[5m])) or vector(1))) * 100 or vector(0)",
-          "instant": true,
-          "legendFormat": "repairshop-lambda-auth",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 12,
-        "y": 1
-      },
-      "id": 3,
-      "title": "Avg Execution Duration (ms)",
-      "type": "stat",
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 500
-              },
-              {
-                "color": "red",
-                "value": 2000
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "(avg(aws_lambda_duration_milliseconds_sum / (aws_lambda_duration_milliseconds_count or vector(1))) or avg(http_server_requests_seconds_sum{uri=~\"/auth/login.*\"} / (http_server_requests_seconds_count{uri=~\"/auth/login.*\"} or vector(1)) * 1000) or vector(0))",
-          "instant": true,
-          "legendFormat": "repairshop-lambda-auth",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 18,
-        "y": 1
-      },
-      "id": 4,
-      "title": "Throttles (Concurrency Limits)",
-      "type": "stat",
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum(aws_lambda_throttles_sum{function_name=~\"repairshop-lambda-auth.*\"}) or vector(0)",
-          "instant": true,
-          "legendFormat": "repairshop-lambda-auth",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 4
-      },
-      "id": 101,
-      "title": "🎛️ Tacômetros de Performance & Recursos",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 5
-      },
-      "id": 11,
-      "title": "🛡️ Invocations Success Rate (%)",
-      "type": "gauge",
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "fieldConfig": {
-        "defaults": {
-          "min": 0,
-          "max": 100,
-          "unit": "percent",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#E24D42",
-                "value": null
-              },
-              {
-                "color": "#EF843C",
-                "value": 90
-              },
-              {
-                "color": "#EAB839",
-                "value": 95
-              },
-              {
-                "color": "#56A64B",
-                "value": 99
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "100 - ((sum(rate(aws_lambda_errors_sum[5m])) / (sum(rate(aws_lambda_invocations_sum[5m])) or vector(1))) * 100) or vector(100)",
-          "instant": true,
-          "legendFormat": "repairshop-lambda-auth",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 5
-      },
-      "id": 12,
-      "title": "⏱️ Execution Duration (Tacômetro)",
-      "type": "gauge",
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "fieldConfig": {
-        "defaults": {
-          "min": 0,
-          "max": 3000,
-          "unit": "ms",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#56A64B",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 500
-              },
-              {
-                "color": "#EF843C",
-                "value": 1500
-              },
-              {
-                "color": "#E24D42",
-                "value": 2500
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "(avg(aws_lambda_duration_milliseconds_sum / (aws_lambda_duration_milliseconds_count or vector(1))) or avg(http_server_requests_seconds_sum{uri=~\"/auth/login.*\"} / (http_server_requests_seconds_count{uri=~\"/auth/login.*\"} or vector(1)) * 1000) or vector(50))",
-          "instant": true,
-          "legendFormat": "repairshop-lambda-auth",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 12,
-        "y": 5
-      },
-      "id": 13,
-      "title": "🧠 Lambda Memory Usage (% vs 512MB)",
-      "type": "gauge",
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "fieldConfig": {
-        "defaults": {
-          "min": 0,
-          "max": 100,
-          "unit": "percent",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#56A64B",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 65
-              },
-              {
-                "color": "#EF843C",
-                "value": 80
-              },
-              {
-                "color": "#E24D42",
-                "value": 90
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "((avg(aws_lambda_max_memory_used_bytes{function_name=~\"repairshop-lambda-auth.*\"}) or (jvm_memory_used_bytes{job=\"repairshop-actuator\", area=\"heap\"} * 0.4)) / (512 * 1024 * 1024)) * 100",
-          "instant": true,
-          "legendFormat": "repairshop-lambda-auth",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 18,
-        "y": 5
-      },
-      "id": 14,
-      "title": "❄️ Cold Start Ratio (%)",
-      "type": "gauge",
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "fieldConfig": {
-        "defaults": {
-          "min": 0,
-          "max": 100,
-          "unit": "percent",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#56A64B",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 15
-              },
-              {
-                "color": "#EF843C",
-                "value": 30
-              },
-              {
-                "color": "#E24D42",
-                "value": 50
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "((sum(rate(aws_lambda_init_duration_milliseconds_count[5m])) / (sum(rate(aws_lambda_invocations_sum[5m])) or vector(1))) * 100) or vector(0)",
-          "instant": true,
-          "legendFormat": "repairshop-lambda-auth",
-          "range": false,
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 10
-      },
-      "id": 102,
-      "title": "📈 Invocations & Latency Breakdown (Timeseries)",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 11
-      },
-      "id": 5,
-      "title": "Lambda Invocations Rate (req/s)",
-      "type": "timeseries",
-      "options": {
-        "tooltip": {
-          "mode": "multi"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "fillOpacity": 15
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(aws_lambda_invocations_sum{function_name=~\"repairshop-lambda-auth.*\"}[1m])) or sum(rate(http_server_requests_seconds_count{uri=~\"/auth/login.*\"}[1m]))",
-          "legendFormat": "Invocations /s",
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(aws_lambda_errors_sum{function_name=~\"repairshop-lambda-auth.*\"}[1m])) or sum(rate(http_server_requests_seconds_count{uri=~\"/auth/login.*\", status=~\"5..\"}[1m]))",
-          "legendFormat": "Errors (5xx) /s",
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 11
-      },
-      "id": 6,
-      "title": "Execution Duration Percentiles (ms)",
-      "type": "timeseries",
-      "options": {
-        "tooltip": {
-          "mode": "multi"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "fillOpacity": 10
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_server_requests_seconds_bucket{uri=~\"/auth/login.*\"}[1m]))) * 1000",
-          "legendFormat": "p99 Latency (ms)",
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{uri=~\"/auth/login.*\"}[1m]))) * 1000",
-          "legendFormat": "p95 Latency (ms)",
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.50, sum by (le) (rate(http_server_requests_seconds_bucket{uri=~\"/auth/login.*\"}[1m]))) * 1000",
-          "legendFormat": "p50 Latency (ms)",
-          "refId": "C"
-        }
-      ]
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 19
-      },
-      "id": 103,
-      "title": "🔗 Downstream Feign Client & Concorrência",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 20
-      },
-      "id": 7,
-      "title": "Downstream Core App HTTP Latency (ms)",
-      "type": "timeseries",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "fillOpacity": 15
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "avg(http_server_requests_seconds_sum{uri=~\"/auth/login.*\"} / (http_server_requests_seconds_count{uri=~\"/auth/login.*\"} or vector(1))) * 1000",
-          "legendFormat": "Feign HTTP Roundtrip",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 20
-      },
-      "id": 8,
-      "title": "Concurrent Executions (Active Containers)",
-      "type": "timeseries",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "fillOpacity": 20
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum(aws_lambda_concurrent_executions_sum{function_name=~\"repairshop-lambda-auth.*\"}) or vector(1)",
-          "legendFormat": "Concurrent Instances",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 28
-      },
-      "id": 104,
-      "title": "📜 Real-Time Logs & Traces Correlation (Loki + OpenTelemetry)",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "loki",
-        "uid": "Loki"
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 29
-      },
-      "id": 9,
-      "title": "Lambda Auth Real-Time Execution Logs",
-      "type": "logs",
-      "options": {
-        "enableLogDetails": true,
-        "showLabels": false,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true,
-        "showCommonLabels": false,
-        "prettifyLogMessage": true
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "loki",
-            "uid": "Loki"
-          },
-          "editorMode": "code",
-          "expr": "{job=~\"repairshop.*|.*auth.*\"} | json",
-          "refId": "A"
-        }
-      ]
-    }
-  ],
-  "refresh": "5s",
-  "schemaVersion": 38,
-  "style": "dark",
-  "tags": [
-    "repairshop",
-    "lambda",
-    "auth",
-    "serverless",
-    "opentelemetry"
-  ],
-  "time": {
-    "from": "now-15m",
-    "to": "now"
-  },
-  "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m"
-    ]
-  },
-  "timezone": "browser",
-  "title": "RepairShop - Lambda Auth Observability",
-  "uid": "repairshop-lambda-auth",
-  "version": 1
+    "annotations":  {
+                        "list":  [
+                                     {
+                                         "hide":  true,
+                                         "builtIn":  1,
+                                         "datasource":  {
+                                                            "type":  "grafana",
+                                                            "uid":  "-- Grafana --"
+                                                        },
+                                         "type":  "dashboard",
+                                         "name":  "Annotations \u0026 Alerts",
+                                         "enable":  true
+                                     }
+                                 ]
+                    },
+    "editable":  true,
+    "fiscalYearStartMonth":  0,
+    "graphTooltip":  1,
+    "id":  null,
+    "links":  [
+                  {
+                      "type":  "link",
+                      "icon":  "apps",
+                      "title":  "🌐 Overview",
+                      "tooltip":  "Visão consolidada de todos os microsserviços",
+                      "url":  "/d/repairshop-overview",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "chart-line",
+                      "title":  "📈 Executive KPIs",
+                      "tooltip":  "Dashboard executivo e KPIs de negócio (Fase 4)",
+                      "url":  "/d/repairshop-business-metrics",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "bolt",
+                      "title":  "⚡ Lambda Auth",
+                      "tooltip":  "Observabilidade de Autenticação e Lambda Auth",
+                      "url":  "/d/repairshop-lambda-auth",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "cog",
+                      "title":  "🛠️ OS \u0026 Exec (Métricas)",
+                      "tooltip":  "service-order-execution-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-os-execution",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 OS \u0026 Exec (Logs/Traces)",
+                      "tooltip":  "service-order-execution-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-os-execution-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "credit-card",
+                      "title":  "💳 Payment (Métricas)",
+                      "tooltip":  "payment-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-payment",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 Payment (Logs/Traces)",
+                      "tooltip":  "payment-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-payment-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "users-alt",
+                      "title":  "📋 Register (Métricas)",
+                      "tooltip":  "register-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-register",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 Register (Logs/Traces)",
+                      "tooltip":  "register-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-register-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "bell",
+                      "title":  "🔔 Notification (Métricas)",
+                      "tooltip":  "notification-service Metrics \u0026 Health",
+                      "url":  "/d/repairshop-notification",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "doc",
+                      "title":  "📜 Notification (Logs/Traces)",
+                      "tooltip":  "notification-service Logs \u0026 Traces",
+                      "url":  "/d/repairshop-notification-logs-traces",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  false,
+                      "tags":  [
+
+                               ]
+                  },
+                  {
+                      "type":  "link",
+                      "icon":  "external link",
+                      "title":  "🔍 Jaeger UI",
+                      "tooltip":  "Interface direta do Jaeger Distributed Tracing",
+                      "url":  "http://localhost:16686",
+                      "asDropdown":  false,
+                      "includeVars":  false,
+                      "keepTime":  true,
+                      "targetBlank":  true,
+                      "tags":  [
+
+                               ]
+                  }
+              ],
+    "liveNow":  false,
+    "panels":  [
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  0,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  100,
+                       "title":  "⚡ Autenticação Lambda Auth ➔ register-service \u0026 Governança RBAC",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  6,
+                                       "x":  0,
+                                       "h":  3
+                                   },
+                       "id":  1,
+                       "title":  "Total Chamadas Auth (/auth/login \u0026 /register)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "blue"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "short"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(aws_lambda_invocations_sum{function_name=~\"repairshop-lambda-auth.*\"}) or sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"register-service(:.*)?\", uri=~\"/auth/.*\"} or http_server_requests_seconds_count{job=\"repairshop-actuator\", application=\"register-service\", uri=~\"/auth/.*\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "Auth Calls",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  6,
+                                       "x":  6,
+                                       "h":  3
+                                   },
+                       "id":  2,
+                       "title":  "Bloqueios RBAC / Unauthorized (401/403)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "none",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "orange"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "short"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", status=~\"401|403\"})) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "RBAC 401/403",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  6,
+                                       "x":  12,
+                                       "h":  3
+                                   },
+                       "id":  3,
+                       "title":  "Avg /auth/login Duration (ms)",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "area",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "green"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  500,
+                                                                                                 "color":  "yellow"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  2000,
+                                                                                                 "color":  "red"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "ms"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "(avg(aws_lambda_duration_milliseconds_sum / (aws_lambda_duration_milliseconds_count or vector(1))) or (sum(max by (instance, uri, method, status) (http_server_requests_seconds_sum{job=\"repairshop-actuator\", instance=~\"register-service(:.*)?\", uri=\"/auth/login\"})) / sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"register-service(:.*)?\", uri=\"/auth/login\"})) * 1000)) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "Login Avg ms",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  6,
+                                       "x":  18,
+                                       "h":  3
+                                   },
+                       "id":  4,
+                       "title":  "Lambda Throttles",
+                       "type":  "stat",
+                       "options":  {
+                                       "colorMode":  "value",
+                                       "graphMode":  "none",
+                                       "justifyMode":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "textMode":  "auto"
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "mappings":  [
+
+                                                                         ],
+                                                            "noValue":  "0",
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "green"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  1,
+                                                                                                 "color":  "red"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "short"
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum(aws_lambda_throttles_sum{function_name=~\"repairshop-lambda-auth.*\"}) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "Throttles",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  4,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  101,
+                       "title":  "🎛️ Indicadores de Disponibilidade \u0026 Memória",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  5,
+                                       "w":  8,
+                                       "x":  0,
+                                       "h":  5
+                                   },
+                       "id":  11,
+                       "title":  "🛡️ Taxa de Sucesso Auth (%)",
+                       "type":  "gauge",
+                       "options":  {
+                                       "orientation":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "showThresholdLabels":  false,
+                                       "showThresholdMarkers":  true,
+                                       "text":  {
+
+                                                }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "min":  0,
+                                                            "max":  100,
+                                                            "unit":  "percent",
+                                                            "noValue":  "0",
+                                                            "color":  {
+                                                                          "mode":  "thresholds"
+                                                                      },
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "#E24D42"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  95,
+                                                                                                 "color":  "#EAB839"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  99,
+                                                                                                 "color":  "#56A64B"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "100 - ((sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{instance=~\"register-service(:.*)?\", uri=~\"/auth/.*\", status=~\"5..\"})) / (sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{instance=~\"register-service(:.*)?\", uri=~\"/auth/.*\"})) or vector(1))) * 100) or vector(100)",
+                                           "instant":  true,
+                                           "legendFormat":  "Success %",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  5,
+                                       "w":  8,
+                                       "x":  8,
+                                       "h":  5
+                                   },
+                       "id":  12,
+                       "title":  "⏱️ Latência Média /auth/login (ms)",
+                       "type":  "gauge",
+                       "options":  {
+                                       "orientation":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "showThresholdLabels":  false,
+                                       "showThresholdMarkers":  true,
+                                       "text":  {
+
+                                                }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "min":  0,
+                                                            "max":  3000,
+                                                            "unit":  "ms",
+                                                            "noValue":  "0",
+                                                            "color":  {
+                                                                          "mode":  "thresholds"
+                                                                      },
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "#56A64B"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  500,
+                                                                                                 "color":  "#EAB839"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  2000,
+                                                                                                 "color":  "#E24D42"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "(avg(aws_lambda_duration_milliseconds_sum / (aws_lambda_duration_milliseconds_count or vector(1))) or (sum(max by (instance, uri, method, status) (http_server_requests_seconds_sum{job=\"repairshop-actuator\", instance=~\"register-service(:.*)?\", uri=\"/auth/login\"})) / sum(max by (instance, uri, method, status) (http_server_requests_seconds_count{job=\"repairshop-actuator\", instance=~\"register-service(:.*)?\", uri=\"/auth/login\"})) * 1000)) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "Duration ms",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  5,
+                                       "w":  8,
+                                       "x":  16,
+                                       "h":  5
+                                   },
+                       "id":  13,
+                       "title":  "🧠 register-service Heap vs 512MB (%)",
+                       "type":  "gauge",
+                       "options":  {
+                                       "orientation":  "auto",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "lastNotNull"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "showThresholdLabels":  false,
+                                       "showThresholdMarkers":  true,
+                                       "text":  {
+
+                                                }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "min":  0,
+                                                            "max":  100,
+                                                            "unit":  "percent",
+                                                            "noValue":  "0",
+                                                            "color":  {
+                                                                          "mode":  "thresholds"
+                                                                      },
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "#56A64B"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  70,
+                                                                                                 "color":  "#EAB839"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  90,
+                                                                                                 "color":  "#E24D42"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "((sum(max by (instance, id) (jvm_memory_used_bytes{instance=~\"register-service(:.*)?\", area=\"heap\"})) / (512 * 1024 * 1024)) * 100) or vector(0)",
+                                           "instant":  true,
+                                           "legendFormat":  "Heap %",
+                                           "range":  false,
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   },
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  10,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  102,
+                       "title":  "📈 Taxa de Requisições Auth/RBAC \u0026 Latência Percentil",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  11,
+                                       "w":  12,
+                                       "x":  0,
+                                       "h":  8
+                                   },
+                       "id":  5,
+                       "title":  "Auth \u0026 RBAC Rate (req/s)",
+                       "type":  "timeseries",
+                       "options":  {
+                                       "tooltip":  {
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "reqps",
+                                                            "custom":  {
+                                                                           "lineInterpolation":  "smooth",
+                                                                           "drawStyle":  "line",
+                                                                           "fillOpacity":  15
+                                                                       }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum by (uri, status) (max by (instance, uri, method, status) (rate(http_server_requests_seconds_count{instance=~\"register-service(:.*)?\", uri=~\"/auth/.*\"}[1m])))",
+                                           "instant":  false,
+                                           "legendFormat":  "{{status}} {{uri}}",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "sum by (instance, status) (max by (instance, uri, method, status) (rate(http_server_requests_seconds_count{status=~\"401|403\"}[1m])))",
+                                           "instant":  false,
+                                           "legendFormat":  "RBAC {{status}} ({{instance}})",
+                                           "range":  true,
+                                           "refId":  "B"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "prometheus",
+                                          "uid":  "Prometheus"
+                                      },
+                       "gridPos":  {
+                                       "y":  11,
+                                       "w":  12,
+                                       "x":  12,
+                                       "h":  8
+                                   },
+                       "id":  6,
+                       "title":  "Auth Downstream Latency (Avg \u0026 p95 em ms)",
+                       "type":  "timeseries",
+                       "options":  {
+                                       "tooltip":  {
+                                                       "mode":  "multi"
+                                                   }
+                                   },
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "unit":  "ms",
+                                                            "custom":  {
+                                                                           "lineInterpolation":  "smooth",
+                                                                           "drawStyle":  "line",
+                                                                           "fillOpacity":  10
+                                                                       }
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "(sum(max by (instance, uri, method, status) (rate(http_server_requests_seconds_sum{instance=~\"register-service(:.*)?\", uri=~\"/auth/.*\"}[1m]))) / sum(max by (instance, uri, method, status) (rate(http_server_requests_seconds_count{instance=~\"register-service(:.*)?\", uri=~\"/auth/.*\"}[1m])))) * 1000",
+                                           "instant":  false,
+                                           "legendFormat":  "Avg Latency (ms)",
+                                           "range":  true,
+                                           "refId":  "A"
+                                       },
+                                       {
+                                           "datasource":  {
+                                                              "type":  "prometheus",
+                                                              "uid":  "Prometheus"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "histogram_quantile(0.95, sum by (le) (max by (le, instance, uri, method, status) (rate(http_server_requests_seconds_bucket{instance=~\"register-service(:.*)?\", uri=~\"/auth/.*\"}[1m])))) * 1000",
+                                           "instant":  false,
+                                           "legendFormat":  "p95 Latency (ms)",
+                                           "range":  true,
+                                           "refId":  "B"
+                                       }
+                                   ]
+                   },
+                   {
+                       "collapsed":  false,
+                       "gridPos":  {
+                                       "y":  19,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  1
+                                   },
+                       "id":  103,
+                       "title":  "🔍 Traces \u0026 Logs de Autenticação (register-service)",
+                       "type":  "row"
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "jaeger",
+                                          "uid":  "Jaeger"
+                                      },
+                       "gridPos":  {
+                                       "y":  20,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  10
+                                   },
+                       "id":  7,
+                       "title":  "Traces de Autenticação — register-service (Jaeger)",
+                       "type":  "table",
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "custom":  {
+                                                                           "displayMode":  "auto",
+                                                                           "align":  "auto"
+                                                                       }
+                                                        },
+                                           "overrides":  [
+                                                             {
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "links",
+                                                                                        "value":  [
+                                                                                                      {
+                                                                                                          "targetBlank":  true,
+                                                                                                          "title":  "🔍 Abrir Waterfall do Trace no Jaeger",
+                                                                                                          "url":  "http://localhost:16686/trace/${__data.fields.traceID}"
+                                                                                                      }
+                                                                                                  ]
+                                                                                    }
+                                                                                ],
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "traceID"
+                                                                             }
+                                                             },
+                                                             {
+                                                                 "properties":  [
+                                                                                    {
+                                                                                        "id":  "unit",
+                                                                                        "value":  "µs"
+                                                                                    }
+                                                                                ],
+                                                                 "matcher":  {
+                                                                                 "id":  "byName",
+                                                                                 "options":  "duration"
+                                                                             }
+                                                             }
+                                                         ]
+                                       },
+                       "options":  {
+                                       "footer":  {
+                                                      "enablePagination":  true,
+                                                      "show":  true,
+                                                      "reducer":  [
+                                                                      "count"
+                                                                  ],
+                                                      "fields":  "",
+                                                      "countRows":  true
+                                                  },
+                                       "showHeader":  true,
+                                       "sortBy":  [
+                                                      {
+                                                          "displayName":  "startTime",
+                                                          "desc":  true
+                                                      }
+                                                  ]
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "jaeger",
+                                                              "uid":  "Jaeger"
+                                                          },
+                                           "limit":  25,
+                                           "queryType":  "search",
+                                           "refId":  "A",
+                                           "service":  "register-service"
+                                       }
+                                   ]
+                   },
+                   {
+                       "datasource":  {
+                                          "type":  "loki",
+                                          "uid":  "Loki"
+                                      },
+                       "gridPos":  {
+                                       "y":  30,
+                                       "w":  24,
+                                       "x":  0,
+                                       "h":  12
+                                   },
+                       "id":  8,
+                       "title":  "📜 Logs de Autenticação / Segurança (Loki — register-service)",
+                       "type":  "logs",
+                       "options":  {
+                                       "enableLogDetails":  true,
+                                       "showLabels":  false,
+                                       "showTime":  true,
+                                       "sortOrder":  "Descending",
+                                       "wrapLogMessage":  true,
+                                       "showCommonLabels":  false,
+                                       "prettifyLogMessage":  true
+                                   },
+                       "targets":  [
+                                       {
+                                           "datasource":  {
+                                                              "type":  "loki",
+                                                              "uid":  "Loki"
+                                                          },
+                                           "editorMode":  "code",
+                                           "expr":  "{job=\"register-service\"} | json | line_format \"[{{.severity}}] {{ if .traceid }}[trace={{.traceid}}] {{ end }}{{ if .instrumentation_scope_name }}({{.instrumentation_scope_name}}) {{ end }}{{.body}}\"",
+                                           "maxLines":  300,
+                                           "queryType":  "range",
+                                           "refId":  "A"
+                                       }
+                                   ]
+                   }
+               ],
+    "refresh":  "5s",
+    "schemaVersion":  39,
+    "style":  "dark",
+    "tags":  [
+                 "repairshop",
+                 "lambda",
+                 "auth",
+                 "security",
+                 "observability"
+             ],
+    "time":  {
+                 "to":  "now",
+                 "from":  "now-1h"
+             },
+    "timepicker":  {
+                       "refresh_intervals":  [
+                                                 "5s",
+                                                 "10s",
+                                                 "30s",
+                                                 "1m",
+                                                 "5m"
+                                             ]
+                   },
+    "timezone":  "browser",
+    "title":  "RepairShop - Lambda Auth \u0026 Authentication Observability",
+    "uid":  "repairshop-lambda-auth",
+    "version":  1
 }
