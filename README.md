@@ -132,8 +132,8 @@ O deploy é automatizado em [`.github/workflows/ci.yml`](.github/workflows/ci.ym
 ---
 
 ## Cobertura de testes (SonarQube)
-![Relatório SonarQube 01](docs/sonarqube_01.png)
-![Relatório SonarQube 02](docs/sonarqube_02.png)
+![Relatório SonarQube 01](docs/delivery/sonar/sonarqube_01.png)
+![Relatório SonarQube 02](docs/delivery/sonar/sonarqube_02.png)
 
 
 ---
