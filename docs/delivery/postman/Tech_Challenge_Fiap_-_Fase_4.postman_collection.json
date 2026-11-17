@@ -1,0 +1,1510 @@
+{
+  "info": {
+    "_postman_id": "696d22e8-2432-41d8-91db-2d242dc192da",
+    "name": "RepairShop — Tech Challenge FIAP (Fase 4 — Microsserviços & API Gateway)",
+    "description": "Collection ponta a ponta dos 4 microsserviços do RepairShop (register-service, service-order-execution-service, payment-service, notification-service) e Lambda Auth orquestrados via AWS API Gateway HTTP v2 ou localmente.\n\nContém a ordem cronológica estrita de 28 chamadas validando a Saga completa de atendimento de oficina mecânica.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Autenticação e Identidade (register-service & lambda-auth)",
+      "item": [
+        {
+          "name": "Passo 01 — Registrar Usuário Atendente (ATTENDANT)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Gerador de CPF válido com dígitos verificadores\nfunction generateValidCpf() {\n    let d = [];\n    for (let i = 0; i < 9; i++) {\n        d.push(Math.floor(Math.random() * 10));\n    }\n    let w1 = [10, 9, 8, 7, 6, 5, 4, 3, 2];\n    let s1 = 0;\n    for (let i = 0; i < 9; i++) s1 += d[i] * w1[i];\n    let r1 = s1 % 11;\n    let dv1 = r1 < 2 ? 0 : 11 - r1;\n    d.push(dv1);\n\n    let w2 = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2];\n    let s2 = 0;\n    for (let i = 0; i < 10; i++) s2 += d[i] * w2[i];\n    let r2 = s2 % 11;\n    let dv2 = r2 < 2 ? 0 : 11 - r2;\n    d.push(dv2);\n\n    return d.join('');\n}",
+                  "if (!pm.environment.get('attendant_cpf')) {",
+                  "    const newCpf = generateValidCpf();",
+                  "    pm.environment.set('attendant_cpf', newCpf);",
+                  "    pm.environment.set('attendant_email', 'atendente_' + Date.now() + '@repairshop.com');",
+                  "    console.log('CPF do Atendente gerado:', newCpf);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Administrador Atendente\",\n  \"function\": \"ATTENDANT\",\n  \"cpf\": \"{{attendant_cpf}}\",\n  \"email\": \"{{attendant_email}}\",\n  \"phone\": \"+55 11 98888-7777\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Cria usuário com perfil de Atendente no register-service."
+          }
+        },
+        {
+          "name": "Passo 02 — Registrar Usuário Cliente (CUSTOMER)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Gerador de CPF válido com dígitos verificadores\nfunction generateValidCpf() {\n    let d = [];\n    for (let i = 0; i < 9; i++) {\n        d.push(Math.floor(Math.random() * 10));\n    }\n    let w1 = [10, 9, 8, 7, 6, 5, 4, 3, 2];\n    let s1 = 0;\n    for (let i = 0; i < 9; i++) s1 += d[i] * w1[i];\n    let r1 = s1 % 11;\n    let dv1 = r1 < 2 ? 0 : 11 - r1;\n    d.push(dv1);\n\n    let w2 = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2];\n    let s2 = 0;\n    for (let i = 0; i < 10; i++) s2 += d[i] * w2[i];\n    let r2 = s2 % 11;\n    let dv2 = r2 < 2 ? 0 : 11 - r2;\n    d.push(dv2);\n\n    return d.join('');\n}",
+                  "if (!pm.environment.get('customer_cpf')) {",
+                  "    const newCpf = generateValidCpf();",
+                  "    pm.environment.set('customer_cpf', newCpf);",
+                  "    pm.environment.set('customer_email', 'cliente_' + Date.now() + '@repairshop.com');",
+                  "    console.log('CPF do Cliente gerado:', newCpf);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cliente Proprietário\",\n  \"function\": \"CUSTOMER\",\n  \"cpf\": \"{{customer_cpf}}\",\n  \"email\": \"{{customer_email}}\",\n  \"phone\": \"+55 11 97777-6666\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Cria usuário com perfil de Cliente no register-service."
+          }
+        },
+        {
+          "name": "Passo 03 — Login Atendente (Lambda Auth)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.test('Retornou Token JWT', function () {",
+                  "    pm.expect(data.token).to.be.a('string');",
+                  "    pm.environment.set('token_attendant', data.token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cpf\": \"{{attendant_cpf}}\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Autentica o atendente via AWS Lambda Auth (roteado para register-service + cache Redis) e armazena o token na variável token_attendant."
+          }
+        },
+        {
+          "name": "Passo 04 — Login Cliente (Lambda Auth)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.test('Retornou Token JWT', function () {",
+                  "    pm.expect(data.token).to.be.a('string');",
+                  "    pm.environment.set('token_customer', data.token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cpf\": \"{{customer_cpf}}\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Autentica o cliente via AWS Lambda Auth e armazena o token na variável token_customer."
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Cadastro de Clientes e Veículos (register-service)",
+      "item": [
+        {
+          "name": "Passo 05 — Teste RBAC Não Autenticado (Espera 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 403 Forbidden', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/customers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers"
+              ]
+            },
+            "description": "Validação de segurança: requisição sem token Bearer deve ser recusada com HTTP 403."
+          }
+        },
+        {
+          "name": "Passo 06 — Criar Cliente (Perfil Atendente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "if (data.id) {",
+                  "    pm.environment.set('customerId', data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cliente Registrado\",\n  \"document\": \"{{customer_cpf}}\",\n  \"email\": \"{{customer_email}}\",\n  \"phone\": \"+55 11 97777-6666\",\n  \"address\": {\n    \"street\": \"Av. Paulista\",\n    \"number\": \"1000\",\n    \"city\": \"São Paulo\",\n    \"state\": \"SP\",\n    \"zipCode\": \"01310-100\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers"
+              ]
+            },
+            "description": "Cadastra os dados completos do cliente no PostgreSQL do register-service."
+          }
+        },
+        {
+          "name": "Passo 07 — Consultar Cliente por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers",
+                "{{customerId}}"
+              ]
+            },
+            "description": "Recupera o registro do cliente com metadados de auditoria."
+          }
+        },
+        {
+          "name": "Passo 08 — Criar Veículo Vinculado ao Cliente",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Gerador de Placa no Padrão Mercosul (ABC1D23)\nfunction generateMercosulPlate() {\n    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';\n    const l1 = letters.charAt(Math.floor(Math.random() * letters.length));\n    const l2 = letters.charAt(Math.floor(Math.random() * letters.length));\n    const l3 = letters.charAt(Math.floor(Math.random() * letters.length));\n    const n1 = Math.floor(Math.random() * 10);\n    const l4 = letters.charAt(Math.floor(Math.random() * letters.length));\n    const n2 = Math.floor(Math.random() * 90 + 10);\n    return `${l1}${l2}${l3}${n1}${l4}${n2}`;\n}",
+                  "if (!pm.environment.get('vehicle_plate')) {",
+                  "    const newPlate = generateMercosulPlate();",
+                  "    pm.environment.set('vehicle_plate', newPlate);",
+                  "    console.log('Placa Mercosul gerada:', newPlate);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "if (data.id) {",
+                  "    pm.environment.set('vehicleId', data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerEmail\": \"{{customer_email}}\",\n  \"plate\": \"{{vehicle_plate}}\",\n  \"brand\": \"Toyota\",\n  \"model\": \"Corolla Hybrid\",\n  \"color\": \"Prata\",\n  \"manufacturingDate\": \"2022-05-20\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vehicles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vehicles"
+              ]
+            },
+            "description": "Cadastra veículo do cliente no register-service."
+          }
+        },
+        {
+          "name": "Passo 09 — Consultar Veículo por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/vehicles/{{vehicleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vehicles",
+                "{{vehicleId}}"
+              ]
+            },
+            "description": "Consulta veículo cadastrado."
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Ordem de Serviço e Diagnóstico (service-order-execution-service)",
+      "item": [
+        {
+          "name": "Passo 10 — Criar Ordem de Serviço em Diagnóstico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "if (data.id) {",
+                  "    pm.environment.set('service_order_id', data.id);",
+                  "}",
+                  "if (data.services && data.services.length > 0) {",
+                  "    pm.environment.set('execution_id', data.services[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"vehicleId\": \"{{vehicleId}}\",\n  \"services\": [\n    {\n      \"basicDescription\": \"OIL_CHANGE\",\n      \"fullDescription\": \"Troca de oleo 5W30 sintetico e filtro de oleo do motor\",\n      \"price\": 250.0,\n      \"estimatedTime\": 1.0,\n      \"insumes\": [\n        {\n          \"name\": \"Oleo 5W30 Sintetico\",\n          \"quantity\": 4,\n          \"unityPrice\": 45.0,\n          \"brand\": \"Mobil\",\n          \"skuId\": \"SKU-OIL-MOBIL\"\n        }\n      ]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/service-orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders"
+              ]
+            },
+            "description": "Cria OS com status inicial IN_DIAGNOSIS no DynamoDB tb-service_order."
+          }
+        },
+        {
+          "name": "Passo 11 — Consultar Ordem de Serviço",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/service-orders/{{service_order_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders",
+                "{{service_order_id}}"
+              ]
+            },
+            "description": "Recupera a OS e a lista de itens/tarefas associadas."
+          }
+        },
+        {
+          "name": "Passo 12 — Adicionar Serviço Extra à OS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const res = pm.response.json();",
+                  "pm.test('Execucao extra criada com sucesso', function () {",
+                  "    pm.expect(res.id).to.not.be.null;",
+                  "    pm.environment.set('extra_execution_id', res.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceOrderId\": \"{{service_order_id}}\",\n  \"basicDescription\": \"WHEEL_ALIGNMENT\",\n  \"fullDescription\": \"Alinhamento 3D e balanceamento computadorizado das 4 rodas\",\n  \"price\": 120.0,\n  \"estimatedTime\": 1.0,\n  \"insumes\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/service-orders/{{service_order_id}}/executions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders",
+                "{{service_order_id}}",
+                "executions"
+              ]
+            },
+            "description": "Adiciona tarefa mecânica complementar à OS em diagnóstico."
+          }
+        },
+        {
+          "name": "Passo 13 — Enviar Orçamento para Aprovação do Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const res = pm.response.json();",
+                  "pm.test('OS em status WAITING_APPROVAL', function () {",
+                  "    pm.expect(res.status).to.eql('WAITING_APPROVAL');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/service-orders/{{service_order_id}}/finish-diagnosis",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders",
+                "{{service_order_id}}",
+                "finish-diagnosis"
+              ]
+            },
+            "description": "Muda o status da OS para WAITING_APPROVAL, disparando evento de notificação."
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Aprovação e Notificação (notification-service via SQS)",
+      "item": [
+        {
+          "name": "Passo 14 — Cliente Aprova Orçamento (Dispara SQS)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const res = pm.response.json();",
+                  "pm.test('Aprovacao enviada para fila SQS com sucesso', function () {",
+                  "    pm.expect(res.approved).to.be.true;",
+                  "    pm.expect(res.status).to.eql('ORCAMENTO_APROVADO');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_customer}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/approval/{{service_order_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "approval",
+                "{{service_order_id}}"
+              ]
+            },
+            "description": "Cliente responde a aprovação do orçamento, publicando mensagem na fila SQS service-order-approval-queue.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approved\": true,\n  \"reason\": \"Orcamento aprovado pelo cliente via app\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Passo 15 — Consultar Histórico de Notificações",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "history"
+              ]
+            },
+            "description": "Verifica o histórico de disparos de e-mail e notificações da OS no notification-service."
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Execução Mecânica da Oficina (service-order-execution-service)",
+      "item": [
+        {
+          "name": "Passo 16 — Confirmar OS Aprovada (Callback SQS)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.test('Status da OS deve ser APPROVED', function () {",
+                  "    pm.expect(data.status).to.be.oneOf(['APPROVED', 'WAITING_APPROVAL', 'IN_EXECUTION']);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/service-orders/{{service_order_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders",
+                "{{service_order_id}}"
+              ]
+            },
+            "description": "Verifica se a OS transicionou para APPROVED via consumo assíncrono da fila SQS."
+          }
+        },
+        {
+          "name": "Passo 17 — Iniciar Execução Física da OS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_EXECUTION\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/service-orders/{{service_order_id}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders",
+                "{{service_order_id}}",
+                "status"
+              ]
+            },
+            "description": "Transiciona o status da OS para IN_EXECUTION."
+          }
+        },
+        {
+          "name": "Passo 18 — Iniciar Tarefa Mecânica (Status PENDING)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('Status da execucao PENDING', function () {",
+                  "    pm.expect(res.status).to.eql('PENDING');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/service-orders/{{service_order_id}}/executions/{{execution_id}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders",
+                "{{service_order_id}}",
+                "executions",
+                "{{execution_id}}",
+                "status"
+              ]
+            },
+            "description": "Mecânico inicia a execução do serviço na bancada/box.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"PENDING\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Passo 19 — Finalizar Tarefa Mecânica (Status FINALIZED)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('Status da execucao FINALIZED', function () {",
+                  "    pm.expect(res.status).to.eql('FINALIZED');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const extraId = pm.environment.get('extra_execution_id');",
+                  "const soId = pm.environment.get('service_order_id');",
+                  "const baseUrl = pm.environment.get('baseUrl');",
+                  "const token = pm.environment.get('token_attendant');",
+                  "if (extraId && soId) {",
+                  "    pm.sendRequest({",
+                  "        url: `${baseUrl}/service-orders/${soId}/executions/${extraId}/status`,",
+                  "        method: 'PATCH',",
+                  "        header: {",
+                  "            'Content-Type': 'application/json',",
+                  "            'Authorization': `Bearer ${token}`",
+                  "        },",
+                  "        body: { mode: 'raw', raw: JSON.stringify({ status: 'FINALIZED' }) }",
+                  "    }, function (err, res) {",
+                  "        console.log('Tarefa extra finalizada:', res.json());",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/service-orders/{{service_order_id}}/executions/{{execution_id}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders",
+                "{{service_order_id}}",
+                "executions",
+                "{{execution_id}}",
+                "status"
+              ]
+            },
+            "description": "Mecânico encerra a execução da tarefa específica.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"FINALIZED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Passo 20 — Finalizar Ordem de Serviço",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK ou 422 (já finalizada via auto-complete)', function () {",
+                  "    pm.expect([200, 422]).to.include(pm.response.code);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    const res = pm.response.json();",
+                  "    pm.test('Status da OS FINALIZED', function () {",
+                  "        pm.expect(res.status).to.eql('FINALIZED');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"FINALIZED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/service-orders/{{service_order_id}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders",
+                "{{service_order_id}}",
+                "status"
+              ]
+            },
+            "description": "Transiciona o status da OS para FINALIZED após conclusão dos reparos."
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Faturamento e Pagamento (payment-service & Mercado Pago)",
+      "item": [
+        {
+          "name": "Passo 21 — Conferir OS Pronta para Faturamento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/service-orders/{{service_order_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders",
+                "{{service_order_id}}"
+              ]
+            },
+            "description": "Verifica os valores finais calculados para faturamento da OS."
+          }
+        },
+        {
+          "name": "Passo 22 — Iniciar Pagamento da OS (payment-service)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "if (data.id || data.paymentId) {",
+                  "    pm.environment.set('payment_id', data.id || data.paymentId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{service_order_id}}\",\n  \"customerId\": \"{{customerId}}\",\n  \"amount\": 370.0,\n  \"paymentMethod\": \"MERCADO_PAGO_QR\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments"
+              ]
+            },
+            "description": "Gera intenção de pagamento / QR Code Mercado Pago persistido no DynamoDB tb-payment."
+          }
+        },
+        {
+          "name": "Passo 23 — Consultar Pagamento por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/{{payment_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "{{payment_id}}"
+              ]
+            },
+            "description": "Consulta o status do pagamento no payment-service."
+          }
+        },
+        {
+          "name": "Passo 24 — Simular Webhook Mercado Pago (Confirmação Pagamento)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{payment_id}}\",\n  \"status\": \"approved\",\n  \"orderId\": \"{{service_order_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/webhook",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "webhook"
+              ]
+            },
+            "description": "Simula a recepção de webhook do gateway Mercado Pago, disparando evento na fila payment-success-queue."
+          }
+        },
+        {
+          "name": "Passo 25 — Confirmar Liquidação da OS (Status PAID)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.test('OS deve estar liquidada em PAID', function () {",
+                  "    pm.expect(data.status).to.be.oneOf(['PAID', 'FINALIZED']);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/service-orders/{{service_order_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders",
+                "{{service_order_id}}"
+              ]
+            },
+            "description": "Valida o encerramento da Saga com a transição da OS para PAID após processamento assíncrono do pagamento."
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Consultas e Métricas Operacionais",
+      "item": [
+        {
+          "name": "Passo 26 — Listar Ordens de Serviço Paginadas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/service-orders?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Lista as ordens de serviço ativas e históricas."
+          }
+        },
+        {
+          "name": "Passo 27 — Métricas de Ordens de Serviço",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/service-orders/metrics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders",
+                "metrics"
+              ]
+            },
+            "description": "Obtém contadores agregados por status da OS."
+          }
+        },
+        {
+          "name": "Passo 28 — Métricas de Execução Mecânica",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_attendant}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/service-orders/executions/metrics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-orders",
+                "executions",
+                "metrics"
+              ]
+            },
+            "description": "Obtém métricas de tempo e quantidade de execuções finalizadas."
+          }
+        }
+      ]
+    }
+  ]
+}
