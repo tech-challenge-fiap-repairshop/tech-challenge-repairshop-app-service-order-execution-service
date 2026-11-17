@@ -141,12 +141,11 @@ O deploy é automatizado em [`.github/workflows/ci.yml`](.github/workflows/ci.ym
 ## Documentação Técnica e Collection do Postman
 
 Este repositório também hospeda o pacote completo de arquitetura, observabilidade e testes de carga da organização:
-
 - **Postman Collections & Environment**:
-  - Collection Principal: [`Repair Shop (Tech Challenge FIAP)`](docs/postman/Repair%20Shop%20%28Tech%20Challenge%20FIAP%29.postman_collection.json)
-  - Collection Completa: [`Tech Challenge FIAP - Completo`](docs/postman/Tech_Challenge_Fiap_-_Completo.postman_collection.json)
-  - Environment Local: [`Local.postman_environment.json`](docs/postman/Local.postman_environment.json)
-  - Guia do Postman: [`docs/postman/README.md`](docs/postman/README.md)
+  - [Como funciona](docs/delivery/postman/README.md)
+  - [Collection - Fase 4](docs/delivery/postman/Tech_Challenge_Fiap_-_Fase_4.postman_collection.json)
+  - [Secrets - Ambiente Produção](docs/delivery/postman/AWS_APIGateway_Prd.postman_environment.json)
+  - [Secrets - Ambiente Local](docs/delivery/postman/Local_Microservices.postman_environment.json)
 - **Dashboards Grafana (11 arquivos JSON completos)**: [`local/observability/grafana/dashboards/`](local/observability/grafana/dashboards/) — inclui [`service-order-execution-observability`](local/observability/grafana/dashboards/repairshop-service-order-execution-observability.json), [`service-order-execution-logs-traces`](local/observability/grafana/dashboards/repairshop-service-order-execution-logs-traces.json) e [`business-metrics`](local/observability/grafana/dashboards/repairshop-business-metrics.json)
 - **Decisões Arquiteturais e RFCs**:
   - [ADRs (`ADR-001` a `ADR-013`)](ADRs/README.md)
