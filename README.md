@@ -148,13 +148,14 @@ Este repositório também hospeda o pacote completo de arquitetura, observabilid
   - [Secrets - Ambiente Local](docs/delivery/postman/Local_Microservices.postman_environment.json)
 - **Dashboards Grafana (11 arquivos JSON completos)**: [`local/observability/grafana/dashboards/`](local/observability/grafana/dashboards/) — inclui [`service-order-execution-observability`](local/observability/grafana/dashboards/repairshop-service-order-execution-observability.json), [`service-order-execution-logs-traces`](local/observability/grafana/dashboards/repairshop-service-order-execution-logs-traces.json) e [`business-metrics`](local/observability/grafana/dashboards/repairshop-business-metrics.json)
 - **Decisões Arquiteturais e RFCs**:
-  - [ADRs (`ADR-001` a `ADR-013`)](ADRs/README.md)
+  - [ADRs (`ADR-001` a `ADR-023`)](ADRs/README.md)
   - [RFCs (`RFC-001` a `RFC-014`)](RFCs/README.md)
 - **Modelagem DDD, Infra e Sequência**:
   - [`Dicionário de Linguagem Ubíqua`](docs/delivery/domain_driven_design/dicionario-linguagem-ubiqua.md)
   - [`Diagrama de Arquitetura`](docs/delivery/clean_arquiteture/diagrama_arquitetura.png) | [`Entidades e Contextos`](docs/delivery/clean_arquiteture/diagrama_entidades_e_contextos.png)
-  - [`Diagrama de Infraestrutura Cloud`](docs/delivery/infrastructure/repairshop-diagrama-infra-cloud.svg) | [`Máquina de Estados`](docs/delivery/infrastructure/status_chain.png)
-  - [`Diagrama de Sequência — Auth e Abertura de OS`](docs/delivery/sequence/diagrama_sequencia_auth_abertura_os.drawio.png)
+  - [`Diagramas de Infraestrutura, Dados, Saga e AWS (Fase 3 e Fase 4)`](docs/delivery/infrastructure/README.md)
+  - [`Máquinas de Estados (OS, Execuções e Execuções Extras)`](docs/delivery/state_machine/README.md)
+  - [`Diagramas de Sequência (Fase 3 e Fase 4)`](docs/delivery/sequence/README.md)
 - **Qualidade, Segurança e Carga**:
   - [`OWASP ZAP Report`](docs/delivery/owaspzap/2026-05-01-ZAP-Report-.html) | [`Locust HPA Stress Test`](docs/delivery/hpa_stress/locustfile.py) | [`SonarQube Analysis`](docs/delivery/sonar/sonarqube_cloud_analysis.pdf)
 - **Repositórios relacionados**: [`infra-db-dynamo`](https://github.com/tech-challenge-fiap-repairshop/tech-challenge-repairshop-infra-db-dynamo) | [`infra-sqs`](https://github.com/tech-challenge-fiap-repairshop/tech-challenge-repairshop-infra-sqs) | [`infra-apigateway`](https://github.com/tech-challenge-fiap-repairshop/tech-challenge-repairshop-infra-apigateway)
